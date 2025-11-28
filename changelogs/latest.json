@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251128-204408",
+  "created_utc": "20251128-205008",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "78ca675",
+    "commit": "8a21ab9",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8811531,
-      "mtime": 1764362595,
-      "sha256": "26be8e18e9a993b4d78925ced204c6fff808fcebce3d09250ffd886dfef19468"
+      "size": 8811887,
+      "mtime": 1764362955,
+      "sha256": "fd8fc07099a1efe17eea1854c554fe5a1ffad34f8db5bc723152f83715c6390e"
     },
     {
       "path": "COMMANDS.md",
@@ -17210,9 +17210,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1912372,
-      "mtime": 1764362296,
-      "sha256": "17c544efff37237daf8572a4c1a12aebba577e326bf15c4d6dbc42541bafc828"
+      "size": 1912577,
+      "mtime": 1764362656,
+      "sha256": "e8233b1147e97d7b339900f5bb260ffbafead5ef9ca0c97df8ce5169bd32190e"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -17483,6 +17483,12 @@
       "size": 1912372,
       "mtime": 1764362296,
       "sha256": "17c544efff37237daf8572a4c1a12aebba577e326bf15c4d6dbc42541bafc828"
+    },
+    {
+      "path": "changelogs/snapshots/20251128-204408.json",
+      "size": 1912577,
+      "mtime": 1764362656,
+      "sha256": "e8233b1147e97d7b339900f5bb260ffbafead5ef9ca0c97df8ce5169bd32190e"
     },
     {
       "path": "config/datasources.yml",
@@ -49747,6 +49753,12 @@
       "sha256": "ee39c097099e6c8df4cfb7e4bf5d8faf63645b49ae459753ea7bac3b0bd096ec"
     },
     {
+      "path": "services/__pycache__/chart_generator.cpython-312.pyc",
+      "size": 26602,
+      "mtime": 1764362990,
+      "sha256": "1a6220abea9659da18747f16fdda1bc81170ba5169e0dc1b3fefa3cf79eb4bad"
+    },
+    {
       "path": "services/__pycache__/citations.cpython-312.pyc",
       "size": 1799,
       "mtime": 1763811539,
@@ -49907,6 +49919,12 @@
       "size": 3624,
       "mtime": 1763811539,
       "sha256": "7499e9a3c940cc33ed4feae89900d2eed24251c680d902ba9b77267c221c6759"
+    },
+    {
+      "path": "services/__pycache__/llm_content.cpython-312.pyc",
+      "size": 19008,
+      "mtime": 1764362990,
+      "sha256": "2c2ba1b7d71d1fa7d4baaca01a2c67fc572d59fc3b8f8c0b0a8e40546e435d33"
     },
     {
       "path": "services/__pycache__/markdown.cpython-312.pyc",
@@ -50095,6 +50113,12 @@
       "sha256": "b26613ec9e4d6e6b854d667ddb1b89cc2ec500997c3b9848f8c41bc56518ee3c"
     },
     {
+      "path": "services/asset_tagger.py",
+      "size": 18873,
+      "mtime": 1764362989,
+      "sha256": "d004c463e65646f126b25dc3a8e21c33dbd1378cbad10dea84a7c8802f4b47c4"
+    },
+    {
       "path": "services/auth.py",
       "size": 506,
       "mtime": 1759564088,
@@ -50135,6 +50159,12 @@
       "size": 1480,
       "mtime": 1760909854,
       "sha256": "6536c5dda8b33814fe3f7ccca4fc78096815440afa078d55e73149666243a750"
+    },
+    {
+      "path": "services/chart_generator.py",
+      "size": 22170,
+      "mtime": 1764362989,
+      "sha256": "236f9f17c8b6af33dc56d609feb87624f5128aec2c9f173ca255b09cae0d2a07"
     },
     {
       "path": "services/citations.py",
@@ -50233,6 +50263,12 @@
       "sha256": "02ca68adc2636a28a3abf44c89a790223d9bb190516bab24d25654688506ec6c"
     },
     {
+      "path": "services/feedback_loop.py",
+      "size": 20613,
+      "mtime": 1764362989,
+      "sha256": "30ace490eb0cbb2ca1c10a6edb24b30129df612bd52fa7ed6a754068cc0e14ac"
+    },
+    {
       "path": "services/generator.py",
       "size": 14423,
       "mtime": 1763667378,
@@ -50303,6 +50339,12 @@
       "size": 2231,
       "mtime": 1760829421,
       "sha256": "1acd793e28cf63487de9a6089f47ac491458e1c1fe0db3a464159551b923f60c"
+    },
+    {
+      "path": "services/llm_content.py",
+      "size": 16219,
+      "mtime": 1764362989,
+      "sha256": "8dbddf04ab8e2532703c4caa7f088ae48cffa71d6204bb861199657435c3f786"
     },
     {
       "path": "services/markdown.py",
@@ -50645,6 +50687,12 @@
       "size": 1712,
       "mtime": 1760180595,
       "sha256": "ba3c17d80294ce42ef002992388efb8d0c08ff3f84a48a8b8e8bfa64b60fd332"
+    },
+    {
+      "path": "services/template_learner.py",
+      "size": 20485,
+      "mtime": 1764362989,
+      "sha256": "2e41a2b871cb6b9658ddffdf47711504d50bbb5aac6c2ee90fd081e00886a565"
     },
     {
       "path": "services/template_tools.py",
