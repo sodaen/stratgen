@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>StratGen Wizard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:#0b0c10;--panel:#121319;--muted:#8892a0;--fg:#e6edf3;--acc:#5fb3ff;--ok:#23d18b;--warn:#ffd866;--err:#ff6188}
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b0c10,#11131a);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--fg)}
+    header{padding:20px 24px;border-bottom:1px solid #1c2030;background:rgba(0,0,0,.35);backdrop-filter: blur(6px);position:sticky;top:0}
+    header .title{font-weight:700;letter-spacing:.2px}
+    main{max-width:1100px;margin:22px auto;padding:0 16px}
+    .grid{display:grid;gap:16px}
+    .card{background:linear-gradient(180deg,#121319,#0f1016);border:1px solid #1b1e2b;padding:16px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card h3{margin:0 0 10px 0;font-size:16px}
+    label{display:block;margin:10px 0 6px 0;color:var(--muted);font-size:13px}
+    input[type="text"], input[type="url"], input[type="password"], textarea, select{
+      width:100%;padding:10px 12px;border-radius:10px;border:1px solid #1d2233;background:#0d0f16;color:var(--fg);outline:none
+    }
+    input::placeholder,textarea::placeholder{color:#5c6675}
+    textarea{min-height:95px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1}
+    .muted{color:var(--muted)}
+    .btn{display:inline-flex;gap:8px;align-items:center;border:1px solid #24304b;background:linear-gradient(180deg,#172036,#0e1424);color:var(--fg);padding:10px 14px;border-radius:12px;cursor:pointer;text-decoration:none}
+    .btn:hover{border-color:#2c3b5c;transform:translateY(-1px)}
+    .btn.primary{background:linear-gradient(180deg,#1b3a62,#10203a);border-color:#2b5ea8}
+    .btn.success{border-color:#1f6d55}
+    .btn.warn{border-color:#7c5d16}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#152036;border:1px solid #26324b;color:#9bb1cf;font-size:12px}
+    .sep{height:1px;background:linear-gradient(90deg,transparent,#1f2436,transparent);margin:14px 0}
+    .progress{height:6px;background:#101520;border-radius:999px;overflow:hidden;border:1px solid #1c2132}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#2e77ff,#23d18b)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12.5px;white-space:pre-wrap;background:#0d0f16;border:1px solid #1c2132;border-radius:10px;padding:10px;color:#cfe3ff}
+    .two{grid-template-columns:1fr 1fr}
+    footer{padding:30px 24px;color:#66738a}
+    .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
+    .tiny{font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">✨ StratGen – Strategy Deck Wizard</div>
+    <div class="tiny muted">Compose → Render → Download. Uploads & Provider-Pull optional.</div>
+  </header>
+
+  <main class="grid">
+    <!-- Step 0: System -->
+    <section class="card">
+      <h3>0) System</h3>
+      <div class="row">
+        <div>
+          <label>API Base</label>
+          <input id="api" type="url" placeholder="http://127.0.0.1:8011" />
+        </div>
+        <div>
+          <label>API Key (optional)</label>
+          <input id="apikey" type="password" placeholder="STRATGEN_API_KEY …" />
+          <div class="tiny muted">Wird als <code>X-API-Key</code> gesendet und bei Downloads auch als <code>?key=…</code> genutzt.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 1: Briefing -->
+    <section class="card">
+      <h3>1) Briefing</h3>
+      <div class="row">
+        <div>
+          <label>Kunde / Company</label>
+          <input id="customer" type="text" placeholder="Acme GmbH" />
+        </div>
+        <div>
+          <label>Umfang</label>
+          <select id="complexity">
+            <option value="small">klein (~15)</option>
+            <option value="medium">mittel (~50)</option>
+            <option value="large">groß (~120)</option>
+          </select>
+        </div>
+      </div>
+      <label>Topic / Auftragstitel</label>
+      <input id="topic" type="text" placeholder="Go-to-Market 2026 (RAG)" />
+      <label>Briefing / Leitfrage(n)</label>
+      <textarea id="query" placeholder="ISO27001, SOC2, ROI < 90 Tage …"></textarea>
+      <div class="sep"></div>
+      <button id="btnCompose" class="btn primary">Compose starten</button>
+      <span id="composeState" class="pill">idle</span>
+      <div id="composeOut" class="mono" style="display:none"></div>
+    </section>
+
+    <!-- Step 2: Quellen & Assets -->
+    <section class="card">
+      <h3>2) Quellen & Assets</h3>
+      <div class="row">
+        <div>
+          <label>Upload (mehrere Dateien möglich)</label>
+          <input id="files" type="file" multiple />
+          <div class="tiny muted">Upload zu <code>/research/upload?customer_name=…&embed=0</code></div>
+          <div style="margin-top:8px">
+            <button id="btnUpload" class="btn">Upload starten</button>
+            <span id="uploadState" class="pill">idle</span>
+          </div>
+        </div>
+        <div>
+          <label>Provider Pull</label>
+          <div class="row">
+            <label><input type="checkbox" id="prov_statista" checked /> statista</label>
+            <label><input type="checkbox" id="prov_brandwatch" /> brandwatch</label>
+            <label><input type="checkbox" id="prov_talkwalker" /> talkwalker</label>
+          </div>
+          <div style="margin-top:8px">
+            <button id="btnPull" class="btn">Daten ziehen</button>
+            <span id="pullState" class="pill">idle</span>
+          </div>
+          <div class="tiny muted">Nutzt <code>/providers/pull?provider=…&customer_name=…&limit=3&embed=0</code></div>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <div>
+          <button id="btnListDS" class="btn">Datasources anzeigen</button>
+          <span id="dsState" class="pill">idle</span>
+        </div>
+      </div>
+      <div id="dsOut" class="mono" style="display:none"></div>
+    </section>
+
+    <!-- Step 3: Stil & Marke (Placeholders) -->
+    <section class="card">
+      <h3>3) Stil & Marke</h3>
+      <div class="row">
+        <div>
+          <label>Brand Style</label>
+          <select id="style">
+            <option value="brand">Brand</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </div>
+        <div>
+          <label>Logo (optional)</label>
+          <input id="logo" type="file" accept="image/*" />
+        </div>
+      </div>
+      <div class="tiny muted">Hinweis: Style/Logo sind aktuell nur UI-Platzhalter; Render nutzt deine Template-Defaults.</div>
+    </section>
+
+    <!-- Step 4: Übersicht & Render -->
+    <section class="card">
+      <h3>4) Übersicht & Render</h3>
+      <div class="row">
+        <div>
+          <label>Render-Dateiname (Basename)</label>
+          <input id="outname" type="text" placeholder="deck-20250101-120000.pptx" />
+          <div class="tiny muted">Wird serverseitig unter <code>data/exports/&lt;basename&gt;</code> gespeichert.</div>
+        </div>
+        <div style="align-self:end">
+          <button id="btnRender" class="btn success">Render starten</button>
+          <span id="renderState" class="pill">idle</span>
+        </div>
+      </div>
+      <div class="mono" id="renderPreview" style="display:none"></div>
+    </section>
+
+    <!-- Step 5: Fortschritt & Download -->
+    <section class="card">
+      <h3>5) Fortschritt & Download</h3>
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <div class="row" style="margin-top:10px">
+        <button id="btnPoll" class="btn">Polling starten</button>
+        <button id="btnStop" class="btn warn">Polling stoppen</button>
+        <a id="dl" class="btn" href="#" download>Download</a>
+        <span id="pollState" class="pill">idle</span>
+      </div>
+      <div class="mono" id="log" style="margin-top:10px;display:none"></div>
+    </section>
+
+    <footer class="tiny muted">
+      StratGen Wizard • nutzt bestehende API-Endpunkte • Daten werden im Browser (localStorage) zwischengespeichert.
+    </footer>
+  </main>
+
+<script>
+(() => {
+  const $ = sel => document.querySelector(sel);
+  const state = {
+    comp: null,
+    renderTarget: null,
+    pollTimer: null,
+  };
+
+  // Load/persist minimal form state
+  const initFields = () => {
+    $('#api').value     = localStorage.getItem('ui.api') || (location.origin.includes('http') ? location.origin : 'http://127.0.0.1:8011');
+    $('#apikey').value  = localStorage.getItem('ui.key') || '';
+    $('#customer').value= localStorage.getItem('ui.customer') || 'Acme GmbH';
+    $('#topic').value   = localStorage.getItem('ui.topic') || 'Go-to-Market 2026 (RAG)';
+    $('#query').value   = localStorage.getItem('ui.query') || 'ISO27001 SOC2 ROI 90 Tage';
+    $('#complexity').value = localStorage.getItem('ui.cx') || 'medium';
+    $('#outname').value = localStorage.getItem('ui.outname') || '';
+    $('#style').value   = localStorage.getItem('ui.style') || 'brand';
+
+    ['api','apikey','customer','topic','query','complexity','outname','style'].forEach(id => {
+      $('#'+id).addEventListener('input', () => {
+        localStorage.setItem('ui.'+ (id==='apikey'?'key':id), $('#'+id).value);
+      });
+    });
+  };
+
+  const headers = () => {
+    const h = {'Content-Type':'application/json'};
+    const k = $('#apikey').value.trim();
+    if (k) h['X-API-Key'] = k;
+    return h;
+  };
+
+  const apiBase = () => ($('#api').value || '').replace(/\/+$/,'') || 'http://127.0.0.1:8011';
+
+  const setPill = (id, text, cls='') => {
+    const el = $('#'+id); el.textContent = text; el.className = 'pill ' + (cls||'');
+  };
+  const show = (id, on=true) => { const el=$('#'+id); el.style.display = on ? '' : 'none'; };
+  const log = (msg) => { const el = $('#log'); el.textContent += msg + "\n"; show('log', true); };
+
+  // Compose
+  $('#btnCompose').addEventListener('click', async () => {
+    try{
+      setPill('composeState','läuft…');
+      const body = {
+        customer_name: $('#customer').value.trim(),
+        topic: $('#topic').value.trim(),
+        query: $('#query').value.trim() + ' | complexity:' + $('#complexity').value
+      };
+      const res = await fetch(apiBase() + '/content/compose', {method:'POST', headers: headers(), body: JSON.stringify(body)});
+      const data = await res.json();
+      state.comp = data;
+      $('#composeOut').textContent = JSON.stringify({title:data.title, plan_len:(data.plan||[]).length}, null, 2);
+      show('composeOut', true);
+      setPill('composeState', res.ok ? 'ok' : ('HTTP '+res.status), res.ok ? 'ok':'err');
+
+      // Pre-fill render preview + basename
+      const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,12);
+      const basename = ($('#outname').value.trim() || 'deck-'+ts+'.pptx');
+      $('#outname').value = basename;
+      localStorage.setItem('ui.outname', basename);
+
+      const renderBody = {
+        title: data.title || ($('#topic').value.trim() + ' – ' + $('#customer').value.trim()),
+        out_path: 'data/exports/' + basename,
+        plan: Array.isArray(data.plan) ? data.plan : []
+      };
+      $('#renderPreview').textContent = JSON.stringify(renderBody, null, 2);
+      show('renderPreview', true);
+    }catch(e){
+      setPill('composeState','Fehler','err'); log('[compose] '+ e);
+    }
+  });
+
+  // Uploads
+  $('#btnUpload').addEventListener('click', async () => {
+    const files = $('#files').files;
+    if (!files || !files.length) { setPill('uploadState','keine Dateien','warn'); return; }
+    setPill('uploadState','läuft…');
+    const key = $('#apikey').value.trim();
+    for (const f of files) {
+      const fd = new FormData();
+      fd.append('file', f, f.name);
+      const url = apiBase() + '/research/upload?customer_name=' + encodeURIComponent($('#customer').value.trim()) + '&embed=0';
+      try {
+        const res = await fetch(url, { method:'POST', headers: key? {'X-API-Key': key}:undefined, body: fd });
+        const j = await res.json().catch(()=>({}));
+        log('[upload] '+ f.name + ' -> ' + (res.ok?'ok':'HTTP '+res.status));
+      } catch(e){ log('[upload] '+ f.name + ' -> Fehler: '+e); }
+    }
+    setPill('uploadState','fertig','ok');
+  });
+
+  // Provider Pull
+  $('#btnPull').addEventListener('click', async () => {
+    setPill('pullState','läuft…');
+    const key = $('#apikey').value.trim();
+    const provs = [
+      $('#prov_statista').checked && 'statista',
+      $('#prov_brandwatch').checked && 'brandwatch',
+      $('#prov_talkwalker').checked && 'talkwalker'
+    ].filter(Boolean);
+    for (const p of provs) {
+      const url = apiBase() + '/providers/pull?provider=' + encodeURIComponent(p) + '&customer_name=' + encodeURIComponent($('#customer').value.trim()) + '&limit=3&embed=0';
+      try{
+        const res = await fetch(url, {method:'POST', headers: key? {'X-API-Key':key}:undefined});
+        log('[pull] '+p+' -> '+(res.ok?'ok':'HTTP '+res.status));
+      }catch(e){ log('[pull] '+p+' -> Fehler: '+e); }
+    }
+    setPill('pullState','fertig','ok');
+  });
+
+  // Datasource list
+  $('#btnListDS').addEventListener('click', async () => {
+    try{
+      setPill('dsState','lädt…');
+      const url = apiBase() + '/datasources/list?customer=' + encodeURIComponent($('#customer').value.trim()) + '&limit=8';
+      const res = await fetch(url, {headers: headers()});
+      const j = await res.json();
+      $('#dsOut').textContent = JSON.stringify(j, null, 2);
+      show('dsOut', true);
+      setPill('dsState', res.ok?'ok':('HTTP '+res.status), res.ok?'ok':'err');
+    }catch(e){ setPill('dsState','Fehler','err'); log('[ds] '+e); }
+  });
+
+  // Render
+  $('#btnRender').addEventListener('click', async () => {
+    try{
+      if (!state.comp) { setPill('renderState','erst Compose','warn'); return; }
+      setPill('renderState','läuft…');
+      const basename = ($('#outname').value || '').trim();
+      if (!basename || !/\.pptx$/i.test(basename)) { setPill('renderState','basename.pptx fehlt','warn'); return; }
+      const renderBody = {
+        title: state.comp.title || ($('#topic').value.trim() + ' – ' + $('#customer').value.trim()),
+        out_path: 'data/exports/' + basename,
+        plan: Array.isArray(state.comp.plan) ? state.comp.plan : []
+      };
+      $('#renderPreview').textContent = JSON.stringify(renderBody, null, 2); show('renderPreview', true);
+
+      const res = await fetch(apiBase() + '/pptx/render', {method:'POST', headers: headers(), body: JSON.stringify(renderBody)});
+      const j = await res.json().catch(()=>({}));
+      setPill('renderState', res.ok?'ok':('HTTP '+res.status), res.ok?'ok':'err');
+      if (res.ok) {
+        state.renderTarget = basename;
+        log('[render] ' + (j.path || renderBody.out_path));
+      } else {
+        log('[render] Fehler: ' + JSON.stringify(j));
+      }
+    }catch(e){
+      setPill('renderState','Fehler','err'); log('[render] '+e);
+    }
+  });
+
+  // Polling & Download
+  const updateBar = pct => { $('#bar').style.width = Math.max(0, Math.min(100, pct)) + '%'; };
+  $('#btnPoll').addEventListener('click', () => {
+    const basename = state.renderTarget || ($('#outname').value||'').trim();
+    if (!basename) { setPill('pollState','kein Target','warn'); return; }
+    setPill('pollState','polling…');
+    let t0 = Date.now();
+    if (state.pollTimer) clearInterval(state.pollTimer);
+    state.pollTimer = setInterval(async () => {
+      const key = $('#apikey').value.trim();
+      const url = apiBase() + '/exports/download?name=' + encodeURIComponent(basename) + (key?('&key='+encodeURIComponent(key)):'');
+      try {
+        const res = await fetch(url, { method:'HEAD' });
+        const dt = (Date.now()-t0)/1000;
+        const pct = Math.min(95, Math.round(Math.min(1, dt/6)*95)); // simple fake-progress bis bereit
+        updateBar(pct);
+        if (res.ok) {
+          updateBar(100);
+          setPill('pollState','bereit','ok');
+          $('#dl').href = url;
+          $('#dl').setAttribute('download', basename);
+          clearInterval(state.pollTimer);
+          state.pollTimer = null;
+        }
+      } catch(e) {
+        log('[poll] '+e);
+      }
+    }, 800);
+  });
+
+  $('#btnStop').addEventListener('click', () => {
+    if (state.pollTimer) { clearInterval(state.pollTimer); state.pollTimer = null; }
+    setPill('pollState','stopped','warn');
+  });
+
+  initFields();
+})();
+</script>
+</body>
+</html>

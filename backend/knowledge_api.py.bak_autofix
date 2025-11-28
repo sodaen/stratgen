@@ -1,0 +1,282 @@
+from __future__ import annotations
+
+
+from pathlib import Path
+from typing import List, Optional, Union
+
+from fastapi import APIRouter, Query, HTTPException, Body
+from pydantic import BaseModel
+
+# interne Services
+from services import knowledge
+try:
+    # dein FS-Index (war in deinem Repo schon da)
+    from services.knowledge_fs import (
+        ensure_index,
+        ix_search,
+        ix_stats,
+        DEFAULT_KNOWLEDGE_DIRS,
+    )
+except Exception:
+    # Fallback, falls es das Modul mal nicht geben sollte
+    DEFAULT_KNOWLEDGE_DIRS = ["data/knowledge", "data/knowledge/derived"]
+    def ensure_index(dirs: list[str], force: bool = False):
+        return {"ok": True, "dirs": dirs, "forced": force}
+    def ix_search(q: str, k: int = 5):
+        return {"ok": True, "results": []}
+    def ix_stats():
+        return {"ok": True, "stats": {}}
+
+router = APIRouter(tags=["knowledge"])
+
+
+# ----------------- Models -----------------
+
+class IngestReq(BaseModel):
+    # Variante 1: vorhandene Datei ins Knowledge holen
+    path: Optional[str] = None
+    # Variante 2: einen RAW-Eintrag als Knowledge ablegen
+    raw_id: Optional[str] = None
+    target_dir: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+
+class ScanReq(BaseModel):
+    root: Optional[str] = None
+    patterns: Optional[List[str]] = None
+    reindex: bool = False
+
+
+# ----------------- Endpoints -----------------
+
+@router.post("/knowledge/ensure")
+def knowledge_ensure():
+    """legt Tabellen in data/knowledge.sqlite an (falls nicht da)."""
+    return knowledge.ensure_tables()
+
+
+@router.post("/knowledge/ingest")
+def knowledge_ingest(req: IngestReq):
+    """
+    1) {"path": "data/knowledge/xyz.txt"}
+       -> wird 1:1 in SQLite übernommen
+
+    2) {"raw_id": "raw-123.json", "target_dir": "data/knowledge/derived", "tags": [...]}
+       -> nimmt den RAW-Eintrag, schreibt eine TXT darunter und holt die in die DB
+    """
+    # Fall 1: klassisch per Pfad
+    if req.path:
+        out = knowledge.ingest_file(req.path, source="file")
+        if not out.get("ok"):
+            raise HTTPException(status_code=400, detail=out)
+        return out
+
+    # Fall 2: aus RAW erzeugen
+    if req.raw_id:
+        raw_path = Path("data/raw") / req.raw_id
+        if not raw_path.exists():
+            raise HTTPException(status_code=404, detail=f"raw source not found: {raw_path}")
+        import json
+        try:
+            raw_data = json.loads(raw_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"cannot read raw json: {e}")
+
+        target_dir = Path(req.target_dir or "data/knowledge/derived")
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        base = (raw_data.get("filename") or req.raw_id).replace("/", "_").replace("\\", "_")
+        out_txt = target_dir / f"{base}.txt"
+
+        lines: list[str] = []
+        lines.append(f"# RAW IMPORT: {raw_data.get('filename','')}")
+        lines.append(f"Quelle: {raw_data.get('source','')}")
+        tags = req.tags or raw_data.get("tags", [])
+        if tags:
+            lines.append("Tags: " + ", ".join(tags))
+        note = raw_data.get("note") or ""
+        if note:
+            lines.append("")
+            lines.append("Notiz:")
+            lines.append(note)
+
+        out_txt.write_text("\n".join(lines), encoding="utf-8")
+
+        # jetzt normal ins Knowledge
+        ing = knowledge.ingest_file(str(out_txt), source="raw")
+        return {
+            "ok": True,
+            "from_raw": req.raw_id,
+            "ingested_path": str(out_txt),
+            "ingest_result": ing,
+        }
+
+    raise HTTPException(status_code=400, detail="need either 'path' or 'raw_id'")
+
+
+@router.post("/knowledge/scan")
+def knowledge_scan(body: Union[ScanReq, List[str], None] = Body(None)):
+    """
+    Alte Clients: POST /knowledge/scan  (ohne Body)
+    Manchmal: POST /knowledge/scan ["data/knowledge/derived"]
+    Neu:      POST /knowledge/scan {"root": "...", "patterns": ["*.txt"]}
+
+    Wir akzeptieren alle drei, rufen aber aktuell nur knowledge.scan_dir(root=...) auf.
+    """
+    # 1) ohne Body -> Standard-Ordner
+    if body is None:
+        return knowledge.scan_dir(root="data/knowledge")
+
+    # 2) Liste von Roots -> für jedes root scannen
+    if isinstance(body, list):
+        results = []
+        for r in body:
+            results.append(knowledge.scan_dir(root=r))
+        return {"ok": True, "results": results}
+
+    # 3) unsere neue Form
+    root = body.root or "data/knowledge"
+    # patterns/reindex sind im Moment noch nicht im services-Layer, deswegen ignorieren wir sie erstmal
+    return knowledge.scan_dir(root=root)
+
+
+@router.post("/knowledge/embed")
+def knowledge_embed(model: str | None = Query(None, description="optional: Modellname (z.B. ollama:all-minilm)")):
+    try:
+        return knowledge.embed_all(model=model)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"knowledge embed error: {e}")
+
+
+@router.post("/knowledge/reindex")
+def knowledge_reindex(roots: str | None = Query(None, description="CSV: data/knowledge,data/raw,data/exports")):
+    dirs = [p.strip() for p in (roots.split(",") if roots else DEFAULT_KNOWLEDGE_DIRS) if p.strip()]
+    return ensure_index(dirs=dirs, force=True)
+
+
+@router.get("/knowledge/search")
+def knowledge_search(q: str = Query(...), k: int = Query(5, ge=1, le=50)):
+    """
+    Filesystem-basierte Suche (der Teil, den du mit den vielen TXT im Repo schon hattest).
+    """
+    return ix_search(q, k=k)
+
+
+@router.get("/knowledge/stats")
+def knowledge_stats():
+    try:
+        ensure_index(dirs=DEFAULT_KNOWLEDGE_DIRS, force=False)
+    except TypeError:
+        ensure_index(DEFAULT_KNOWLEDGE_DIRS, False)
+    return ix_stats()
+
+
+@router.get("/knowledge/stats_db")
+def knowledge_stats_db():
+    return knowledge.stats()
+
+
+@router.get("/knowledge/search_db")
+def knowledge_search_db(q: str = Query(...), limit: int = Query(5, ge=1, le=50)):
+    return knowledge.search(q, limit=limit)
+
+
+from pathlib import Path
+import time
+from fastapi import Query
+
+EMB_DIR = Path("data/knowledge/embeddings")
+DERIVED_DIR = Path("data/knowledge/derived")
+EMB_DIR.mkdir(parents=True, exist_ok=True)
+
+@router.post("/knowledge/embed_local")
+def embed_local(model: str = Query("sbert:sentence-transformers/all-MiniLM-L6-v2")):
+    try:
+        from sentence_transformers import SentenceTransformer
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"sentence-transformers nicht installiert: {e}")
+    # "sbert:..." abstreifen
+    mname = model.split("sbert:")[-1]
+    m = SentenceTransformer(mname)
+
+    files = sorted(DERIVED_DIR.glob("*.txt"))
+    items = []
+    texts = []
+    for fp in files:
+        try:
+            txt = fp.read_text(encoding="utf-8")
+        except:
+            txt = ""
+        texts.append(txt[:20000])  # defensiv begrenzen
+        items.append({"path": str(fp)})
+
+    if not items:
+        return {"ok": True, "model": mname, "embedded": 0, "index_path": None}
+
+    # Einmal batch-encoden
+    vecs = m.encode(texts, normalize_embeddings=True, convert_to_numpy=True)
+
+    index = {
+        "model": mname,
+        "created_at": time.time(),
+        "items": [],
+    }
+    for meta, vec in zip(items, vecs):
+        index["items"].append({
+            "path": meta["path"],
+            "dim": int(vec.shape[0]),
+            "vector": vec.tolist(),
+        })
+
+    short = mname.replace("/", "_")
+    out2 = EMB_DIR / f"{short}.jsonl"
+    # JSONL schreiben (1 Zeile pro Dokument)
+    with out2.open("w", encoding="utf-8") as f:
+        for meta, vec in zip(items, vecs):
+            f.write(json.dumps({"path": meta["path"], "dim": int(vec.shape[0]), "vector": vec.tolist()}, ensure_ascii=False) + "\n")
+    out = out2
+    # (replaced) JSONL wurde bereits geschrieben
+.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"ok": True, "model": mname, "embedded": len(items), "index_path": str(out)}
+
+
+def _load_jsonl_embeddings(path: Path):
+    items = []
+    if not path.exists():
+        return items
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            items.append(json.loads(line))
+        except Exception:
+            pass
+    return items
+
+@router.get("/knowledge/search_semantic")
+def search_semantic(
+    q: str = Query(...),
+    k: int = Query(5, ge=1, le=50),
+    model: str = Query("sbert:sentence-transformers/all-MiniLM-L6-v2"),
+):
+    try:
+        from sentence_transformers import SentenceTransformer
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"SentenceTransformers fehlt: {e}")
+
+    base = model.split(":",1)[-1]
+    short = base.replace("/", "_")
+    emb_path = Path("data/knowledge/embeddings") / f"{short}.jsonl"
+    items = _load_jsonl_embeddings(emb_path)
+    if not items:
+        return {"ok": True, "results": [], "note": "Keine Embeddings gefunden. Erst /knowledge/embed_local aufrufen."}
+
+    m = SentenceTransformer(base)
+    q_vec = m.encode([q], normalize_embeddings=True)[0].tolist()
+
+    def dot(a, b):
+        return float(sum(x*y for x, y in zip(a, b)))
+
+    scores = [(dot(q_vec, it["embedding"]), it["path"]) for it in items]
+    scores.sort(key=lambda t: t[0], reverse=True)
+    results = [{"path": p, "score": s} for s, p in scores[:k]]
+    return {"ok": True, "results": results, "count": len(items)}
+

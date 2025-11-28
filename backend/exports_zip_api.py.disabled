@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+from __future__ import annotations
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
+from pathlib import Path
+from typing import Optional
+import time, json, zipfile, re
+
+router = APIRouter(prefix="/exports", tags=["exports-zip"])
+EXPORTS_DIR = Path("data/exports").resolve()
+
+def _safe_basename(name: str) -> str:
+    # Nur echte Dateinamen zulassen (kein Pfad, keine Traversal)
+    base = Path(name).name
+    if base != name:
+        # falls jemand paths schickt -> nur basename verwenden
+        name = base
+    if not re.fullmatch(r"[^\s].*", name or ""):
+        raise HTTPException(status_code=400, detail="invalid name")
+    return name
+
+def _latest_pptx() -> Path:
+    if not EXPORTS_DIR.exists():
+        raise HTTPException(status_code=404, detail="exports dir missing")
+    pptxs = sorted(
+        (p for p in EXPORTS_DIR.glob("*.pptx") if p.is_file()),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if not pptxs:
+        raise HTTPException(status_code=404, detail="no exports yet")
+    return pptxs[0]
+
+@router.get("/zip")
+def download_zip(name: Optional[str] = Query(default=None, description="Basename der PPTX; wenn leer -> latest")):
+    EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    if name:
+        safe = _safe_basename(name)
+        pptx = (EXPORTS_DIR / safe).resolve()
+        if EXPORTS_DIR not in pptx.parents:
+            raise HTTPException(status_code=400, detail="outside exports dir")
+        if not pptx.exists():
+            raise HTTPException(status_code=404, detail="pptx not found")
+    else:
+        pptx = _latest_pptx()
+
+    # Zip-Dateiname (nur ASCII, robust)
+    stem_ascii = re.sub(r"[^A-Za-z0-9_.-]+", "_", pptx.stem) or "export"
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    zip_path = (EXPORTS_DIR / f"{stem_ascii}-{ts}.zip").resolve()
+
+    meta = {
+        "created_at": time.time(),
+        "pptx_name": pptx.name,
+        "pptx_size": pptx.stat().st_size,
+        "note": "Auto-generated bundle with deck + meta.json",
+    }
+
+    compression = zipfile.ZIP_DEFLATED if hasattr(zipfile, "ZIP_DEFLATED") else zipfile.ZIP_STORED
+    with zipfile.ZipFile(zip_path, "w", compression=compression) as zf:
+        zf.write(pptx, arcname=pptx.name)
+        zf.writestr("meta.json", json.dumps(meta, ensure_ascii=False, indent=2))
+
+    # GET reicht (HEAD ist nicht kritisch für ZIP)
+    return FileResponse(
+        path=str(zip_path),
+        media_type="application/zip",
+        filename=zip_path.name,
+    )

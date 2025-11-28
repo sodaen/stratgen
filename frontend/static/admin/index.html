@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <title>Stratgen Admin – Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap: wrap; }
+    input, select, button { padding:6px 10px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #eee; text-align: left; }
+    .pager { margin-top: 10px; display:flex; gap:8px; align-items:center; }
+    .muted { color:#666; font-size:12px; }
+  </style>
+</head>
+<body>
+  <h1>Admin – Projects</h1>
+
+  <div class="bar">
+    <input id="q" placeholder="Suche (Title/Topic/Customer)" />
+    <select id="sort">
+      <option value="created_desc">Neueste zuerst</option>
+      <option value="created_asc">Älteste zuerst</option>
+      <option value="updated_desc">Zuletzt geändert</option>
+      <option value="updated_asc">Früh geändert</option>
+      <option value="title_asc">Titel A–Z</option>
+      <option value="title_desc">Titel Z–A</option>
+    </select>
+    <select id="page_size">
+      <option>10</option><option selected>20</option><option>50</option><option>100</option>
+    </select>
+    <button id="apply">Anwenden</button>
+    <button id="newproj">Neu</button>
+    <span class="muted">• Aktionen erfordern API-Key:</span>
+    <input id="apikey" placeholder="X-API-Key (z. B. dev)" />
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Titel</th><th>Kunde</th><th>Thema</th><th>Erstellt</th><th>Aktualisiert</th><th>Aktionen</th>
+      </tr>
+    </thead>
+    <tbody id="rows"><tr><td colspan="6">Lade…</td></tr></tbody>
+  </table>
+
+  <div class="pager">
+    <button id="prev">Zurück</button>
+    <span id="pp">Seite 1 / 1</span>
+    <button id="next">Weiter</button>
+  </div>
+
+  <script src="/static/js/analytics.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>

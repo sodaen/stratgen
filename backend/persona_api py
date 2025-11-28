@@ -1,0 +1,101 @@
+# backend/persona_api.py
+from __future__ import annotations
+from fastapi import APIRouter, Body
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+
+from services.rag_pipeline import get_qdrant, get_embedder, COLL
+
+router = APIRouter(prefix="/personas", tags=["personas"])
+
+class PersonaProof(BaseModel):
+    source_id: str
+    text_span: str
+    canonical_url: Optional[str] = None
+
+class Persona(BaseModel):
+    id: str
+    name: str
+    role: str
+    company_size: Optional[str] = None
+    goals: List[str] = []
+    pains: List[str] = []
+    channels: List[str] = []
+    objections: List[str] = []
+    jtbd: List[str] = []
+    proof: List[PersonaProof] = []
+
+class GenerateReq(BaseModel):
+    customer_name: str
+    seed: str = Field(..., description="z. B. 'IT-Entscheider Mittelstand'")
+    count: int = 2
+
+class ListReq(BaseModel):
+    customer_name: str
+
+@router.post("/generate")
+def generate(req: GenerateReq = Body(...)):
+    """
+    Sehr einfacher Stub:
+      - Holt Top-Fundstellen für 'seed' aus Qdrant
+      - Extrahiert rudimentäre Persona-Daten & Proof-Zitate
+    In echt würdest du hier ein Prompt-/Template-gestütztes RAG (LLM) einsetzen.
+    """
+    qdr = get_qdrant()
+    emb = get_embedder()
+
+    from qdrant_client import models as qm
+    vec = emb.embed(req.seed)
+    filt = qm.Filter(
+        should=[
+            qm.FieldCondition(key="customer_name", match=qm.MatchValue(value=req.customer_name)),
+            qm.FieldCondition(key="customer", match=qm.MatchValue(value=req.customer_name)),
+        ]
+    )
+    res = qdr.search(COLL, vec, limit=max(12, req.count*6), with_payload=True, query_filter=filt)
+
+    # Stub-Heuristik → 1 Persona pro ~6 Treffer
+    personas: List[Persona] = []
+    chunk = max(1, len(res) // max(1, req.count))
+    for i in range(req.count):
+        hits = res[i*chunk:(i+1)*chunk]
+        proofs: List[PersonaProof] = []
+        pains, goals, channels, objections, jtbd = set(), set(), set(), set(), set()
+        for p in hits:
+            pl = p.payload or {}
+            txt = (pl.get("text") or "")[:300]
+            proofs.append(PersonaProof(
+                source_id=str(getattr(p, "id", "")),
+                text_span=txt,
+                canonical_url=pl.get("canonical_url"),
+            ))
+            # naive Schlagwort-Heuristik (ersetzen durch echte NER/LLM Labels)
+            if "Preis" in txt or "Budget" in txt: pains.add("Preis-/Budgetdruck")
+            if "Sicherheit" in txt or "Security" in txt: goals.add("IT-Sicherheit erhöhen")
+            if "LinkedIn" in txt: channels.add("LinkedIn")
+            if "Implementierung" in txt: objections.add("Implementierungsaufwand")
+            if "müssen" in txt or "wollen" in txt: jtbd.add("Konkretes Problem effizient lösen")
+
+        personas.append(Persona(
+            id=f"persona-{i+1}",
+            name=f"{req.seed} #{i+1}",
+            role=req.seed,
+            goals=sorted(goals) or ["Effizienz steigern"],
+            pains=sorted(pains) or ["Zeit-/Ressourcenmangel"],
+            channels=sorted(channels) or ["LinkedIn","Website"],
+            objections=sorted(objections) or ["Unklare ROI-Belege"],
+            jtbd=sorted(jtbd) or ["In Kaufphase Risiken reduzieren"],
+            proof=proofs[:5],
+        ))
+
+    return {"ok": True, "personas": [p.model_dump() for p in personas]}
+
+@router.get("/list")
+def list_(customer_name: str):
+    """
+    Optional: Wenn du Personas persistent speichern willst,
+    kannst du sie als 'source_type: persona' ins System schreiben und hier auslesen.
+    Stub: liefert leer zurück.
+    """
+    return {"ok": True, "personas": []}
+

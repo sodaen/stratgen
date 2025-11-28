@@ -1,0 +1,82 @@
+:root{
+  --bg:#0a0b0d; --card:#111316; --text:#e8eaee; --muted:#9aa3ad;
+  --line:#1c2128; --btn:#171a20; --btnText:#e8eaee;
+  --run:#3b82f6; --ok:#22c55e; --wait:#6b7280; --danger:#ef4444;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;background: radial-gradient(1200px 800px at 50% -10%, #0e1115 0%, #0a0b0d 55%);
+  color:var(--text);font:14px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;
+}
+.container{max-width:880px;margin:0 auto;padding:28px 20px 60px}
+.header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px}
+.header img{height:40px} h1{font-weight:700;font-size:20px;margin:0}
+.stack{display:grid;gap:16px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+  border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 2px 18px rgba(0,0,0,.18)}
+label{display:block;margin:.4rem 0 .3rem;color:var(--muted)}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.18);color:var(--text)}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-full{grid-column:1/-1}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--btn); border:1px solid var(--line); color:var(--btnText); padding:10px 14px; border-radius:12px; cursor:pointer;}
+.btn.primary{outline:2px solid rgba(59,130,246,.35)}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--muted)}
+.krow{display:flex;align-items:center;gap:12px}
+.krow input[type="range"]{width:200px}
+
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:22px 1fr;align-items:start;gap:12px;margin:11px 0}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--wait);background:transparent}
+.steps li[data-state="running"] .dot{border-color:var(--run);box-shadow:0 0 0 3px rgba(59,130,246,.15);animation:pulse 1.25s ease-in-out infinite}
+.steps li[data-state="done"] .dot{border-color:var(--ok); background:var(--ok)}
+.steps li[data-state="error"] .dot{border-color:var(--danger); background:var(--danger)}
+.detail{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:10px;overflow:auto;max-height:200px}
+.legend{display:flex;align-items:center;gap:8px;margin-top:6px;color:var(--muted);font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:999px;display:inline-block;border:2px solid}
+.legend-dot.wait{border-color:var(--wait)} .legend-dot.run{border-color:var(--run)}
+.legend-dot.ok{border-color:var(--ok);background:var(--ok)}
+.help{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* Mikro-Animation */
+@keyframes pulse{
+  0%{transform:scale(1); box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+  50%{transform:scale(1.06); box-shadow:0 0 0 6px rgba(59,130,246,.10)}
+  100%{transform:scale(1); box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+}
+.btn.primary.loading{animation:pulse 1.25s ease-in-out infinite; border-color:var(--run)}
+
+/* Dropzone / Upload-Queue */
+.drop{
+  border:1px dashed var(--line);border-radius:12px;padding:14px;text-align:center;
+  background:rgba(255,255,255,.02)
+}
+.drop.highlight{border-color:var(--run); background:rgba(59,130,246,.08)}
+.queue{margin-top:10px}
+.fileRow{
+  display:grid;grid-template-columns:1fr 100px 120px 28px;gap:10px;align-items:center;
+  padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.02)
+}
+.progressTrack{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.progressBar{height:8px;background:var(--run);width:0%}
+.stat{font-size:12px;color:var(--muted);text-align:right}
+.fileBtn{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#14171c;color:var(--text);cursor:pointer}
+.fileBtn[disabled]{opacity:.6;cursor:not-allowed}
+
+/* --- pipeline dots (minimal, dunkel) --- */
+.pipeline { display: grid; gap: 10px; }
+.pstep { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,0.02); }
+.pdot  { width:10px; height:10px; border-radius:50%; background:#4b5563; /* gray-600 */ }
+.pdot.running { background:#3b82f6; animation: sgPulse 1.2s ease-in-out infinite; } /* blue-500 */
+.pdot.done    { background:#10b981; }  /* green-500 */
+.pdot.error   { background:#ef4444; }  /* red-500 */
+.plabel { font-weight:500; color:#e5e7eb; } /* gray-200 */
+
+@keyframes sgPulse {
+  0% { transform:scale(1); opacity:.9; }
+  50% { transform:scale(1.25); opacity:1; }
+  100% { transform:scale(1); opacity:.9; }
+}
