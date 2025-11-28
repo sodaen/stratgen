@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <title>Analytics UMD Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+  <h1>Analytics UMD Demo</h1>
+  <p>Öffne die Konsole (F12) und <code>tail -f data/telemetry.jsonl</code> im Terminal.</p>
+  <button id="btn">Preview klicken</button>
+
+  <script src="/static/js/analytics.js"></script>
+  <script>
+    StratgenAnalytics.log("page_view", { route: location.pathname }, { projectId: "demo123" });
+    document.getElementById("btn").addEventListener("click", () => {
+      StratgenAnalytics.log("preview_clicked", { btn: "demo" }, { userId: "u1" });
+    });
+  </script>
+</body>
+</html>
