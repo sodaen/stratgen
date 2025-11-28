@@ -1,0 +1,5 @@
+{
+  "brand": "templates/pptx/brand_default.pptx",
+  "report": "templates/pptx/minimal_report.pptx",
+  "social": "templates/pptx/social_pitch.pptx"
+}

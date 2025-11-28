@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+date: Fri, 24 Oct 2025 22:44:34 GMT
+server: uvicorn
+content-type: application/vnd.openxmlformats-officedocument.presentationml.presentation
+accept-ranges: bytes
+content-disposition: attachment; filename="Acme_GmbH-20251025-004434.pptx"; filename*=UTF-8''Acme%20GmbH-20251025-004434.pptx
+content-length: 28237
+last-modified: Fri, 24 Oct 2025 22:44:34 GMT
+etag: "73121dac134ff43f58a09035d5073cf3"
+

@@ -1,0 +1,67 @@
+# === Virtuelle Umgebungen ===
+.venv/
+venv/
+ENV/
+backend/.venv/
+
+# === Daten & Datenbanken ===
+data/
+.qdrant/
+qdrant_storage/
+*.db
+*.sqlite
+
+# === Backups ===
+*.bak
+*.bak.*
+*.broken.*
+*.userbak.*
+backups/
+backups_before_patches/
+_backups/
+
+# === Node.js ===
+node_modules/
+frontend/node_modules/
+
+# === Python Cache ===
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# === Logs ===
+logs/
+*.log
+.run*.log
+
+# === Große/temporäre Dateien ===
+_upload/
+uploads/
+exports/*.pptx
+static/images/*
+!static/images/.gitkeep
+CHANGELOG-*.md
+__ALL_PY__.txt
+snapshot_files.txt
+*.zip
+
+# === Secrets ===
+.env
+.env.local
+*.pem
+*.key
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Misc ===
+.pytest_cache/
+.run/
+*.pid

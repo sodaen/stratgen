@@ -1,0 +1,102 @@
+{
+  "title": "Go-to-Market 2026 (RAG) – Acme GmbH",
+  "out_path": "data/exports/deck-20251030-092159-images-demo.pptx",
+  "plan": [
+    {
+      "kind": "title",
+      "layout_hint": "Title Slide",
+      "title": "Go-to-Market 2026 (RAG) – Acme GmbH"
+    },
+    {
+      "kind": "agenda",
+      "layout_hint": "Title and Content",
+      "title": "Agenda",
+      "bullets": [
+        "Kontext & Ziele",
+        "Insights (Quellen)",
+        "Strategischer Ansatz",
+        "KPIs & Roadmap"
+      ]
+    },
+    {
+      "kind": "goals",
+      "layout_hint": "Title and Content",
+      "title": "Ziele",
+      "bullets": [
+        "Brand Awareness steigern",
+        "Leads für B2B Sales"
+      ]
+    },
+    {
+      "kind": "insights",
+      "layout_hint": "Title and Content",
+      "title": "Insights (Datasources)",
+      "bullets": [
+        "(keine Treffer)"
+      ]
+    },
+    {
+      "kind": "insights",
+      "layout_hint": "Title and Content",
+      "title": "Insights (Knowledge)",
+      "bullets": [
+        "(Quelle: ok)",
+        "(Quelle: results)",
+        "(Quelle: total_docs)"
+      ]
+    },
+    {
+      "kind": "strategy",
+      "layout_hint": "Title and Content",
+      "title": "Strategischer Ansatz",
+      "bullets": [
+        "Positionierung & Proof (SOC2/ISO27001/ROI<90T)",
+        "Priorisierte Kanäle",
+        "Pilot → Scale Pfad"
+      ]
+    },
+    {
+      "kind": "kpis",
+      "layout_hint": "Title and Content",
+      "title": "KPIs & Messplan",
+      "bullets": [
+        "Umsatz",
+        "CAC",
+        "CTR",
+        "ROAS"
+      ]
+    },
+    {
+      "kind": "roadmap",
+      "layout_hint": "Title and Content",
+      "title": "Roadmap & Nächste Schritte",
+      "bullets": [
+        "Quick Wins (0–30 Tage)",
+        "Pilot (30–90 Tage)",
+        "Scale (90+ Tage)"
+      ]
+    },
+    {
+      "kind": "insights",
+      "layout_hint": "Title and Content",
+      "title": "Hero Visual – Platzhalter",
+      "bullets": [
+        "Bildpfad: samples/hero-bild-kampagne.jpg",
+        "Orientierung: -",
+        "Crop-Hint: -",
+        "Aktion: Vollbild (Full-bleed)"
+      ]
+    },
+    {
+      "kind": "insights",
+      "layout_hint": "Title and Content",
+      "title": "Key Visual – Platzhalter",
+      "bullets": [
+        "Bildpfad: samples/key-visual.jpg",
+        "Orientierung: -",
+        "Crop-Hint: -",
+        "Aktion: Side-by-Side (Content)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+export/*.pptx
+qdrant_storage/
+.env

@@ -1,0 +1,11 @@
+{
+  "font_title": "Arial",
+  "font_body": "Arial",
+  "size_title_pt": 36,
+  "size_body_pt": 16,
+  "primary": "#111111",
+  "secondary": "#555555",
+  "accent1": "#1F77B4",
+  "accent2": "#FF7F0E",
+  "accent3": "#2CA02C"
+}

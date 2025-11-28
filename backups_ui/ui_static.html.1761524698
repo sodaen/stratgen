@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>StratGen UI v4 (statisch)</title>
+<style>
+  :root{--bg:#0b0d10;--fg:#e6e9ef;--muted:#8b8f98;--card:#12151a;--ok:#2ecc71;--warn:#f1c40f;--err:#e74c3c;--acc:#6aa8ff}
+  *{box-sizing:border-box}
+  body{margin:24px;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  h1{font-weight:700;font-size:22px;margin:0 0 16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid #1e222b;border-radius:14px;padding:16px;box-shadow:0 1px 10px rgba(0,0,0,.25)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  input,textarea,select,button{width:100%;padding:8px 10px;border-radius:10px;border:1px solid #2a2f3a;background:#0f1217;color:var(--fg)}
+  textarea{min-height:84px;resize:vertical}
+  button{cursor:pointer;background:#1a6bff;border-color:#1a6bff}
+  button.secondary{background:#0f1217;border-color:#2a2f3a}
+  .mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;font-size:12px;background:#0d0f13;padding:8px;border-radius:8px;overflow:auto;max-height:240px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#11151b;border:1px solid #2a2f3a;color:var(--muted);font-size:12px;margin-right:6px}
+  .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
+  a{color:var(--acc);text-decoration:none}
+  small{color:var(--muted)}
+</style>
+</head>
+<body>
+  <h1>⚙️ StratGen – Console (UI v4)</h1>
+
+  <div class="grid">
+    <!-- Health -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div>
+          <label>API-Key (optional)</label>
+          <input id="apiKey" placeholder="X-API-Key (falls gesetzt)"/>
+          <small>LocalStorage. Leer lassen, wenn offen.</small>
+        </div>
+        <div style="flex:0 0 160px">
+          <label>&nbsp;</label>
+          <button class="secondary" id="btnPing">↻ Refresh</button>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <span class="pill" id="pillHealth">/health …</span>
+        <a class="pill" href="/metrics" target="_blank">/metrics</a>
+        <a class="pill" href="/debug/ping" target="_blank">/debug/ping</a>
+      </div>
+      <pre id="outHealth" class="mono" style="margin-top:8px"></pre>
+    </div>
+
+    <!-- Provider -->
+    <div class="card">
+      <h3>🔌 Provider</h3>
+      <div class="row">
+        <div>
+          <label>Provider</label>
+          <select id="providerSel">
+            <option value="statista">statista</option>
+            <option value="brandwatch">brandwatch</option>
+            <option value="talkwalker">talkwalker</option>
+          </select>
+        </div>
+        <div>
+          <label>Customer</label>
+          <input id="customerProv" value="Acme GmbH"/>
+        </div>
+        <div>
+          <label>Limit</label>
+          <input id="limitProv" type="number" value="3"/>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="btnProvStatus" class="secondary">Status</button>
+        <button id="btnProvPull">Pull → datasources</button>
+      </div>
+      <pre id="outProv" class="mono" style="margin-top:8px"></pre>
+    </div>
+
+    <!-- Compose → Render → Download -->
+    <div class="card">
+      <h3>🧩 Compose → Render → Download</h3>
+      <div class="row">
+        <div><label>Customer</label><input id="customer" value="Acme GmbH"/></div>
+        <div><label>Topic</label><input id="topic" value="Go-to-Market 2026 (RAG)"/></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Query (optional)</label><input id="query" placeholder="ISO27001, SOC2, ROI &lt; 90 Tage"/></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="btnCompose">Compose</button>
+        <button id="btnRender"  class="secondary">Render</button>
+        <button id="btnLatest"  class="secondary">Latest</button>
+      </div>
+      <div style="margin-top:8px">
+        <small>Latest: <span id="latestName">–</span></small>
+        <div class="row" style="margin-top:6px">
+          <button id="btnHead" class="secondary">HEAD</button>
+          <a id="dlLink" download>⬇️ Download</a>
+        </div>
+      </div>
+      <pre id="outCompose" class="mono" style="margin-top:8px"></pre>
+    </div>
+
+    <!-- Datasources -->
+    <div class="card">
+      <h3>🗂️ Datasources</h3>
+      <div class="row">
+        <div><label>Customer</label><input id="dsCustomer" value="Acme GmbH"/></div>
+        <div><label>Limit</label><input id="dsLimit" type="number" value="5"/></div>
+        <div style="flex:0 0 160px"><label>&nbsp;</label><button id="btnDsList" class="secondary">List</button></div>
+      </div>
+      <pre id="outDs" class="mono" style="margin-top:8px"></pre>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const LS = "stratgen_api_key";
+  $("#apiKey").value = localStorage.getItem(LS)||"";
+  $("#apiKey").addEventListener("change",()=>localStorage.setItem(LS,$("#apiKey").value.trim()));
+  const hdr = ()=>{const k=(localStorage.getItem(LS)||"").trim();const h={"Content-Type":"application/json"};if(k)h["X-API-Key"]=k;return h;};
+  const jget = (p)=>fetch(p,{headers:hdr()}).then(r=>r.json());
+  const jpost= (p,b)=>fetch(p,{method:"POST",headers:hdr(),body:JSON.stringify(b||{})}).then(r=>r.json());
+  const setText=(el,obj)=>el.textContent=typeof obj==="string"?obj:JSON.stringify(obj,null,2);
+  const base=(n)=>{try{return n.split("/").pop();}catch(_){return n;}};
+
+  async function doHealth(){try{const h=await jget("/health");$("#pillHealth").textContent="/health "+(h.status||"ok");$("#pillHealth").className="pill "+(h.status==="ok"?"ok":"warn");setText($("#outHealth"),h);}catch(e){$("#pillHealth").textContent="/health error";$("#pillHealth").className="pill err";setText($("#outHealth"),String(e));}}
+  $("#btnPing").addEventListener("click",()=>{doHealth();doLatest();});
+
+  // Providers
+  $("#btnProvStatus").addEventListener("click", async ()=>{
+    try{setText($("#outProv"), await jget("/providers/status"));}catch(e){setText($("#outProv"),"ERR: "+e);}
+  });
+  $("#btnProvPull").addEventListener("click", async ()=>{
+    const prov=$("#providerSel").value, cust=$("#customerProv").value, lim=+$("#limitProv").value||3;
+    try{
+      const url=`/providers/pull?provider=${encodeURIComponent(prov)}&customer_name=${encodeURIComponent(cust)}&limit=${lim}&embed=0`;
+      const r=await fetch(url,{method:"POST",headers:hdr()});
+      setText($("#outProv"), await r.json());
+    }catch(e){setText($("#outProv"),"ERR: "+e);}
+  });
+
+  // Compose/Render
+  $("#btnCompose").addEventListener("click", async ()=>{
+    const body={customer_name:$("#customer").value, topic:$("#topic").value, query:($("#query").value||"")};
+    try{setText($("#outCompose"), await jpost("/content/compose", body));}catch(e){setText($("#outCompose"),"ERR: "+e);}
+  });
+  $("#btnRender").addEventListener("click", async ()=>{
+    try{setText($("#outCompose"), await jpost("/pptx/render", {})); await doLatest();}catch(e){setText($("#outCompose"),"ERR: "+e);}
+  });
+  async function doLatest(){
+    const j=await jget("/exports/latest");
+    if(j&&j.ok&&j.latest){
+      const name=base(j.latest.name||"");
+      $("#latestName").textContent=name||"–";
+      const url=`/exports/download?name=${encodeURIComponent(name)}`;
+      const k=(localStorage.getItem(LS)||"").trim();
+      $("#dlLink").href = k ? (url + `&key=${encodeURIComponent(k)}`) : url;
+      $("#dlLink").textContent="⬇️ Download "+name;
+    }
+  }
+  $("#btnLatest").addEventListener("click", doLatest);
+  $("#btnHead").addEventListener("click", async ()=>{
+    const name=($("#latestName").textContent||"").trim(); if(!name||name==="–"){alert("Kein Export gefunden.");return;}
+    const k=(localStorage.getItem(LS)||"").trim();
+    const qs=new URLSearchParams({name}); if(k) qs.append("key",k);
+    try{
+      const r=await fetch(`/exports/download?${qs}`,{method:"HEAD",headers:hdr()});
+      const hdrs={}; r.headers.forEach((v,k)=>hdrs[k]=v);
+      setText($("#outCompose"), {status:r.status, headers:hdrs});
+    }catch(e){setText($("#outCompose"),"ERR: "+e);}
+  });
+
+  // Datasources
+  $("#btnDsList").addEventListener("click", async ()=>{
+    const cust=$("#dsCustomer").value, lim=+($("#dsLimit").value||5);
+    try{setText($("#outDs"), await jget(`/datasources/list?customer=${encodeURIComponent(cust)}&limit=${lim}`));}
+    catch(e){setText($("#outDs"),"ERR: "+e);}
+  });
+
+  // Init
+  doHealth(); doLatest();
+})();
+</script>
+</body>
+</html>

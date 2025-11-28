@@ -1,0 +1,395 @@
+### File list
+backend/analytics_api.py
+backend/analytics_api.py.bak.1760175361
+backend/analytics_api.py.bak.1760175380
+backend/analytics_api.py.bak.1760178823
+backend/analytics_api.py.bak.1760179821
+backend/analytics_api.py.bak.1760180595
+backend/api.bak.1759822376
+backend/api.bak.1759822382
+backend/api.py
+backend/api.py.bak.1759946976
+backend/api.py.bak.1759949563
+backend/api.py.bak.1760096578
+backend/api.py.bak.1760097510
+backend/api.py.bak.1760098047
+backend/api.py.bak.1760098478
+backend/api.py.bak.1760102171
+backend/api.py.bak.1760102656
+backend/api.py.bak.1760103381
+backend/api.py.bak.1760104653
+backend/api.py.bak.1760105935
+backend/api.py.bak.1760107034
+backend/api.py.bak.1760132806
+backend/api.py.bak.1760133324
+backend/api.py.bak.1760170255
+backend/api.py.bak.1760170638
+backend/api.py.bak.1760171379
+backend/api.py.bak.1760171387
+backend/api.py.bak.1760171746
+backend/api.py.bak.1760172539
+backend/api.py.bak.1760174188
+backend/api.py.bak.1760175361
+backend/api.py.bak.1760175380
+backend/api.py.bak.1760176564
+backend/api.py.bak.1760177662
+backend/api.py.bak.1760178204
+backend/api.py.bak.1760178549
+backend/api.py.bak.1760179179
+backend/api.py.bak.1760179821
+backend/api.py.bak.1760188501
+backend/api.py.bak.1760275454
+backend/api.py.bak.1760276420
+backend/api.py.bak.1760289087
+backend/api.py.bak.1760293538
+backend/api.py.bak.1760293557
+backend/api.py.bak.1760295018
+backend/api.py.bak.1760295029
+backend/api.py.bak.1760555036
+backend/api.py.bak.1760558568
+backend/api.py.bak.1760562506
+backend/api.py.bak.1760599234
+backend/api.py.bak.1760599289
+backend/api.py.bak.1760599432
+backend/api.py.bak.uniqueid
+backend/auth.py
+backend/brand_api.py
+backend/brief_api.py
+backend/competitor_api.py
+backend/content_api.bak.py
+backend/content_api.py
+backend/datasource_api.py
+backend/datasource_api.py.bak.dupes
+backend/db.py
+backend/dev_api.py
+backend/export_api.py
+backend/export_api.py.bak.1759838581
+backend/export_api.py.bak.1759864998
+backend/export_api.py.bak.1759918725
+backend/export_api.py.bak.1759931525
+backend/feedback_api.py
+backend/feedback_api.py.bak.1760175361
+backend/feedback_api.py.bak.1760175380
+backend/health.py
+backend/health.py.bak.1760097510
+backend/images_api.py
+backend/ingest_api.py
+backend/__init__.py
+backend/learn_api.py
+backend/messaging_api.py
+backend/middleware.py
+backend/models.py
+backend/ops_api.py
+backend/outline_api.bak.1759787934
+backend/outline_api.bak.1759787947
+backend/outline_api.py
+backend/outline_api.py.bak.1759519691
+backend/outline_from_content_api.py
+backend/persona_api py
+backend/persona_api.py
+backend/pipeline_api.py
+backend/project_api.py
+backend/projects_api.py
+backend/projects_api.py.bak.1759949095
+backend/projects_api.py.bak.1759958618
+backend/projects_api.py.bak.1759961646
+backend/projects_api.py.bak.1760007228
+backend/projects_api.py.bak.1760008166
+backend/projects_api.py.bak.1760009082
+backend/projects_api.py.bak.1760010228
+backend/projects_api.py.bak.1760011018
+backend/projects_api.py.bak.1760038078
+backend/projects_api.py.bak.1760045302
+backend/projects_api.py.bak.1760046206
+backend/projects_api.py.bak.1760046801
+backend/projects_api.py.bak.1760048492
+backend/projects_api.py.bak.1760050014
+backend/projects_api.py.bak.1760079958
+backend/projects_api.py.bak.1760084680
+backend/projects_api.py.bak.1760125742
+backend/projects_api.py.bak.1760126547
+backend/projects_api.py.bak.1760126554
+backend/projects_api.py.bak.1760132407
+backend/projects_api.py.bak.1760133324
+backend/projects_api.py.bak.1760133769
+backend/projects_api.py.bak.1760134128
+backend/projects_api.py.bak.1760134559
+backend/projects_api.py.bak.1760134956
+backend/projects_api.py.bak.1760292103
+backend/projects_api.py.bak.1760293525
+backend/projects_api.py.bak.1760295040
+backend/projects_api.py.bak.1760296347
+backend/projects_api.py.bak.1760301458
+backend/projects_api.py.bak.1760306618
+backend/projects_api.py.bak.1760347437
+backend/projects_api.py.bak.1760348530
+backend/projects_api.py.bak.1760350732
+backend/projects_api.py.bak.1760355167
+backend/projects_api.py.bak.1760355180
+backend/projects_api.py.bak.1760356701
+backend/projects_api.py.bak.1760356717
+backend/projects_api.py.bak.1760358829
+backend/projects_api.py.bak.1760359950
+backend/projects_api.py.bak.1760363122
+backend/projects_api.py.bak.1760366842
+backend/projects_api.py.bak.1760369044
+backend/projects_api.py.bak.1760369056
+backend/projects_api.py.bak.1760370567
+backend/projects_api.py.bak.1760370574
+backend/projects_api.py.bak.1760371192
+backend/projects_api.py.bak.1760374357
+backend/projects_api.py.bak.1760379206
+backend/projects_api.py.bak.1760380684
+backend/projects_api.py.bak.1760387358
+backend/projects_api.py.bak.1760388870
+backend/projects_api.py.bak.1760390121
+backend/projects_api.py.bak.1760391120
+backend/projects_api.py.bak.1760427843
+backend/projects_api.py.bak.1760440579
+backend/projects_api.py.bak.1760441456
+backend/projects_api.py.bak.1760441470
+backend/projects_api.py.bak.1760443889
+backend/projects_api.py.bak.1760468517
+backend/projects_api.py.bak.1760471187
+backend/projects_api.py.bak.1760472636
+backend/projects_api.py.bak.1760474605
+backend/projects_api.py.bak.1760475440
+backend/projects_api.py.bak.1760476884
+backend/projects_api.py.bak.1760507678
+backend/projects_api.py.bak.1760508956
+backend/projects_api.py.bak.1760508968
+backend/projects_api.py.bak.1760509961
+backend/projects_api.py.bak.1760520280
+backend/projects_api.py.bak.1760521829
+backend/projects_api.py.bak.1760528898
+backend/projects_api.py.bak.1760533292
+backend/projects_api.py.bak.1760535207
+backend/projects_api.py.bak.1760542305
+backend/projects_api.py.bak.1760543969
+backend/projects_api.py.bak.1760645399
+backend/projects_validate.py
+backend/projects_validate.py.bak.1760170638
+backend/projects_validate.py.bak.1760171379
+backend/projects_validate.py.bak.1760171746
+backend/__pycache__/analytics_api.cpython-312.pyc
+backend/__pycache__/api.cpython-312.pyc
+backend/__pycache__/auth.cpython-312.pyc
+backend/__pycache__/brand_api.cpython-312.pyc
+backend/__pycache__/brief_api.cpython-312.pyc
+backend/__pycache__/competitor_api.cpython-312.pyc
+backend/__pycache__/content_api.cpython-312.pyc
+backend/__pycache__/datasource_api.cpython-312.pyc
+backend/__pycache__/db.cpython-312.pyc
+backend/__pycache__/dev_api.cpython-312.pyc
+backend/__pycache__/export_api.cpython-312.pyc
+backend/__pycache__/feedback_api.cpython-312.pyc
+backend/__pycache__/health.cpython-312.pyc
+backend/__pycache__/images_api.cpython-312.pyc
+backend/__pycache__/ingest_api.cpython-312.pyc
+backend/__pycache__/__init__.cpython-312.pyc
+backend/__pycache__/learn_api.cpython-312.pyc
+backend/__pycache__/messaging_api.cpython-312.pyc
+backend/__pycache__/middleware.cpython-312.pyc
+backend/__pycache__/models.cpython-312.pyc
+backend/__pycache__/ops_api.cpython-312.pyc
+backend/__pycache__/outline_api.cpython-312.pyc
+backend/__pycache__/outline_from_content_api.cpython-312.pyc
+backend/__pycache__/persona_api.cpython-312.pyc
+backend/__pycache__/pipeline_api.cpython-312.pyc
+backend/__pycache__/project_api.cpython-312.pyc
+backend/__pycache__/projects_api.cpython-312.pyc
+backend/__pycache__/projects_validate.cpython-312.pyc
+backend/__pycache__/research_api.cpython-312.pyc
+backend/__pycache__/settings.cpython-312.pyc
+backend/__pycache__/sources_api.cpython-312.pyc
+backend/__pycache__/style_api.cpython-312.pyc
+backend/__pycache__/styles_api.cpython-312.pyc
+backend/__pycache__/system_api.cpython-312.pyc
+backend/__pycache__/template_api.cpython-312.pyc
+backend/__pycache__/templates_api.cpython-312.pyc
+backend/__pycache__/ui.cpython-312.pyc
+backend/research_api py
+backend/research_api.py
+backend/research_api py.md
+backend/settings.py
+backend/sources_api.py
+backend/sources_api.py.bak.1759861712
+backend/style_api.py
+backend/styles_api.py
+backend/system_api.py
+backend/template_api.py
+backend/templates_api.py
+backend/ui.py
+scripts/changelog.py
+scripts/compare_snapshots.py
+scripts/deck_builder.py
+scripts/dev_sentinel.py
+scripts/e2e.sh
+scripts/ingest.py
+scripts/__init__.py
+scripts/reindex.py
+scripts/run.sh
+scripts/seed_qdrant.py
+scripts/smoke_inline.py
+scripts/smoke_inline.py.bak.1760098031
+scripts/smoke_projects.sh
+scripts/smoke.sh
+scripts/snapshot_repo.py
+scripts/stop.sh
+scripts/style_extractor.py
+scripts/validate_template.py
+services/auth.py
+services/brand.py
+services/brand_store.py
+services/cache.py
+services/cache_stub.py
+services/citations.py
+services/compat.py
+services/compat.py.bak.1760095640
+services/connectors py
+services/connectors.py
+services/data_sources.py
+services/datasources.py
+services/datasource_store.py
+services/db.py
+services/db.py.bak.1759949095
+services/db.py.bak.1759957744
+services/db.py.bak.1759957811
+services/db.py.bak.1759958618
+services/deck_builder.py
+services/deck_builder.py.bak.1759918725
+services/deck_builder.py.bak.1759931525
+services/deck_builder.py.bak.1760084680
+services/deck_filler.py
+services/deck_filler.py.bak.1760388863
+services/deck_filler.py.bak.1760390121
+services/deck_filler.py.bak.1760392464
+services/deck_filler.py.bak.1760394129
+services/deck_filler.py.bak.1760427832
+services/deck_filler.py.bak.1760471187
+services/deck_filler.py.bak.1760472643
+services/deck_filler.py.bak.1760474615
+services/deck_filler.py.bak.1760476884
+services/deck_filler.py.bak.1760507678
+services/deck_filler.py.bak.1760607153
+services/deck_filler.py.bak.1760614506
+services/deck_templates.py
+services/ds_ingest.py
+services/ds_ingest.py.bak
+services/export_api.py
+services/export_tools.py
+services/generator.py
+services/generator.py.bak.1760607143
+services/generator.py.bak.1760614506
+services/generator.py.bak.1760616907
+services/images.py
+services/image_store.py
+services/ingest.py
+services/__init__.py
+services/learn.py
+services/learn_watcher.py
+services/learn_watcher.py.bak.1760558568
+services/llm.py
+services/nlg.py
+services/nlg.py.bak.1760607131
+services/nlg.py.bak.1760614506
+services/outline.py
+services/outline.py.bak.1759520156
+services/policies.py
+services/ppt_renderer.py
+services/preview_image.py
+services/preview_image.py.bak.1759931525
+services/preview_image.py.bak.1759932397
+services/__pycache__/auth.cpython-312.pyc
+services/__pycache__/brand_store.cpython-312.pyc
+services/__pycache__/cache.cpython-312.pyc
+services/__pycache__/cache_stub.cpython-312.pyc
+services/__pycache__/compat.cpython-312.pyc
+services/__pycache__/data_sources.cpython-312.pyc
+services/__pycache__/datasources.cpython-312.pyc
+services/__pycache__/datasource_store.cpython-312.pyc
+services/__pycache__/db.cpython-312.pyc
+services/__pycache__/deck_builder.cpython-312.pyc
+services/__pycache__/deck_filler.cpython-312.pyc
+services/__pycache__/deck_templates.cpython-312.pyc
+services/__pycache__/ds_ingest.cpython-312.pyc
+services/__pycache__/generator.cpython-312.pyc
+services/__pycache__/images.cpython-312.pyc
+services/__pycache__/image_store.cpython-312.pyc
+services/__pycache__/ingest.cpython-312.pyc
+services/__pycache__/__init__.cpython-312.pyc
+services/__pycache__/learn.cpython-312.pyc
+services/__pycache__/nlg.cpython-312.pyc
+services/__pycache__/outline.cpython-312.pyc
+services/__pycache__/ppt_renderer.cpython-312.pyc
+services/__pycache__/preview_image.cpython-312.pyc
+services/__pycache__/rag_pipeline.cpython-312.pyc
+services/__pycache__/sources_store.cpython-312.pyc
+services/__pycache__/style_presets.cpython-312.pyc
+services/__pycache__/style_profiles.cpython-312.pyc
+services/__pycache__/telemetry.cpython-312.pyc
+services/__pycache__/templates.cpython-312.pyc
+services/__pycache__/template_tools.cpython-312.pyc
+services/__pycache__/validation.cpython-312.pyc
+services/__pycache__/validators.cpython-312.pyc
+services/__pycache__/visuals.cpython-312.pyc
+services/rag_boost.py
+services/rag_pipeline.py
+services/rag_pipeline.py.bak.1759647935
+services/rerank.py
+services/research_providers.py
+services/sources_store.py
+services/style_presets.py
+services/style_presets.py.bak.1760050033
+services/style_presets.py.bak.1760079284
+services/style_presets.py.bak.1760079958
+services/style_presets.py.bak.1760083999
+services/style_presets.py.bak.1760084680
+services/style_presets.py.broken.1760080991
+services/style_profiles.py
+services/telemetry.py
+services/telemetry.py.bak.1760175361
+services/telemetry.py.bak.1760175380
+services/telemetry.py.bak.1760179821
+services/telemetry.py.bak.1760180595
+services/templates.py
+services/template_tools.py
+services/validation.py
+services/validators.py
+services/visuals.py
+
+### Git status
+## feat/learn-auto
+ M CHANGELOG.md
+ M Makefile
+ M backend/api.py
+ M backend/projects_api.py
+ M changelogs/latest.json
+ M data/projects.sqlite
+ M services/deck_filler.py
+ M services/generator.py
+ M services/nlg.py
+?? Makefile.bak.1760562498
+?? Makefile.bak.1760596662
+?? Makefile.bak.1760599216
+?? Makefile.bak.1760600671
+?? backend/api.py.bak.1760562506
+?? backend/api.py.bak.1760599234
+?? backend/api.py.bak.1760599289
+?? backend/api.py.bak.1760599432
+?? backend/projects_api.py.bak.1760645399
+?? changelogs/snapshots/20251015-201224.json
+?? changelogs/snapshots/20251015-204747.json
+?? changelogs/snapshots/20251015-224747.json
+?? services/deck_filler.py.bak.1760607153
+?? services/deck_filler.py.bak.1760614506
+?? services/generator.py.bak.1760607143
+?? services/generator.py.bak.1760614506
+?? services/generator.py.bak.1760616907
+?? services/nlg.py.bak.1760607131
+?? services/nlg.py.bak.1760614506
+?? snapshot.txt
+
+### Last 30 commits
+28bf255 feat(learn): auto-rescan + admin endpoint
+b34fc2e chore: initial repo snapshot

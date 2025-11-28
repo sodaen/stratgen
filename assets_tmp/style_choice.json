@@ -1,0 +1,28 @@
+{
+  "brand": "acme",
+  "industry": null,
+  "profile": {
+    "id": "acme_brand",
+    "match": {
+      "brand_contains": [
+        "acme"
+      ]
+    },
+    "palette": {
+      "primary": "#0055A4",
+      "secondary": "#00A1E0",
+      "accent": "#FFC300",
+      "bg": "#FFFFFF",
+      "fg": "#111111"
+    },
+    "fonts": {
+      "title": "Montserrat",
+      "body": "Inter"
+    },
+    "layout": {
+      "title_slide": "Title Slide",
+      "section_slide": "Section Header",
+      "content": "Title and Content"
+    }
+  }
+}

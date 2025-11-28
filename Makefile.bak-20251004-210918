@@ -1,0 +1,240 @@
+SHELL := /bin/bash
+
+# -------- Defaults --------
+HOST ?= 127.0.0.1
+PORT ?= 8000
+GUNI_WORKERS ?= 2
+GUNI_THREADS ?= 1
+GUNI_TIMEOUT ?= 120
+
+BASE := http://$(HOST):$(PORT)
+VENV := .venv
+PY := $(VENV)/bin/python
+PIP := $(VENV)/bin/pip
+
+LOG_DIR := logs
+DEV_PID := .dev_uvicorn.pid
+STAGING_PID := .staging_gunicorn.pid
+DEV_LOG := $(LOG_DIR)/dev_uvicorn.log
+STAGING_LOG := $(LOG_DIR)/staging_gunicorn.log
+
+# -------- PHONY --------
+.PHONY: list ensure_venv run \
+	start_dev stop_dev logs_dev \
+	start_staging stop_staging restart_staging logs_staging \
+	start_live stop_live restart_live status_live logs_live edit_live \
+	qdrant_start qdrant_stop qdrant_restart qdrant_logs qdrant_ready qdrant_collections qdrant_count \
+	ollama_status ollama_logs ollama_start ollama_stop ollama_restart \
+	ensure_outline deck ideas
+
+list:
+	@echo "Kern: ensure_venv, run, ensure_outline, deck, ideas"
+	@echo "Dev: start_dev, stop_dev, logs_dev"
+	@echo "Staging: start_staging, stop_staging, restart_staging, logs_staging"
+	@echo "Live (systemd): start_live, stop_live, restart_live, status_live, logs_live, edit_live"
+	@echo "Qdrant (Docker): qdrant_start, qdrant_stop, qdrant_restart, qdrant_logs, qdrant_ready, qdrant_collections, qdrant_count"
+	@echo "Ollama (systemd): ollama_status, ollama_logs, ollama_start, ollama_stop, ollama_restart"
+
+# -------- Kern --------
+ensure_venv:
+	python3 -m venv $(VENV)
+	$(PIP) install -U pip wheel
+	if [ -f requirements.txt ]; then $(PIP) install -r requirements.txt; \
+	else $(PIP) install fastapi "uvicorn[standard]" pydantic httpx qdrant-client python-pptx sentence-transformers; fi
+	mkdir -p $(LOG_DIR)
+
+run: ensure_venv
+	@echo "→ Dev-Server (reload) auf $(BASE)"
+	$(PY) -m uvicorn backend.api:app --host $(HOST) --port $(PORT) --reload
+
+# -------- Dev (Uvicorn mit Reload, im Hintergrund) --------
+start_dev: ensure_venv
+	@mkdir -p $(LOG_DIR)
+	@if [ -f $(DEV_PID) ] && kill -0 "$$(cat $(DEV_PID))" 2>/dev/null; then echo "Dev läuft bereits (PID $$(cat $(DEV_PID)))"; exit 0; fi
+	@echo "→ Starte Dev (Uvicorn --reload) → $(DEV_LOG)"
+	@nohup $(PY) -m uvicorn backend.api:app --host $(HOST) --port $(PORT) --reload > $(DEV_LOG) 2>&1 & echo $$! > $(DEV_PID); sleep 1; \
+	echo "PID $$(cat $(DEV_PID))"
+
+logs_dev:
+	@[ -f $(DEV_LOG) ] || (echo "Kein $(DEV_LOG) gefunden"; exit 1)
+	tail -n 200 -f $(DEV_LOG)
+
+stop_dev:
+	@if [ -f $(DEV_PID) ]; then \
+		PID=$$(cat $(DEV_PID)); \
+		if kill -0 $$PID 2>/dev/null; then echo "→ Stoppe Dev $$PID"; kill $$PID; else echo "Dev-Prozess nicht aktiv"; fi; \
+		rm -f $(DEV_PID); \
+	else echo "Kein PID-File gefunden"; fi
+
+# -------- Staging (Gunicorn detached) --------
+start_staging: ensure_venv
+	@mkdir -p $(LOG_DIR)
+	@if [ -f $(STAGING_PID) ] && kill -0 "$$(cat $(STAGING_PID))" 2>/dev/null; then echo "Staging läuft (PID $$(cat $(STAGING_PID)))"; exit 0; fi
+	@echo "→ Starte Staging (Gunicorn) → $(STAGING_LOG)"
+	@. $(VENV)/bin/activate; \
+	nohup gunicorn backend.api:app -b $(HOST):$(PORT) -w $(GUNI_WORKERS) --threads $(GUNI_THREADS) --timeout $(GUNI_TIMEOUT) \
+	  --worker-class uvicorn.workers.UvicornWorker > $(STAGING_LOG) 2>&1 & echo $$! > $(STAGING_PID); sleep 1; \
+	echo "PID $$(cat $(STAGING_PID))"
+
+stop_staging:
+	@if [ -f $(STAGING_PID) ]; then \
+		PID=$$(cat $(STAGING_PID)); \
+		if kill -0 $$PID 2>/dev/null; then echo "→ Stoppe Staging $$PID"; kill $$PID; else echo "Staging-Prozess nicht aktiv"; fi; \
+		rm -f $(STAGING_PID); \
+	else echo "Kein PID-File gefunden"; fi
+
+restart_staging: stop_staging start_staging
+
+logs_staging:
+	@[ -f $(STAGING_LOG) ] || (echo "Kein $(STAGING_LOG) gefunden"; exit 1)
+	tail -n 200 -f $(STAGING_LOG)
+
+# -------- Live (systemd: stratgen.service) --------
+start_live:
+	sudo systemctl start stratgen.service
+
+stop_live:
+	sudo systemctl stop stratgen.service
+
+restart_live:
+	sudo systemctl daemon-reload || true
+	sudo systemctl restart stratgen.service
+
+status_live:
+	systemctl status stratgen.service
+
+logs_live:
+	sudo journalctl -u stratgen.service -n 200 -f
+
+edit_live:
+	sudo systemctl edit stratgen.service
+	@echo "→ Nach Änderungen: sudo systemctl daemon-reload && sudo systemctl restart stratgen.service"
+
+# -------- Qdrant (Docker) --------
+qdrant_start:
+	@mkdir -p $$HOME/qdrant_storage
+	@if docker ps --format '{{.Names}}' | grep -qx qdrant; then echo "Qdrant läuft"; \
+	else \
+	  if docker ps -a --format '{{.Names}}' | grep -qx qdrant; then docker start qdrant; \
+	  else docker run -d --name qdrant -p 6333:6333 -v $$HOME/qdrant_storage:/qdrant/storage qdrant/qdrant:v1.9.2; fi; \
+	fi
+	@$(MAKE) qdrant_ready
+
+qdrant_stop:
+	- docker stop qdrant 2>/dev/null || true
+
+qdrant_restart: qdrant_stop qdrant_start
+
+qdrant_logs:
+	docker logs -f --tail 200 qdrant
+
+qdrant_ready:
+	@for i in {1..30}; do \
+	  if curl -fsS http://127.0.0.1:6333/readyz >/dev/null; then echo "Qdrant ready"; exit 0; fi; \
+	  echo "…warte auf Qdrant ($$i)"; sleep 1; \
+	done; exit 1
+
+qdrant_collections:
+	curl -s http://127.0.0.1:6333/collections | jq .
+
+qdrant_count:
+	curl -s -X POST http://127.0.0.1:6333/collections/strategies/points/count | jq .
+
+# -------- Ollama (systemd) --------
+ollama_status:
+	systemctl status ollama
+
+ollama_logs:
+	sudo journalctl -u ollama -n 200 -f
+
+ollama_start:
+	sudo systemctl start ollama
+
+ollama_stop:
+	sudo systemctl stop ollama
+
+ollama_restart:
+	sudo systemctl restart ollama
+
+# -------- Extras --------
+ensure_outline: ensure_venv
+	@echo "→ Hole/erstelle Outline"
+	@curl -s -X POST $(BASE)/outline/suggest \
+	  -H "Content-Type: application/json" \
+	  -d '{"customer_name":"Acme GmbH","project_title":"Q4 Strategy","scope":"Marketingstrategie & Social Media","market":"Elektronikhandel","region":"DACH","min_slides":12}' \
+	  | tee /tmp/outline_raw.json >/dev/null
+	@echo "Outline gespeichert: /tmp/outline_raw.json"
+
+# PPTX-Deck erzeugen (greift /tmp/outline_raw.json & /content/preview)
+deck: ensure_venv
+	@echo "→ Baue Deck (PPTX) nach /tmp/strategy_deck.pptx"
+	@$(PY) - <<'PY'
+import json, sys
+from pathlib import Path
+import httpx
+from pptx import Presentation
+from pptx.util import Pt
+
+BASE = "$(BASE)"
+OUTLINE = Path("/tmp/outline_raw.json")
+if not OUTLINE.exists():
+    print("❌ /tmp/outline_raw.json fehlt. make ensure_outline zuerst ausführen.")
+    sys.exit(1)
+
+o = json.loads(OUTLINE.read_text())
+agenda = o.get("agenda", [])
+prs = Presentation()
+title_slide_layout = prs.slide_layouts[0]
+content_layout = prs.slide_layouts[1]
+
+# Title
+s = prs.slides.add_slide(title_slide_layout)
+s.shapes.title.text = "Q4 Strategy — Acme GmbH"
+s.placeholders[1].text = "Automatisch generiert"
+
+def bullets_for(topic, sub=""):
+    payload = {
+        "customer_name":"Acme GmbH",
+        "topic": topic,
+        "mode":"facts",
+        "brief":{"scope":"Marketingstrategie & Social Media","market":"Elektronikhandel","region":"DACH"}
+    }
+    if sub:
+        payload["subtopic"] = sub
+    try:
+        r = httpx.post(f"{BASE}/content/preview", json=payload, timeout=120)
+        r.raise_for_status()
+        js = r.json()
+        return js.get("bullets", [])[:5]
+    except Exception as e:
+        print("Warn:", e)
+        return []
+
+for item in agenda:
+    topic = item.get("topic","")
+    subs = item.get("subtopics") or [""]
+    for sub in subs:
+        slide = prs.slides.add_slide(content_layout)
+        title = topic if not sub else f"{topic} — {sub}"
+        slide.shapes.title.text = title.replace(" - ", " — ")
+        tf = slide.shapes.placeholders[1].text_frame
+        tf.clear()
+        for b in bullets_for(topic, sub):
+            p = tf.add_paragraph() if tf.text else tf.paragraphs[0]
+            p.text = b
+            p.font.size = Pt(18)
+
+out = Path("/tmp/strategy_deck.pptx")
+prs.save(out)
+print("✔ Deck:", out)
+PY
+	@ls -lh /tmp/strategy_deck.pptx
+
+# Ideen/Preview für erstes Topic/Subtopic
+ideas:
+	@TOPIC=$$(jq -r '.agenda[0].topic' /tmp/outline_raw.json); \
+	SUB=$$(jq -r '.agenda[0].subtopics[0] // empty' /tmp/outline_raw.json); \
+	jq -n --arg t "$$TOPIC" --arg s "$$SUB" '{ customer_name:"Acme GmbH", topic:$$t, mode:"facts", brief:{scope:"Marketingstrategie & Social Media", market:"Elektronikhandel", region:"DACH"} } + ( ($$s|length)>0 ? {subtopic:$$s} : {} )' \
+	| curl -s -X POST $(BASE)/content/preview -H "Content-Type: application/json" --data-binary @- \
+	| jq '{ok, bullets:(.bullets[:5])}'
+
