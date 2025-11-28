@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251128-205008",
+  "created_utc": "20251128-205508",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "8a21ab9",
+    "commit": "00a18d0",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8811887,
-      "mtime": 1764362955,
-      "sha256": "fd8fc07099a1efe17eea1854c554fe5a1ffad34f8db5bc723152f83715c6390e"
+      "size": 8812364,
+      "mtime": 1764363255,
+      "sha256": "e6028419bcc3aa13176d4996fbb769a6ac19806075fec210c59a23e24e4ea182"
     },
     {
       "path": "COMMANDS.md",
@@ -16021,6 +16021,12 @@
       "sha256": "ecfc5ba73dbe1cf6d6e6034bf2c844701674af215ff9c7450552c22cdc278bbe"
     },
     {
+      "path": "backend/agent_v3.py",
+      "size": 26422,
+      "mtime": 1764363202,
+      "sha256": "28afe453a2997a650b2fbf1d7d97a65d447b5a9346db542514a05573d4d9ffa7"
+    },
+    {
       "path": "backend/analytics_api.py",
       "size": 944,
       "mtime": 1762159587,
@@ -17210,9 +17216,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1912577,
-      "mtime": 1764362656,
-      "sha256": "e8233b1147e97d7b339900f5bb260ffbafead5ef9ca0c97df8ce5169bd32190e"
+      "size": 1914143,
+      "mtime": 1764363016,
+      "sha256": "682e0557b6ea4bca2c4f19fc9797ce3b5a084d726b91cd833a7287c7939d2dc1"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -17489,6 +17495,12 @@
       "size": 1912577,
       "mtime": 1764362656,
       "sha256": "e8233b1147e97d7b339900f5bb260ffbafead5ef9ca0c97df8ce5169bd32190e"
+    },
+    {
+      "path": "changelogs/snapshots/20251128-205008.json",
+      "size": 1914143,
+      "mtime": 1764363016,
+      "sha256": "682e0557b6ea4bca2c4f19fc9797ce3b5a084d726b91cd833a7287c7939d2dc1"
     },
     {
       "path": "config/datasources.yml",
@@ -49223,6 +49235,12 @@
       "size": 516,
       "mtime": 1759339242,
       "sha256": "8c1a19495803b31e0c1a69e803ce699dbbda343b3d8fabb7c6addf46db9fa886"
+    },
+    {
+      "path": "scripts/install_agent_v3.sh",
+      "size": 4264,
+      "mtime": 1764363202,
+      "sha256": "5bdcc9d157d833e6e5bdde58380a553d19d6f9d86d51443d1aec523eced3c255"
     },
     {
       "path": "scripts/knowledge_probe.sh",
