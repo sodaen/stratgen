@@ -1,5 +1,0 @@
-faf18dd chore(api): mount ui+health; fix pptx router prefix to /pptx; normalize export paths to data/exports
-488bea8 wip: pre-fix snapshot
-356ccae fix(pptx): render_from_project nutzt meta.slide_plan; default export to data/exports; response models; repo cleanup
-28bf255 feat(learn): auto-rescan + admin endpoint
-b34fc2e chore: initial repo snapshot
