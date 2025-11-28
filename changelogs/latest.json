@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251128-231608",
+  "created_utc": "20251128-232208",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "68d356b",
+    "commit": "f0ea228",
     "branch": "staging"
   },
   "files": [
@@ -20,9 +20,9 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "size": 593,
-      "mtime": 1760096578,
-      "sha256": "58e4ab68681976cfadb5f0dd109f9ceaa17b75e3a2fc520445461f988e3ff630"
+      "size": 4178,
+      "mtime": 1764371943,
+      "sha256": "5fbb01a10c46e9868ae1d455d14e1c300781414aaccebf05168600cb53531b26"
     },
     {
       "path": ".gitignore",
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8820956,
-      "mtime": 1764371722,
-      "sha256": "073be5cc5b54099914100bcd5f393d92fea33a54211da2f819d3ff23bf128654"
+      "size": 8821393,
+      "mtime": 1764372083,
+      "sha256": "3bccce4bd3b3963ac288b79ce763c1b5006fd3ecc49cba128bb68d641716ee60"
     },
     {
       "path": "COMMANDS.md",
@@ -11342,9 +11342,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1649381,
-      "mtime": 1764371416,
-      "sha256": "3957d6f1e63938e90dd891e36e73eb17a960f7bd79085de84e0b002375a1e27c"
+      "size": 1649586,
+      "mtime": 1764371776,
+      "sha256": "11c2ff14d5de2e718bc62977dec6ce5e24590865e4d83930021c324d472651b5"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -11771,6 +11771,12 @@
       "size": 1649381,
       "mtime": 1764371416,
       "sha256": "3957d6f1e63938e90dd891e36e73eb17a960f7bd79085de84e0b002375a1e27c"
+    },
+    {
+      "path": "changelogs/snapshots/20251128-231608.json",
+      "size": 1649586,
+      "mtime": 1764371776,
+      "sha256": "11c2ff14d5de2e718bc62977dec6ce5e24590865e4d83930021c324d472651b5"
     },
     {
       "path": "config/datasources.yml",
@@ -42997,6 +43003,12 @@
       "sha256": "a90821b7c47b1a10293a74d90cc55e9c256e1b0ea49a57886f53ba5e59b53d16"
     },
     {
+      "path": "requirements-ci.txt",
+      "size": 389,
+      "mtime": 1764371943,
+      "sha256": "8d9ce0462d836fa6e89b8e231aa1bdc839360a81edeb69f1a0c97e002d9841e1"
+    },
+    {
       "path": "requirements-img.txt",
       "size": 234,
       "mtime": 1759339241,
@@ -43325,6 +43337,12 @@
       "size": 2221,
       "mtime": 1761593983,
       "sha256": "97a34fba8720e6dee3d13d67e0a09952988cc76202e06b42ed38b1ada53a7919"
+    },
+    {
+      "path": "scripts/fix_github_ci.sh",
+      "size": 2043,
+      "mtime": 1764371943,
+      "sha256": "f9853a92b280d3b8f8753ef2805856c71b524b72b960abca7568a1a7934081c5"
     },
     {
       "path": "scripts/generate_text.sh",
