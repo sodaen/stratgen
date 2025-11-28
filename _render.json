@@ -1,0 +1,70 @@
+{
+  "title": "Acme GmbH – Go-to-Market 2026",
+  "plan": [
+    {
+      "kind": "title",
+      "layout_hint": "Title Slide",
+      "title": "Go-to-Market 2026 – Acme GmbH"
+    },
+    {
+      "kind": "agenda",
+      "layout_hint": "Title and Content",
+      "title": "Agenda",
+      "bullets": [
+        "Ziele & Kontext",
+        "Zielgruppen & Insights",
+        "Strategie & Taktiken",
+        "KPIs & Roadmap"
+      ]
+    },
+    {
+      "kind": "goals",
+      "layout_hint": "Title and Content",
+      "title": "Ziele",
+      "bullets": [
+        "Brand Awareness steigern",
+        "Leads für B2B Sales"
+      ]
+    },
+    {
+      "kind": "insights",
+      "layout_hint": "Title and Content",
+      "title": "Insights (aus Knowledge)",
+      "bullets": [
+        "(keine lokalen Treffer – bitte Knowledge ausbauen)"
+      ]
+    },
+    {
+      "kind": "strategy",
+      "layout_hint": "Title and Content",
+      "title": "Strategischer Ansatz",
+      "bullets": [
+        "Positionierung & Value Proposition",
+        "Kanalpriorisierung",
+        "Kreativleitplanken"
+      ]
+    },
+    {
+      "kind": "kpis",
+      "layout_hint": "Title and Content",
+      "title": "KPIs & Messplan",
+      "bullets": [
+        "Umsatz",
+        "CAC",
+        "CTR",
+        "ROAS"
+      ]
+    },
+    {
+      "kind": "roadmap",
+      "layout_hint": "Title and Content",
+      "title": "Roadmap & Nächste Schritte",
+      "bullets": [
+        "Quick Wins (0-30 Tage)",
+        "Pilot (30-90 Tage)",
+        "Scale (90+ Tage)"
+      ]
+    }
+  ],
+  "out_path": "/home/sodaen/stratgen/data/exports/Acme_GmbH_Go-to-Market_2026.pptx"
+}

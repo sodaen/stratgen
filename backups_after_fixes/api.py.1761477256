@@ -1,0 +1,98 @@
+# -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from fastapi import FastAPI
+from backend.observability import router as obs_router, RequestLoggerMiddleware
+from backend.providers_api import router as providers_router
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="stratgen")
+# mount agent endpoints
+from backend import agent_api as agent_api
+app.include_router(agent_api.router)
+# CORS sehr offen (nur Dev)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Projekte-API (neue, saubere Version)
+from backend.agent_api import router as agent_router
+from backend.pptx_api import router as pptx_router
+from backend.projects_api import router as projects_router, router_public as projects_router_public
+from backend.learn_api import router as learn_router
+from backend.knowledge_api import router as knowledge_router
+from backend.content_api import router as content_router
+from backend.exports_api import router as exports_router
+from backend.research_api import router as research_router
+from backend.datasources_api import router as datasources_router
+app.include_router(agent_router, prefix="/agent")
+app.include_router(projects_router)
+app.include_router(learn_router, prefix='/learn')
+app.include_router(projects_router_public)
+
+app.include_router(pptx_router)
+app.include_router(knowledge_router)
+app.include_router(content_router)
+app.include_router(exports_router)
+app.include_router(datasources_router)
+
+app.include_router(research_router)
+# (Optional) weitere Router hier einhängen …
+from backend.graph_api import router as graph_router
+from backend.ui import router as ui_router
+from backend.health import router as health_router
+from backend.export_api import router as export_router
+from backend.outline_from_content_api import router as outline_from_content_router
+from backend.planner_api import router as planner_router
+# from backend.templates_api import router as templates_router
+# app.include_router(templates_router)
+app.include_router(ui_router)
+app.include_router(health_router)
+app.include_router(export_router)
+app.include_router(outline_from_content_router)
+app.include_router(planner_router)
+app.include_router(graph_router)
+app.include_router(providers_router)
+
+@app.get("/")
+def root():
+    return {"ok": True, "service": "stratgen", "routes": [r.path for r in app.routes]}# ---- optional: Style/Templates per ENV aktivieren ----
+try:
+    import os as _os
+    if _os.getenv("ENABLE_STYLE_TEMPLATE_APIS") == "1":
+        from backend import style_api as _style_api, templates_api as _templates_api
+        app.include_router(_style_api.router)
+        app.include_router(_templates_api.router)
+except Exception as _e:
+    # bewusst stumm: optionales Feature
+    pass
+# -------------------------------------------------------
+
+# --- OBSERVABILITY_WIRING ---
+try:
+    # Middleware hängt global – unabhängig von optionalen Routern
+    app.add_middleware(RequestLoggerMiddleware)
+except Exception:
+    # Logging/Metrics dürfen niemals Startup verhindern
+    pass
+
+try:
+    app.include_router(obs_router)
+except Exception:
+    # Falls Router doppelt/fehlt: niemals fatale Fehler erzeugen
+    pass
+
+# --- auto-wiring: security (CORS + rate limit) & debug --- 
+try:
+    from backend.security import wire_security
+    wire_security(app)
+except Exception as e:
+    print("WARN: security wiring failed:", e)
+try:
+    from backend.debug_api import router as debug_router
+    app.include_router(debug_router)
+except Exception as e:
+    print("WARN: debug router wiring failed:", e)

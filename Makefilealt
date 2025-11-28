@@ -1,0 +1,19 @@
+BIN := .venv/bin
+APP := backend.api:app
+HOST ?= 127.0.0.1
+PORT ?= 8000
+
+freeport:
+	@pkill -f "gunicorn .*$(APP)" 2>/dev/null || true
+	@pkill -f "uvicorn .*$(APP)" 2>/dev/null || true
+	@fuser -k $(PORT)/tcp 2>/dev/null || true
+	@ss -lptn 'sport = :$(PORT)' || echo "✅ Port $(PORT) ist frei"
+
+dev: freeport
+	@$(BIN)/python -m uvicorn $(APP) --host $(HOST) --port $(PORT) --reload
+
+stop:
+	@pkill -f "uvicorn .*$(APP)" 2>/dev/null || true
+	@pkill -f "gunicorn .*$(APP)" 2>/dev/null || true
+	@fuser -k $(PORT)/tcp 2>/dev/null || true
+	@echo "⏹️  gestoppt"

@@ -1,0 +1,1410 @@
+/home/sodaen/stratgen
+├── Acme_Deck.pptx
+├── Acme GmbH
+├── Acme GmbH (2)
+│   ├── [Content_Types].xml
+│   ├── docProps
+│   │   ├── app.xml
+│   │   ├── core.xml
+│   │   └── thumbnail.jpeg
+│   ├── ppt
+│   │   ├── presentation.xml
+│   │   ├── presProps.xml
+│   │   ├── printerSettings
+│   │   ├── _rels
+│   │   ├── slideLayouts
+│   │   ├── slideMasters
+│   │   ├── slides
+│   │   ├── tableStyles.xml
+│   │   ├── theme
+│   │   └── viewProps.xml
+│   └── _rels
+├── Acme_GmbH-20251025-004434.pptx
+├── __ALL_PY__.txt
+├── backend
+│   ├── agent_api.py
+│   ├── analytics_api.py
+│   ├── analytics_api.py.bak.1760175361
+│   ├── analytics_api.py.bak.1760175380
+│   ├── analytics_api.py.bak.1760178823
+│   ├── analytics_api.py.bak.1760179821
+│   ├── analytics_api.py.bak.1760180595
+│   ├── api.bak.1759822376
+│   ├── api.bak.1759822382
+│   ├── api.py
+│   ├── api.py.bak.1759946976
+│   ├── api.py.bak.1759949563
+│   ├── api.py.bak.1760096578
+│   ├── api.py.bak.1760097510
+│   ├── api.py.bak.1760098047
+│   ├── api.py.bak.1760098478
+│   ├── api.py.bak.1760102171
+│   ├── api.py.bak.1760102656
+│   ├── api.py.bak.1760103381
+│   ├── api.py.bak.1760104653
+│   ├── api.py.bak.1760105935
+│   ├── api.py.bak.1760107034
+│   ├── api.py.bak.1760132806
+│   ├── api.py.bak.1760133324
+│   ├── api.py.bak.1760170255
+│   ├── api.py.bak.1760170638
+│   ├── api.py.bak.1760171379
+│   ├── api.py.bak.1760171387
+│   ├── api.py.bak.1760171746
+│   ├── api.py.bak.1760172539
+│   ├── api.py.bak.1760174188
+│   ├── api.py.bak.1760175361
+│   ├── api.py.bak.1760175380
+│   ├── api.py.bak.1760176564
+│   ├── api.py.bak.1760177662
+│   ├── api.py.bak.1760178204
+│   ├── api.py.bak.1760178549
+│   ├── api.py.bak.1760179179
+│   ├── api.py.bak.1760179821
+│   ├── api.py.bak.1760188501
+│   ├── api.py.bak.1760275454
+│   ├── api.py.bak.1760276420
+│   ├── api.py.bak.1760289087
+│   ├── api.py.bak.1760293538
+│   ├── api.py.bak.1760293557
+│   ├── api.py.bak.1760295018
+│   ├── api.py.bak.1760295029
+│   ├── api.py.bak.1760555036
+│   ├── api.py.bak.1760558568
+│   ├── api.py.bak.1760562506
+│   ├── api.py.bak.1760599234
+│   ├── api.py.bak.1760599289
+│   ├── api.py.bak.1760599432
+│   ├── api.py.bak.1760712702
+│   ├── api.py.bak.1760795116
+│   ├── api.py.bak.1760797584
+│   ├── api.py.bak.1760797608
+│   ├── api.py.bak.1760800896
+│   ├── api.py.bak.1760803913
+│   ├── api.py.bak.uniqueid
+│   ├── auth.py
+│   ├── brand_api.py
+│   ├── brief_api.py
+│   ├── competitor_api.py
+│   ├── content_api.bak.py
+│   ├── content_api.py
+│   ├── datasource_api.py
+│   ├── datasource_api.py.bak.dupes
+│   ├── db.py
+│   ├── dev_api.py
+│   ├── export_api.py
+│   ├── export_api.py.bak.1759838581
+│   ├── export_api.py.bak.1759864998
+│   ├── export_api.py.bak.1759918725
+│   ├── export_api.py.bak.1759931525
+│   ├── feedback_api.py
+│   ├── feedback_api.py.bak.1760175361
+│   ├── feedback_api.py.bak.1760175380
+│   ├── graph_api.py
+│   ├── health.py
+│   ├── health.py.bak.1760097510
+│   ├── images_api.py
+│   ├── ingest_api.py
+│   ├── __init__.py
+│   ├── knowledge_api.py
+│   ├── learn_api.py
+│   ├── messaging_api.py
+│   ├── middleware.py
+│   ├── models.py
+│   ├── ops_api.py
+│   ├── outline_api.bak.1759787934
+│   ├── outline_api.bak.1759787947
+│   ├── outline_api.py
+│   ├── outline_api.py.bak.1759519691
+│   ├── outline_from_content_api.py
+│   ├── persona_api py
+│   ├── persona_api.py
+│   ├── pipeline_api.py
+│   ├── pptx_api.py
+│   ├── pptx_api.py.bak.1761342449
+│   ├── projects_api.py
+│   ├── projects_api.py.bak.1759949095
+│   ├── projects_api.py.bak.1759958618
+│   ├── projects_api.py.bak.1759961646
+│   ├── projects_api.py.bak.1760007228
+│   ├── projects_api.py.bak.1760008166
+│   ├── projects_api.py.bak.1760009082
+│   ├── projects_api.py.bak.1760010228
+│   ├── projects_api.py.bak.1760011018
+│   ├── projects_api.py.bak.1760038078
+│   ├── projects_api.py.bak.1760045302
+│   ├── projects_api.py.bak.1760046206
+│   ├── projects_api.py.bak.1760046801
+│   ├── projects_api.py.bak.1760048492
+│   ├── projects_api.py.bak.1760050014
+│   ├── projects_api.py.bak.1760079958
+│   ├── projects_api.py.bak.1760084680
+│   ├── projects_api.py.bak.1760125742
+│   ├── projects_api.py.bak.1760126547
+│   ├── projects_api.py.bak.1760126554
+│   ├── projects_api.py.bak.1760132407
+│   ├── projects_api.py.bak.1760133324
+│   ├── projects_api.py.bak.1760133769
+│   ├── projects_api.py.bak.1760134128
+│   ├── projects_api.py.bak.1760134559
+│   ├── projects_api.py.bak.1760134956
+│   ├── projects_api.py.bak.1760292103
+│   ├── projects_api.py.bak.1760293525
+│   ├── projects_api.py.bak.1760295040
+│   ├── projects_api.py.bak.1760296347
+│   ├── projects_api.py.bak.1760301458
+│   ├── projects_api.py.bak.1760306618
+│   ├── projects_api.py.bak.1760347437
+│   ├── projects_api.py.bak.1760348530
+│   ├── projects_api.py.bak.1760350732
+│   ├── projects_api.py.bak.1760355167
+│   ├── projects_api.py.bak.1760355180
+│   ├── projects_api.py.bak.1760356701
+│   ├── projects_api.py.bak.1760356717
+│   ├── projects_api.py.bak.1760358829
+│   ├── projects_api.py.bak.1760359950
+│   ├── projects_api.py.bak.1760363122
+│   ├── projects_api.py.bak.1760366842
+│   ├── projects_api.py.bak.1760369044
+│   ├── projects_api.py.bak.1760369056
+│   ├── projects_api.py.bak.1760370567
+│   ├── projects_api.py.bak.1760370574
+│   ├── projects_api.py.bak.1760371192
+│   ├── projects_api.py.bak.1760374357
+│   ├── projects_api.py.bak.1760379206
+│   ├── projects_api.py.bak.1760380684
+│   ├── projects_api.py.bak.1760387358
+│   ├── projects_api.py.bak.1760388870
+│   ├── projects_api.py.bak.1760390121
+│   ├── projects_api.py.bak.1760391120
+│   ├── projects_api.py.bak.1760427843
+│   ├── projects_api.py.bak.1760440579
+│   ├── projects_api.py.bak.1760441456
+│   ├── projects_api.py.bak.1760441470
+│   ├── projects_api.py.bak.1760443889
+│   ├── projects_api.py.bak.1760468517
+│   ├── projects_api.py.bak.1760471187
+│   ├── projects_api.py.bak.1760472636
+│   ├── projects_api.py.bak.1760474605
+│   ├── projects_api.py.bak.1760475440
+│   ├── projects_api.py.bak.1760476884
+│   ├── projects_api.py.bak.1760507678
+│   ├── projects_api.py.bak.1760508956
+│   ├── projects_api.py.bak.1760508968
+│   ├── projects_api.py.bak.1760509961
+│   ├── projects_api.py.bak.1760520280
+│   ├── projects_api.py.bak.1760521829
+│   ├── projects_api.py.bak.1760528898
+│   ├── projects_api.py.bak.1760533292
+│   ├── projects_api.py.bak.1760535207
+│   ├── projects_api.py.bak.1760542305
+│   ├── projects_api.py.bak.1760543969
+│   ├── projects_api.py.bak.1760645399
+│   ├── projects_api.py.bak.1760702589
+│   ├── projects_api.py.bak.1760702606
+│   ├── projects_api.py.bak.1760703942
+│   ├── projects_api.py.bak.1760709737
+│   ├── projects_api.py.bak.1760712683
+│   ├── projects_api.py.bak.1760714750
+│   ├── projects_api.py.bak.1760716761
+│   ├── projects_api.py.bak.1760716769
+│   ├── projects_api.py.bak.1760718738
+│   ├── projects_api.py.bak.1760718784
+│   ├── projects_api.py.bak.1760736261
+│   ├── projects_api.py.bak.1760738702
+│   ├── projects_api.py.bak.1760740174
+│   ├── projects_api.py.bak.1760773609
+│   ├── projects_api.py.bak.1760773711
+│   ├── projects_api.py.bak.1760795075
+│   ├── projects_api.py.bak.1760797573
+│   ├── projects_api.py.bak.1760797596
+│   ├── projects_api.py.bak.1760797625
+│   ├── projects_api.py.bak.1760800836
+│   ├── projects_api.py.bak.1760803903
+│   ├── projects_api.py.bak.1760803913
+│   ├── projects_api.py.bak.1760804286
+│   ├── projects_api.py.bak.1760805667
+│   ├── projects_api.py.bak.1760805886
+│   ├── projects_api.py.bak.1760806234
+│   ├── projects_api.py.bak.csv.1760795099
+│   ├── projects_api.py.bak.list.1760800883
+│   ├── projects_validate.py
+│   ├── projects_validate.py.bak.1760170638
+│   ├── projects_validate.py.bak.1760171379
+│   ├── projects_validate.py.bak.1760171746
+│   ├── __pycache__
+│   │   ├── agent_api.cpython-312.pyc
+│   │   ├── analytics_api.cpython-312.pyc
+│   │   ├── api.cpython-312.pyc
+│   │   ├── auth.cpython-312.pyc
+│   │   ├── brand_api.cpython-312.pyc
+│   │   ├── brief_api.cpython-312.pyc
+│   │   ├── competitor_api.cpython-312.pyc
+│   │   ├── content_api.bak.cpython-312.pyc
+│   │   ├── content_api.cpython-312.pyc
+│   │   ├── datasource_api.cpython-312.pyc
+│   │   ├── db.cpython-312.pyc
+│   │   ├── dev_api.cpython-312.pyc
+│   │   ├── export_api.cpython-312.pyc
+│   │   ├── feedback_api.cpython-312.pyc
+│   │   ├── graph_api.cpython-312.pyc
+│   │   ├── health.cpython-312.pyc
+│   │   ├── images_api.cpython-312.pyc
+│   │   ├── ingest_api.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── knowledge_api.cpython-312.pyc
+│   │   ├── learn_api.cpython-312.pyc
+│   │   ├── messaging_api.cpython-312.pyc
+│   │   ├── middleware.cpython-312.pyc
+│   │   ├── models.cpython-312.pyc
+│   │   ├── ops_api.cpython-312.pyc
+│   │   ├── outline_api.cpython-312.pyc
+│   │   ├── outline_from_content_api.cpython-312.pyc
+│   │   ├── persona_api.cpython-312.pyc
+│   │   ├── pipeline_api.cpython-312.pyc
+│   │   ├── pptx_api.cpython-312.pyc
+│   │   ├── projects_api.cpython-312.pyc
+│   │   ├── projects_validate.cpython-312.pyc
+│   │   ├── research_api.cpython-312.pyc
+│   │   ├── settings.cpython-312.pyc
+│   │   ├── sources_api.cpython-312.pyc
+│   │   ├── style_api.cpython-312.pyc
+│   │   ├── styles_api.cpython-312.pyc
+│   │   ├── system_api.cpython-312.pyc
+│   │   ├── template_api.cpython-312.pyc
+│   │   ├── templates_api.cpython-312.pyc
+│   │   └── ui.cpython-312.pyc
+│   ├── research_api py
+│   ├── research_api.py
+│   ├── research_api py.md
+│   ├── settings.py
+│   ├── sources_api.py
+│   ├── sources_api.py.bak.1759861712
+│   ├── style_api.py
+│   ├── styles_api.py
+│   ├── system_api.py
+│   ├── template_api.py
+│   ├── templates_api.py
+│   └── ui.py
+├── backups
+│   ├── agent_api.1761299314.bak
+│   ├── agent_api.doubleprefix.1760943683.bak
+│   ├── agent_api.doubleprefix.1760943693.bak
+│   ├── agent_api.fix_fpath.1760951468.bak
+│   ├── agent.py.export.1760952236.bak
+│   ├── api.1761225858.bak
+│   ├── api.1761227362.bak
+│   ├── api.1761229177.bak
+│   ├── api.1761299321.bak
+│   ├── api.1761300810.bak
+│   ├── api.dual_knowledge.1760960344.bak
+│   ├── api.py.1760810421.bak
+│   ├── api.py.1760811837.bak
+│   ├── backend.1760808076.bak
+│   │   ├── analytics_api.py
+│   │   ├── analytics_api.py.bak.1760175361
+│   │   ├── analytics_api.py.bak.1760175380
+│   │   ├── analytics_api.py.bak.1760178823
+│   │   ├── analytics_api.py.bak.1760179821
+│   │   ├── analytics_api.py.bak.1760180595
+│   │   ├── api.bak.1759822376
+│   │   ├── api.bak.1759822382
+│   │   ├── api.py
+│   │   ├── api.py.bak.1759946976
+│   │   ├── api.py.bak.1759949563
+│   │   ├── api.py.bak.1760096578
+│   │   ├── api.py.bak.1760097510
+│   │   ├── api.py.bak.1760098047
+│   │   ├── api.py.bak.1760098478
+│   │   ├── api.py.bak.1760102171
+│   │   ├── api.py.bak.1760102656
+│   │   ├── api.py.bak.1760103381
+│   │   ├── api.py.bak.1760104653
+│   │   ├── api.py.bak.1760105935
+│   │   ├── api.py.bak.1760107034
+│   │   ├── api.py.bak.1760132806
+│   │   ├── api.py.bak.1760133324
+│   │   ├── api.py.bak.1760170255
+│   │   ├── api.py.bak.1760170638
+│   │   ├── api.py.bak.1760171379
+│   │   ├── api.py.bak.1760171387
+│   │   ├── api.py.bak.1760171746
+│   │   ├── api.py.bak.1760172539
+│   │   ├── api.py.bak.1760174188
+│   │   ├── api.py.bak.1760175361
+│   │   ├── api.py.bak.1760175380
+│   │   ├── api.py.bak.1760176564
+│   │   ├── api.py.bak.1760177662
+│   │   ├── api.py.bak.1760178204
+│   │   ├── api.py.bak.1760178549
+│   │   ├── api.py.bak.1760179179
+│   │   ├── api.py.bak.1760179821
+│   │   ├── api.py.bak.1760188501
+│   │   ├── api.py.bak.1760275454
+│   │   ├── api.py.bak.1760276420
+│   │   ├── api.py.bak.1760289087
+│   │   ├── api.py.bak.1760293538
+│   │   ├── api.py.bak.1760293557
+│   │   ├── api.py.bak.1760295018
+│   │   ├── api.py.bak.1760295029
+│   │   ├── api.py.bak.1760555036
+│   │   ├── api.py.bak.1760558568
+│   │   ├── api.py.bak.1760562506
+│   │   ├── api.py.bak.1760599234
+│   │   ├── api.py.bak.1760599289
+│   │   ├── api.py.bak.1760599432
+│   │   ├── api.py.bak.1760712702
+│   │   ├── api.py.bak.1760795116
+│   │   ├── api.py.bak.1760797584
+│   │   ├── api.py.bak.1760797608
+│   │   ├── api.py.bak.1760800896
+│   │   ├── api.py.bak.1760803913
+│   │   ├── api.py.bak.uniqueid
+│   │   ├── auth.py
+│   │   ├── brand_api.py
+│   │   ├── brief_api.py
+│   │   ├── competitor_api.py
+│   │   ├── content_api.bak.py
+│   │   ├── content_api.py
+│   │   ├── datasource_api.py
+│   │   ├── datasource_api.py.bak.dupes
+│   │   ├── db.py
+│   │   ├── dev_api.py
+│   │   ├── export_api.py
+│   │   ├── export_api.py.bak.1759838581
+│   │   ├── export_api.py.bak.1759864998
+│   │   ├── export_api.py.bak.1759918725
+│   │   ├── export_api.py.bak.1759931525
+│   │   ├── feedback_api.py
+│   │   ├── feedback_api.py.bak.1760175361
+│   │   ├── feedback_api.py.bak.1760175380
+│   │   ├── health.py
+│   │   ├── health.py.bak.1760097510
+│   │   ├── images_api.py
+│   │   ├── ingest_api.py
+│   │   ├── __init__.py
+│   │   ├── learn_api.py
+│   │   ├── messaging_api.py
+│   │   ├── middleware.py
+│   │   ├── models.py
+│   │   ├── ops_api.py
+│   │   ├── outline_api.bak.1759787934
+│   │   ├── outline_api.bak.1759787947
+│   │   ├── outline_api.py
+│   │   ├── outline_api.py.bak.1759519691
+│   │   ├── outline_from_content_api.py
+│   │   ├── persona_api py
+│   │   ├── persona_api.py
+│   │   ├── pipeline_api.py
+│   │   ├── project_api.py
+│   │   ├── projects_api.py
+│   │   ├── projects_api.py.bak.1759949095
+│   │   ├── projects_api.py.bak.1759958618
+│   │   ├── projects_api.py.bak.1759961646
+│   │   ├── projects_api.py.bak.1760007228
+│   │   ├── projects_api.py.bak.1760008166
+│   │   ├── projects_api.py.bak.1760009082
+│   │   ├── projects_api.py.bak.1760010228
+│   │   ├── projects_api.py.bak.1760011018
+│   │   ├── projects_api.py.bak.1760038078
+│   │   ├── projects_api.py.bak.1760045302
+│   │   ├── projects_api.py.bak.1760046206
+│   │   ├── projects_api.py.bak.1760046801
+│   │   ├── projects_api.py.bak.1760048492
+│   │   ├── projects_api.py.bak.1760050014
+│   │   ├── projects_api.py.bak.1760079958
+│   │   ├── projects_api.py.bak.1760084680
+│   │   ├── projects_api.py.bak.1760125742
+│   │   ├── projects_api.py.bak.1760126547
+│   │   ├── projects_api.py.bak.1760126554
+│   │   ├── projects_api.py.bak.1760132407
+│   │   ├── projects_api.py.bak.1760133324
+│   │   ├── projects_api.py.bak.1760133769
+│   │   ├── projects_api.py.bak.1760134128
+│   │   ├── projects_api.py.bak.1760134559
+│   │   ├── projects_api.py.bak.1760134956
+│   │   ├── projects_api.py.bak.1760292103
+│   │   ├── projects_api.py.bak.1760293525
+│   │   ├── projects_api.py.bak.1760295040
+│   │   ├── projects_api.py.bak.1760296347
+│   │   ├── projects_api.py.bak.1760301458
+│   │   ├── projects_api.py.bak.1760306618
+│   │   ├── projects_api.py.bak.1760347437
+│   │   ├── projects_api.py.bak.1760348530
+│   │   ├── projects_api.py.bak.1760350732
+│   │   ├── projects_api.py.bak.1760355167
+│   │   ├── projects_api.py.bak.1760355180
+│   │   ├── projects_api.py.bak.1760356701
+│   │   ├── projects_api.py.bak.1760356717
+│   │   ├── projects_api.py.bak.1760358829
+│   │   ├── projects_api.py.bak.1760359950
+│   │   ├── projects_api.py.bak.1760363122
+│   │   ├── projects_api.py.bak.1760366842
+│   │   ├── projects_api.py.bak.1760369044
+│   │   ├── projects_api.py.bak.1760369056
+│   │   ├── projects_api.py.bak.1760370567
+│   │   ├── projects_api.py.bak.1760370574
+│   │   ├── projects_api.py.bak.1760371192
+│   │   ├── projects_api.py.bak.1760374357
+│   │   ├── projects_api.py.bak.1760379206
+│   │   ├── projects_api.py.bak.1760380684
+│   │   ├── projects_api.py.bak.1760387358
+│   │   ├── projects_api.py.bak.1760388870
+│   │   ├── projects_api.py.bak.1760390121
+│   │   ├── projects_api.py.bak.1760391120
+│   │   ├── projects_api.py.bak.1760427843
+│   │   ├── projects_api.py.bak.1760440579
+│   │   ├── projects_api.py.bak.1760441456
+│   │   ├── projects_api.py.bak.1760441470
+│   │   ├── projects_api.py.bak.1760443889
+│   │   ├── projects_api.py.bak.1760468517
+│   │   ├── projects_api.py.bak.1760471187
+│   │   ├── projects_api.py.bak.1760472636
+│   │   ├── projects_api.py.bak.1760474605
+│   │   ├── projects_api.py.bak.1760475440
+│   │   ├── projects_api.py.bak.1760476884
+│   │   ├── projects_api.py.bak.1760507678
+│   │   ├── projects_api.py.bak.1760508956
+│   │   ├── projects_api.py.bak.1760508968
+│   │   ├── projects_api.py.bak.1760509961
+│   │   ├── projects_api.py.bak.1760520280
+│   │   ├── projects_api.py.bak.1760521829
+│   │   ├── projects_api.py.bak.1760528898
+│   │   ├── projects_api.py.bak.1760533292
+│   │   ├── projects_api.py.bak.1760535207
+│   │   ├── projects_api.py.bak.1760542305
+│   │   ├── projects_api.py.bak.1760543969
+│   │   ├── projects_api.py.bak.1760645399
+│   │   ├── projects_api.py.bak.1760702589
+│   │   ├── projects_api.py.bak.1760702606
+│   │   ├── projects_api.py.bak.1760703942
+│   │   ├── projects_api.py.bak.1760709737
+│   │   ├── projects_api.py.bak.1760712683
+│   │   ├── projects_api.py.bak.1760714750
+│   │   ├── projects_api.py.bak.1760716761
+│   │   ├── projects_api.py.bak.1760716769
+│   │   ├── projects_api.py.bak.1760718738
+│   │   ├── projects_api.py.bak.1760718784
+│   │   ├── projects_api.py.bak.1760736261
+│   │   ├── projects_api.py.bak.1760738702
+│   │   ├── projects_api.py.bak.1760740174
+│   │   ├── projects_api.py.bak.1760773609
+│   │   ├── projects_api.py.bak.1760773711
+│   │   ├── projects_api.py.bak.1760795075
+│   │   ├── projects_api.py.bak.1760797573
+│   │   ├── projects_api.py.bak.1760797596
+│   │   ├── projects_api.py.bak.1760797625
+│   │   ├── projects_api.py.bak.1760800836
+│   │   ├── projects_api.py.bak.1760803903
+│   │   ├── projects_api.py.bak.1760803913
+│   │   ├── projects_api.py.bak.1760804286
+│   │   ├── projects_api.py.bak.1760805667
+│   │   ├── projects_api.py.bak.1760805886
+│   │   ├── projects_api.py.bak.1760806234
+│   │   ├── projects_api.py.bak.csv.1760795099
+│   │   ├── projects_api.py.bak.list.1760800883
+│   │   ├── projects_validate.py
+│   │   ├── projects_validate.py.bak.1760170638
+│   │   ├── projects_validate.py.bak.1760171379
+│   │   ├── projects_validate.py.bak.1760171746
+│   │   ├── research_api py
+│   │   ├── research_api.py
+│   │   ├── research_api py.md
+│   │   ├── settings.py
+│   │   ├── sources_api.py
+│   │   ├── sources_api.py.bak.1759861712
+│   │   ├── style_api.py
+│   │   ├── styles_api.py
+│   │   ├── system_api.py
+│   │   ├── template_api.py
+│   │   ├── templates_api.py
+│   │   └── ui.py
+│   ├── db.py.1760879534.bak
+│   ├── eval_mini.1761115772.bak
+│   ├── eval_mini.1761116915.bak
+│   ├── ingest_2025-10-03_170947.py
+│   ├── knowledge.1760963966.bak
+│   ├── knowledge.1760966149.bak
+│   ├── knowledge.1760967537.bak
+│   ├── knowledge.1760968445.bak
+│   ├── knowledge.1760986145.bak
+│   ├── knowledge.1760986937.bak
+│   ├── knowledge.1760988474.bak
+│   ├── knowledge.1760997878.bak
+│   ├── knowledge.1761031340.bak
+│   ├── knowledge.1761036795.bak
+│   ├── knowledge.1761039381.bak
+│   ├── knowledge.1761124027.bak
+│   ├── knowledge.1761132005.bak
+│   ├── knowledge.1761135334.bak
+│   ├── knowledge.1761136325.bak
+│   ├── knowledge.1761137160.bak
+│   ├── knowledge.1761139070.bak
+│   ├── knowledge.1761140523.bak
+│   ├── knowledge.1761142185.bak
+│   ├── knowledge.1761145414.bak
+│   ├── knowledge.1761168357.bak
+│   ├── knowledge.1761206571.bak
+│   ├── knowledge_api.1760967537.bak
+│   ├── knowledge_api.1760968454.bak
+│   ├── knowledge_api.1761036807.bak
+│   ├── knowledge_api.1761039401.bak
+│   ├── knowledge_api.1761039426.bak
+│   ├── knowledge_api.1761041044.bak
+│   ├── knowledge_api.add_scan.1760960653.bak
+│   ├── knowledge_api.scanfix.1760961262.bak
+│   ├── knowledge.fix_scan.1760973624.bak
+│   ├── knowledge.scanfix.1760961262.bak
+│   ├── learn_api.py.1760810421.bak
+│   ├── Makefile.agent.1760952246.bak
+│   ├── Makefile.before_fix.1760830574.bak
+│   ├── Makefile.before_include.1760830977.bak
+│   ├── Makefile.before_pptx_inc.1760885233.bak
+│   ├── Makefile.before_pptx_targets.1760884025.bak
+│   ├── Makefile.before_scripts.1760831521.bak
+│   ├── Makefile.broken.1760892848.bak
+│   ├── Makefile.fix.1760830376.bak
+│   ├── Makefile.fullfix.1760894675.bak
+│   ├── Makefile.pptx_clean.1760882369.bak
+│   ├── Makefile.pptx_clean.1760883235.bak
+│   ├── Makefile.pptxfix.1760881692.bak
+│   ├── Makefile.pre_fix_tabs.1760830849.bak
+│   ├── Makefile.pre_fix_tabs.1760830858.bak
+│   ├── Makefile.pre_rescue.1760831217.bak
+│   ├── Makefile.rescue.1760863439.bak
+│   ├── manual
+│   │   ├── projects_api.py.20251025_001858
+│   │   ├── projects_api.py.20251025_002526
+│   │   └── projects_api.py.20251025_002819
+│   ├── pptx_api.1761338216.bak
+│   ├── pptx_ingest.py.1760907852.bak
+│   ├── projects_api.autotune.1760863894.bak
+│   ├── projects_api.autotune_guard.1760864970.bak
+│   ├── projects_api.autotune_stats.1760874086.bak
+│   ├── projects_api.py.1760805251.bak
+│   ├── projects_api.py.autofix.1760821517.bak
+│   ├── projects_api.py.badtry.1760813061.bak
+│   ├── projects_api.py.fix.1760812750.bak
+│   ├── projects_api.py.fixfuture.1760821388.bak
+│   ├── projects_api.py.fixreview.1760825936.bak
+│   ├── projects.sqlite.1760986145.bak
+│   ├── projects.sqlite.1760988474.bak
+│   ├── projects.sqlite.1760996812.bak
+│   ├── projects.sqlite.1760997878.bak
+│   ├── projects.sqlite.1760999043.bak
+│   ├── projects.sqlite.1761000183.bak
+│   ├── projects.sqlite.1761031340.bak
+│   ├── projects.sqlite.1761036785.bak
+│   ├── projects.sqlite.1761048871.bak
+│   ├── projects.sqlite.1761051788.bak
+│   ├── projects.sqlite.1761053309.bak
+│   ├── projects.sqlite.1761055067.bak
+│   ├── projects.sqlite.1761057030.bak
+│   ├── reviewer.py.1760827888.bak
+│   ├── scripts.1760808077.bak
+│   │   ├── changelog.py
+│   │   ├── compare_snapshots.py
+│   │   ├── deck_builder.py
+│   │   ├── dev_sentinel.py
+│   │   ├── e2e.sh
+│   │   ├── ingest.py
+│   │   ├── __init__.py
+│   │   ├── reindex.py
+│   │   ├── run.sh
+│   │   ├── seed_qdrant.py
+│   │   ├── smoke_inline.py
+│   │   ├── smoke_inline.py.bak.1760098031
+│   │   ├── smoke_projects.sh
+│   │   ├── smoke.sh
+│   │   ├── snapshot_repo.py
+│   │   ├── stop.sh
+│   │   ├── style_extractor.py
+│   │   └── validate_template.py
+│   └── services.1760808077.bak
+│       ├── auth.py
+│       ├── brand.py
+│       ├── brand_store.py
+│       ├── cache.py
+│       ├── cache_stub.py
+│       ├── citations.py
+│       ├── compat.py
+│       ├── compat.py.bak.1760095640
+│       ├── connectors py
+│       ├── connectors.py
+│       ├── data_sources.py
+│       ├── datasources.py
+│       ├── datasource_store.py
+│       ├── db.py
+│       ├── db.py.bak.1759949095
+│       ├── db.py.bak.1759957744
+│       ├── db.py.bak.1759957811
+│       ├── db.py.bak.1759958618
+│       ├── db.py.bak.1760776138
+│       ├── deck_builder.py
+│       ├── deck_builder.py.bak.1759918725
+│       ├── deck_builder.py.bak.1759931525
+│       ├── deck_builder.py.bak.1760084680
+│       ├── deck_filler.py
+│       ├── deck_filler.py.bak.1760388863
+│       ├── deck_filler.py.bak.1760390121
+│       ├── deck_filler.py.bak.1760392464
+│       ├── deck_filler.py.bak.1760394129
+│       ├── deck_filler.py.bak.1760427832
+│       ├── deck_filler.py.bak.1760471187
+│       ├── deck_filler.py.bak.1760472643
+│       ├── deck_filler.py.bak.1760474615
+│       ├── deck_filler.py.bak.1760476884
+│       ├── deck_filler.py.bak.1760507678
+│       ├── deck_filler.py.bak.1760607153
+│       ├── deck_filler.py.bak.1760614506
+│       ├── deck_filler.py.bak.1760702568
+│       ├── deck_templates.py
+│       ├── ds_ingest.py
+│       ├── ds_ingest.py.bak
+│       ├── export_api.py
+│       ├── export_tools.py
+│       ├── generator.py
+│       ├── generator.py.bak.1760607143
+│       ├── generator.py.bak.1760614506
+│       ├── generator.py.bak.1760616907
+│       ├── generator.py.bak.1760646883
+│       ├── generator.py.bak.1760648104
+│       ├── generator.py.bak.1760683630
+│       ├── generator.py.bak.1760694271
+│       ├── generator.py.bak.1760698270
+│       ├── generator.py.bak.1760700449
+│       ├── images.py
+│       ├── image_store.py
+│       ├── ingest.py
+│       ├── __init__.py
+│       ├── learn.py
+│       ├── learn_watcher.py
+│       ├── learn_watcher.py.bak.1760558568
+│       ├── llm.py
+│       ├── nlg.py
+│       ├── nlg.py.bak.1760607131
+│       ├── nlg.py.bak.1760614506
+│       ├── outline.py
+│       ├── outline.py.bak.1759520156
+│       ├── policies.py
+│       ├── ppt_renderer.py
+│       ├── preview_image.py
+│       ├── preview_image.py.bak.1759931525
+│       ├── preview_image.py.bak.1759932397
+│       ├── rag_boost.py
+│       ├── rag_pipeline.py
+│       ├── rag_pipeline.py.bak.1759647935
+│       ├── rerank.py
+│       ├── research_providers.py
+│       ├── sources_store.py
+│       ├── style_presets.py
+│       ├── style_presets.py.bak.1760050033
+│       ├── style_presets.py.bak.1760079284
+│       ├── style_presets.py.bak.1760079958
+│       ├── style_presets.py.bak.1760083999
+│       ├── style_presets.py.bak.1760084680
+│       ├── style_presets.py.broken.1760080991
+│       ├── style_profiles.py
+│       ├── telemetry.py
+│       ├── telemetry.py.bak.1760175361
+│       ├── telemetry.py.bak.1760175380
+│       ├── telemetry.py.bak.1760179821
+│       ├── telemetry.py.bak.1760180595
+│       ├── templates.py
+│       ├── template_tools.py
+│       ├── validation.py
+│       ├── validators.py
+│       └── visuals.py
+├── backups_before_patches
+│   ├── backend_20251024-230447
+│   │   ├── agent_api.py
+│   │   ├── analytics_api.py
+│   │   ├── analytics_api.py.bak.1760175361
+│   │   ├── analytics_api.py.bak.1760175380
+│   │   ├── analytics_api.py.bak.1760178823
+│   │   ├── analytics_api.py.bak.1760179821
+│   │   ├── analytics_api.py.bak.1760180595
+│   │   ├── api.bak.1759822376
+│   │   ├── api.bak.1759822382
+│   │   ├── api.py
+│   │   ├── api.py.bak.1759946976
+│   │   ├── api.py.bak.1759949563
+│   │   ├── api.py.bak.1760096578
+│   │   ├── api.py.bak.1760097510
+│   │   ├── api.py.bak.1760098047
+│   │   ├── api.py.bak.1760098478
+│   │   ├── api.py.bak.1760102171
+│   │   ├── api.py.bak.1760102656
+│   │   ├── api.py.bak.1760103381
+│   │   ├── api.py.bak.1760104653
+│   │   ├── api.py.bak.1760105935
+│   │   ├── api.py.bak.1760107034
+│   │   ├── api.py.bak.1760132806
+│   │   ├── api.py.bak.1760133324
+│   │   ├── api.py.bak.1760170255
+│   │   ├── api.py.bak.1760170638
+│   │   ├── api.py.bak.1760171379
+│   │   ├── api.py.bak.1760171387
+│   │   ├── api.py.bak.1760171746
+│   │   ├── api.py.bak.1760172539
+│   │   ├── api.py.bak.1760174188
+│   │   ├── api.py.bak.1760175361
+│   │   ├── api.py.bak.1760175380
+│   │   ├── api.py.bak.1760176564
+│   │   ├── api.py.bak.1760177662
+│   │   ├── api.py.bak.1760178204
+│   │   ├── api.py.bak.1760178549
+│   │   ├── api.py.bak.1760179179
+│   │   ├── api.py.bak.1760179821
+│   │   ├── api.py.bak.1760188501
+│   │   ├── api.py.bak.1760275454
+│   │   ├── api.py.bak.1760276420
+│   │   ├── api.py.bak.1760289087
+│   │   ├── api.py.bak.1760293538
+│   │   ├── api.py.bak.1760293557
+│   │   ├── api.py.bak.1760295018
+│   │   ├── api.py.bak.1760295029
+│   │   ├── api.py.bak.1760555036
+│   │   ├── api.py.bak.1760558568
+│   │   ├── api.py.bak.1760562506
+│   │   ├── api.py.bak.1760599234
+│   │   ├── api.py.bak.1760599289
+│   │   ├── api.py.bak.1760599432
+│   │   ├── api.py.bak.1760712702
+│   │   ├── api.py.bak.1760795116
+│   │   ├── api.py.bak.1760797584
+│   │   ├── api.py.bak.1760797608
+│   │   ├── api.py.bak.1760800896
+│   │   ├── api.py.bak.1760803913
+│   │   ├── api.py.bak.uniqueid
+│   │   ├── auth.py
+│   │   ├── brand_api.py
+│   │   ├── brief_api.py
+│   │   ├── competitor_api.py
+│   │   ├── content_api.bak.py
+│   │   ├── content_api.py
+│   │   ├── datasource_api.py
+│   │   ├── datasource_api.py.bak.dupes
+│   │   ├── db.py
+│   │   ├── dev_api.py
+│   │   ├── export_api.py
+│   │   ├── export_api.py.bak.1759838581
+│   │   ├── export_api.py.bak.1759864998
+│   │   ├── export_api.py.bak.1759918725
+│   │   ├── export_api.py.bak.1759931525
+│   │   ├── feedback_api.py
+│   │   ├── feedback_api.py.bak.1760175361
+│   │   ├── feedback_api.py.bak.1760175380
+│   │   ├── graph_api.py
+│   │   ├── health.py
+│   │   ├── health.py.bak.1760097510
+│   │   ├── images_api.py
+│   │   ├── ingest_api.py
+│   │   ├── __init__.py
+│   │   ├── knowledge_api.py
+│   │   ├── learn_api.py
+│   │   ├── messaging_api.py
+│   │   ├── middleware.py
+│   │   ├── models.py
+│   │   ├── ops_api.py
+│   │   ├── outline_api.bak.1759787934
+│   │   ├── outline_api.bak.1759787947
+│   │   ├── outline_api.py
+│   │   ├── outline_api.py.bak.1759519691
+│   │   ├── outline_from_content_api.py
+│   │   ├── persona_api py
+│   │   ├── persona_api.py
+│   │   ├── pipeline_api.py
+│   │   ├── pptx_api.py
+│   │   ├── project_api.py
+│   │   ├── projects_api.py
+│   │   ├── projects_api.py.bak.1759949095
+│   │   ├── projects_api.py.bak.1759958618
+│   │   ├── projects_api.py.bak.1759961646
+│   │   ├── projects_api.py.bak.1760007228
+│   │   ├── projects_api.py.bak.1760008166
+│   │   ├── projects_api.py.bak.1760009082
+│   │   ├── projects_api.py.bak.1760010228
+│   │   ├── projects_api.py.bak.1760011018
+│   │   ├── projects_api.py.bak.1760038078
+│   │   ├── projects_api.py.bak.1760045302
+│   │   ├── projects_api.py.bak.1760046206
+│   │   ├── projects_api.py.bak.1760046801
+│   │   ├── projects_api.py.bak.1760048492
+│   │   ├── projects_api.py.bak.1760050014
+│   │   ├── projects_api.py.bak.1760079958
+│   │   ├── projects_api.py.bak.1760084680
+│   │   ├── projects_api.py.bak.1760125742
+│   │   ├── projects_api.py.bak.1760126547
+│   │   ├── projects_api.py.bak.1760126554
+│   │   ├── projects_api.py.bak.1760132407
+│   │   ├── projects_api.py.bak.1760133324
+│   │   ├── projects_api.py.bak.1760133769
+│   │   ├── projects_api.py.bak.1760134128
+│   │   ├── projects_api.py.bak.1760134559
+│   │   ├── projects_api.py.bak.1760134956
+│   │   ├── projects_api.py.bak.1760292103
+│   │   ├── projects_api.py.bak.1760293525
+│   │   ├── projects_api.py.bak.1760295040
+│   │   ├── projects_api.py.bak.1760296347
+│   │   ├── projects_api.py.bak.1760301458
+│   │   ├── projects_api.py.bak.1760306618
+│   │   ├── projects_api.py.bak.1760347437
+│   │   ├── projects_api.py.bak.1760348530
+│   │   ├── projects_api.py.bak.1760350732
+│   │   ├── projects_api.py.bak.1760355167
+│   │   ├── projects_api.py.bak.1760355180
+│   │   ├── projects_api.py.bak.1760356701
+│   │   ├── projects_api.py.bak.1760356717
+│   │   ├── projects_api.py.bak.1760358829
+│   │   ├── projects_api.py.bak.1760359950
+│   │   ├── projects_api.py.bak.1760363122
+│   │   ├── projects_api.py.bak.1760366842
+│   │   ├── projects_api.py.bak.1760369044
+│   │   ├── projects_api.py.bak.1760369056
+│   │   ├── projects_api.py.bak.1760370567
+│   │   ├── projects_api.py.bak.1760370574
+│   │   ├── projects_api.py.bak.1760371192
+│   │   ├── projects_api.py.bak.1760374357
+│   │   ├── projects_api.py.bak.1760379206
+│   │   ├── projects_api.py.bak.1760380684
+│   │   ├── projects_api.py.bak.1760387358
+│   │   ├── projects_api.py.bak.1760388870
+│   │   ├── projects_api.py.bak.1760390121
+│   │   ├── projects_api.py.bak.1760391120
+│   │   ├── projects_api.py.bak.1760427843
+│   │   ├── projects_api.py.bak.1760440579
+│   │   ├── projects_api.py.bak.1760441456
+│   │   ├── projects_api.py.bak.1760441470
+│   │   ├── projects_api.py.bak.1760443889
+│   │   ├── projects_api.py.bak.1760468517
+│   │   ├── projects_api.py.bak.1760471187
+│   │   ├── projects_api.py.bak.1760472636
+│   │   ├── projects_api.py.bak.1760474605
+│   │   ├── projects_api.py.bak.1760475440
+│   │   ├── projects_api.py.bak.1760476884
+│   │   ├── projects_api.py.bak.1760507678
+│   │   ├── projects_api.py.bak.1760508956
+│   │   ├── projects_api.py.bak.1760508968
+│   │   ├── projects_api.py.bak.1760509961
+│   │   ├── projects_api.py.bak.1760520280
+│   │   ├── projects_api.py.bak.1760521829
+│   │   ├── projects_api.py.bak.1760528898
+│   │   ├── projects_api.py.bak.1760533292
+│   │   ├── projects_api.py.bak.1760535207
+│   │   ├── projects_api.py.bak.1760542305
+│   │   ├── projects_api.py.bak.1760543969
+│   │   ├── projects_api.py.bak.1760645399
+│   │   ├── projects_api.py.bak.1760702589
+│   │   ├── projects_api.py.bak.1760702606
+│   │   ├── projects_api.py.bak.1760703942
+│   │   ├── projects_api.py.bak.1760709737
+│   │   ├── projects_api.py.bak.1760712683
+│   │   ├── projects_api.py.bak.1760714750
+│   │   ├── projects_api.py.bak.1760716761
+│   │   ├── projects_api.py.bak.1760716769
+│   │   ├── projects_api.py.bak.1760718738
+│   │   ├── projects_api.py.bak.1760718784
+│   │   ├── projects_api.py.bak.1760736261
+│   │   ├── projects_api.py.bak.1760738702
+│   │   ├── projects_api.py.bak.1760740174
+│   │   ├── projects_api.py.bak.1760773609
+│   │   ├── projects_api.py.bak.1760773711
+│   │   ├── projects_api.py.bak.1760795075
+│   │   ├── projects_api.py.bak.1760797573
+│   │   ├── projects_api.py.bak.1760797596
+│   │   ├── projects_api.py.bak.1760797625
+│   │   ├── projects_api.py.bak.1760800836
+│   │   ├── projects_api.py.bak.1760803903
+│   │   ├── projects_api.py.bak.1760803913
+│   │   ├── projects_api.py.bak.1760804286
+│   │   ├── projects_api.py.bak.1760805667
+│   │   ├── projects_api.py.bak.1760805886
+│   │   ├── projects_api.py.bak.1760806234
+│   │   ├── projects_api.py.bak.csv.1760795099
+│   │   ├── projects_api.py.bak.list.1760800883
+│   │   ├── projects_validate.py
+│   │   ├── projects_validate.py.bak.1760170638
+│   │   ├── projects_validate.py.bak.1760171379
+│   │   ├── projects_validate.py.bak.1760171746
+│   │   ├── __pycache__
+│   │   ├── research_api py
+│   │   ├── research_api.py
+│   │   ├── research_api py.md
+│   │   ├── settings.py
+│   │   ├── sources_api.py
+│   │   ├── sources_api.py.bak.1759861712
+│   │   ├── style_api.py
+│   │   ├── styles_api.py
+│   │   ├── system_api.py
+│   │   ├── template_api.py
+│   │   ├── templates_api.py
+│   │   └── ui.py
+│   └── data_20251024-230447
+│       ├── brands
+│       ├── cache
+│       ├── corpus
+│       ├── datasources
+│       ├── eval_prompts.txt
+│       ├── exports
+│       ├── feedback.jsonl
+│       ├── graph.json
+│       ├── knowledge
+│       ├── outlines
+│       ├── projects.sqlite
+│       ├── projects.sqlite.json
+│       ├── raw
+│       ├── raw_dummy.json
+│       ├── sources
+│       ├── stratgen.db
+│       ├── styles
+│       ├── telemetry.jsonl
+│       ├── templates
+│       └── uploads
+├── bin
+│   ├── dev-python
+│   └── dev-uvicorn
+├── CHANGELOG.001.md
+├── CHANGELOG.002.md
+├── CHANGELOG.003.md
+├── CHANGELOG.004.md
+├── CHANGELOG-20251023-102405.md
+├── CHANGELOG.md
+├── changelog.py
+├── changelogs
+│   ├── latest.json
+│   └── snapshots
+│       ├── 20251015-190639.json
+│       ├── 20251015-201224.json
+│       ├── 20251015-204747.json
+│       └── 20251015-224747.json
+├── data
+│   ├── brands
+│   │   ├── acme-gmbh
+│   │   └── Acme GmbH.json
+│   ├── cache
+│   │   ├── cache.db
+│   │   ├── cache.db-shm
+│   │   └── cache.db-wal
+│   ├── corpus
+│   │   ├── tmp0zlr23z7.pptx
+│   │   ├── tmp3ynlcip0.pptx
+│   │   ├── tmp5wmltskf.pptx
+│   │   ├── tmpfg83w7_i.pptx
+│   │   ├── tmpg5i_kf36.pptx
+│   │   ├── tmphyv4jmhh.pptx
+│   │   ├── tmpir9d3x_1.pptx
+│   │   ├── tmpqifal4ay.pptx
+│   │   ├── tmpquc7gsqo.pptx
+│   │   ├── tmptcba7c2l.pptx
+│   │   ├── tmpuhhgxjob.pptx
+│   │   ├── tmpw84r52df.pptx
+│   │   └── tmpww1viy3e.pptx
+│   ├── datasources
+│   │   └── Acme GmbH.json
+│   ├── eval_prompts.txt
+│   ├── exports
+│   │   ├── Acme GmbH-20251025-000339.pptx
+│   │   ├── Acme GmbH-20251025-003654.pptx
+│   │   ├── Acme GmbH-20251025-003926.pptx
+│   │   ├── Acme GmbH-20251025-003935.pptx
+│   │   ├── Acme GmbH-20251025-003946.pptx
+│   │   ├── Acme GmbH-20251025-003954.pptx
+│   │   ├── Acme GmbH-20251025-004434.pptx
+│   │   ├── Acme_GmbH_Campaign_Spring.pptx
+│   │   ├── Acme_GmbH_ChartTable_Demo.pptx
+│   │   ├── Acme_GmbH_CI_Test.pptx
+│   │   ├── Acme_GmbH_Facts_Footnotes_Test.pdf
+│   │   ├── Acme_GmbH_Facts_Footnotes_Test.pptx
+│   │   ├── Acme_GmbH_Go-to-Market_2026.pptx
+│   │   ├── Acme_GmbH_Go-to-Market_2026_RAG.pptx
+│   │   ├── Acme_GmbH_Image_Demo.pptx
+│   │   ├── Acme_GmbH_Marketingstrategie_v1.pptx
+│   │   ├── Acme_GmbH_Mode_Creative.pptx
+│   │   ├── Acme_GmbH_Q4_Strategy_One_Click.pptx
+│   │   ├── Acme_GmbH_Q4_Strategy.pptx
+│   │   ├── Acme_GmbH_UI_Render_Demo.pptx
+│   │   ├── Acme_GoToMarket_2026.zip
+│   │   ├── clean
+│   │   ├── demo-deck.pptx
+│   │   ├── Demo_Kunde_Marketingstrategie_v1.pptx
+│   │   ├── download
+│   │   ├── images
+│   │   ├── _kpi_test.pptx
+│   │   ├── layout2.pptx
+│   │   ├── list
+│   │   ├── _selftest.pptx
+│   │   ├── strategy.pptx
+│   │   ├── _tpltest.pptx
+│   │   └── visuals
+│   ├── feedback.jsonl
+│   ├── graph.json
+│   ├── knowledge
+│   │   ├── 1.txt
+│   │   ├── 2.txt
+│   │   ├── 3.txt
+│   │   ├── 4.txt
+│   │   ├── 5.txt
+│   │   ├── 6.txt
+│   │   ├── 7.txt
+│   │   ├── archetypes
+│   │   ├── cases
+│   │   ├── concepts
+│   │   ├── frameworks
+│   │   ├── glossary
+│   │   ├── marketing_personas.txt
+│   │   └── _meta
+│   ├── outlines
+│   │   ├── acme-gmbh__e2e-demo-20251004_185801.json
+│   │   ├── acme-gmbh__e2e-demo-20251004_190351.json
+│   │   └── acme-gmbh__q4-strategy.json
+│   ├── projects.sqlite
+│   ├── projects.sqlite.json
+│   ├── projects.sqlite.sql
+│   ├── raw
+│   │   ├── 01.11.2018_ALCON_DAILIES_KAMPAGNE_PA_3_final.pptx
+│   │   ├── 08_Präsentation_Seca_24.08_Final Kopie.pptx
+│   │   ├── 190322-Strategy-Hendricks_Final.pptx
+│   │   ├── 20180412_Final_Syntellix_Präsentation_Kickoff_12042018.pptx
+│   │   ├── 20200219_FINAL_SAC_Strategie_Präsentation_CustomizedWhatever.pdf
+│   │   ├── 20200219_FINAL_SAC_Strategie_Präsentation_CustomizedWhatever.pptx
+│   │   ├── 20200302_1511_DRAFT_AVT_Strategie_Präsentation_CustomizedWhatever.pptx
+│   │   ├── 20200703_Xiaomi_SoV_Q2_2020_CusWhat.pptx
+│   │   ├── 20200717_globetrotter_concept_ex-mädelszeit_cw 2.pptx
+│   │   ├── beispiel_deck.pptx
+│   │   ├── BSR_Pitch_Arbeitsbeispiel_SRH_ZWM.pptx
+│   │   ├── Company Report Presentation - Riot Games.pptx
+│   │   ├── demo.txt
+│   │   ├── dummy_master.pptx
+│   │   ├── HAVAS_aha.pptx
+│   │   ├── HE_PR-SocialMedia_Status2018-Outlook2019_190114.pptx
+│   │   ├── Praesentation_HAVASbeebop_FUTURIUM_final.pptx
+│   │   ├── Präsentation_HPA_PITCH_FINAL-print.pdf
+│   │   ├── Präsentation_SRH_App-final.pptx
+│   │   ├── seed.md
+│   │   └── Valora_Influencer_SoMe_Final.pptx
+│   ├── raw_dummy.json
+│   ├── sources
+│   ├── stratgen.db
+│   ├── styles
+│   │   ├── default.txt
+│   │   └── profiles.json
+│   ├── telemetry.jsonl
+│   ├── templates
+│   │   ├── base.pptx
+│   │   └── master.pptx
+│   └── uploads
+│       └── acme_personas.txt
+├── deck_kaufkriterien.pptx
+├── export -> data/exports
+├── frontend
+│   ├── build
+│   │   ├── analytics.d.ts
+│   │   ├── analytics.d.ts.map
+│   │   ├── analytics.js
+│   │   ├── analytics.js.map
+│   │   ├── useAnalytics.d.ts
+│   │   ├── useAnalytics.d.ts.map
+│   │   ├── useAnalytics.js
+│   │   └── useAnalytics.js.map
+│   ├── demo
+│   │   ├── app.js
+│   │   └── index.html
+│   ├── index.html
+│   ├── static
+│   │   ├── admin
+│   │   ├── analytics.js
+│   │   ├── demo
+│   │   └── js
+│   └── ts
+│       ├── analytics.ts
+│       └── useAnalytics.ts
+├── git_history.txt
+├── headers.txt
+├── images
+│   ├── index.json
+│   ├── library
+│   │   ├── a3c9c3cb-4100-4fc6-bd54-97f9cd031d53.png
+│   │   └── c83c95bf-44bb-4da5-9a90-b4b9a8cd74b0.png
+│   └── tmp
+├── logs
+├── make.core.inc
+├── Makefile
+├── Makefilealt
+├── Makefile.bak
+├── Makefile.bak.1760552798
+├── Makefile.bak.1760562498
+├── Makefile.bak.1760596662
+├── Makefile.bak.1760599216
+├── Makefile.bak.1760600671
+├── Makefile.bak-20251004-210918
+├── Makefile.bak-20251004-211000
+├── Makefile.bak.20251005-171707
+├── Makefile.bak-20251007-164156
+├── make.pptx.inc
+├── make.targets.inc
+├── node_modules
+│   └── typescript
+│       ├── bin
+│       ├── lib
+│       ├── LICENSE.txt
+│       ├── package.json
+│       ├── README.md
+│       ├── SECURITY.md
+│       └── ThirdPartyNoticeText.txt
+├── ollama_models
+│   └── Modelfile.qwen7b
+├── package.json
+├── package-lock.json
+├── pptx.targets.mk
+├── prompts
+│   └── strategist.md
+├── __PY_MANIFEST__.txt
+├── pytest.ini
+├── qdrant_storage  [error opening dir]
+├── rag_weights.json
+├── requirements-img.txt
+├── requirements.txt
+├── runs
+│   ├── decks
+│   │   └── gtm-deck-20251024-192042.pptx
+│   ├── eval_no_knowledge.json
+│   └── eval_with_knowledge.json
+├── scripts
+│   ├── agent_quickseed.sh
+│   ├── changelog_append.py
+│   ├── changelog.py
+│   ├── changelog_rotate.py
+│   ├── changelog_watch.py
+│   ├── compare_snapshots.py
+│   ├── deck_builder.py
+│   ├── dev_sentinel.py
+│   ├── e2e.sh
+│   ├── ensure_deck_tables.py
+│   ├── eval_mini.py
+│   ├── graph_from_learned.py
+│   ├── ingest.py
+│   ├── __init__.py
+│   ├── knowledge_watch.py
+│   ├── llm_enhance_smoke.py
+│   ├── llm_ping.py
+│   ├── phase3_autotune_call.py
+│   ├── rag_inject.py
+│   ├── reindex.py
+│   ├── reviews_dump_json.py
+│   ├── reviews_dump.py
+│   ├── reviews_stats.py
+│   ├── run.sh
+│   ├── seed_qdrant.py
+│   ├── self_play.py
+│   ├── smoke_inline.py
+│   ├── smoke_inline.py.bak.1760098031
+│   ├── smoke_projects.sh
+│   ├── smoke.sh
+│   ├── snapshot_repo.py
+│   ├── stop.sh
+│   ├── style_extractor.py
+│   ├── styles_stats.py
+│   └── validate_template.py
+├── services
+│   ├── agent.py
+│   ├── auth.py
+│   ├── brand.py
+│   ├── brand_store.py
+│   ├── cache.py
+│   ├── cache_stub.py
+│   ├── changelog.py
+│   ├── changelog_rotate.py
+│   ├── citations.py
+│   ├── compat.py
+│   ├── compat.py.bak.1760095640
+│   ├── connectors py
+│   ├── connectors.py
+│   ├── data_sources.py
+│   ├── datasources.py
+│   ├── datasource_store.py
+│   ├── db.py
+│   ├── db.py.bak.1759949095
+│   ├── db.py.bak.1759957744
+│   ├── db.py.bak.1759957811
+│   ├── db.py.bak.1759958618
+│   ├── db.py.bak.1760776138
+│   ├── deck_builder.py
+│   ├── deck_builder.py.bak.1759918725
+│   ├── deck_builder.py.bak.1759931525
+│   ├── deck_builder.py.bak.1760084680
+│   ├── deck_filler.py
+│   ├── deck_filler.py.bak.1760388863
+│   ├── deck_filler.py.bak.1760390121
+│   ├── deck_filler.py.bak.1760392464
+│   ├── deck_filler.py.bak.1760394129
+│   ├── deck_filler.py.bak.1760427832
+│   ├── deck_filler.py.bak.1760471187
+│   ├── deck_filler.py.bak.1760472643
+│   ├── deck_filler.py.bak.1760474615
+│   ├── deck_filler.py.bak.1760476884
+│   ├── deck_filler.py.bak.1760507678
+│   ├── deck_filler.py.bak.1760607153
+│   ├── deck_filler.py.bak.1760614506
+│   ├── deck_filler.py.bak.1760702568
+│   ├── deck_templates.py
+│   ├── ds_ingest.py
+│   ├── ds_ingest.py.bak
+│   ├── export_api.py
+│   ├── export_tools.py
+│   ├── generator.py
+│   ├── generator.py.bak.1760607143
+│   ├── generator.py.bak.1760614506
+│   ├── generator.py.bak.1760616907
+│   ├── generator.py.bak.1760646883
+│   ├── generator.py.bak.1760648104
+│   ├── generator.py.bak.1760683630
+│   ├── generator.py.bak.1760694271
+│   ├── generator.py.bak.1760698270
+│   ├── generator.py.bak.1760700449
+│   ├── graph_extract.py
+│   ├── images.py
+│   ├── image_store.py
+│   ├── ingest.py
+│   ├── __init__.py
+│   ├── knowledge_graph.py
+│   ├── knowledge.py
+│   ├── learn_engine.py
+│   ├── learn.py
+│   ├── learn_watcher.py
+│   ├── learn_watcher.py.bak.1760558568
+│   ├── llm.py
+│   ├── nlg
+│   │   ├── funnel.py
+│   │   ├── gtm_basics.py
+│   │   ├── __init__.py
+│   │   ├── personas.py
+│   │   └── __pycache__
+│   ├── nlg.py
+│   ├── nlg.py.bak.1760607131
+│   ├── nlg.py.bak.1760614506
+│   ├── outline.py
+│   ├── outline.py.bak.1759520156
+│   ├── policies.py
+│   ├── ppt_renderer.py
+│   ├── pptx_ingest.py
+│   ├── preview_image.py
+│   ├── preview_image.py.bak.1759931525
+│   ├── preview_image.py.bak.1759932397
+│   ├── __pycache__
+│   │   ├── changelog_rotate.cpython-312.pyc
+│   │   ├── compat.cpython-312.pyc
+│   │   ├── datasources.cpython-312.pyc
+│   │   ├── db.cpython-312.pyc
+│   │   ├── deck_builder.cpython-312.pyc
+│   │   ├── deck_filler.cpython-312.pyc
+│   │   ├── generator.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── knowledge.cpython-312.pyc
+│   │   ├── knowledge_graph.cpython-312.pyc
+│   │   ├── learn_engine.cpython-312.pyc
+│   │   ├── pptx_ingest.cpython-312.pyc
+│   │   ├── reviewer.cpython-312.pyc
+│   │   ├── strategic_grammar.cpython-312.pyc
+│   │   ├── style_presets.cpython-312.pyc
+│   │   ├── style_profiles.cpython-312.pyc
+│   │   └── templates.cpython-312.pyc
+│   ├── rag_boost.py
+│   ├── rag_pipeline.py
+│   ├── rag_pipeline.py.bak.1759647935
+│   ├── rerank.py
+│   ├── research_providers.py
+│   ├── reviewer.py
+│   ├── sources_store.py
+│   ├── strategic_grammar.py
+│   ├── style_presets.py
+│   ├── style_presets.py.bak.1760050033
+│   ├── style_presets.py.bak.1760079284
+│   ├── style_presets.py.bak.1760079958
+│   ├── style_presets.py.bak.1760083999
+│   ├── style_presets.py.bak.1760084680
+│   ├── style_presets.py.broken.1760080991
+│   ├── style_profiler.py
+│   ├── style_profiles.py
+│   ├── telemetry.py
+│   ├── telemetry.py.bak.1760175361
+│   ├── telemetry.py.bak.1760175380
+│   ├── telemetry.py.bak.1760179821
+│   ├── telemetry.py.bak.1760180595
+│   ├── templates.py
+│   ├── template_tools.py
+│   ├── validation.py
+│   ├── validators.py
+│   └── visuals.py
+├── snapshot_files.txt
+├── snapshot_tree.txt
+├── snapshot.txt
+├── stratgen
+│   ├── backend
+│   │   └── api.py
+│   ├── data
+│   │   └── raw
+│   ├── export
+│   ├── logs
+│   ├── requirements-img.txt
+│   ├── requirements.txt
+│   ├── scripts
+│   │   └── ingest.py
+│   ├── services
+│   │   ├── ppt_renderer.py
+│   │   └── rag_pipeline.py
+│   ├── stratgen
+│   │   ├── backend
+│   │   ├── data
+│   │   ├── export
+│   │   ├── logs
+│   │   ├── requirements-img.txt
+│   │   ├── requirements.txt
+│   │   ├── scripts
+│   │   ├── services
+│   │   └── styles
+│   └── styles
+├── styles
+│   ├── backups
+│   │   ├── master_20251002-171542.pptx
+│   │   ├── master_20251002-171847.pptx
+│   │   └── upload_backup_20251002-171503.pptx
+│   ├── master.pptx
+│   └── style.json
+├── templates
+│   └── pptx
+│       ├── brand_default.pptx
+│       ├── index.json
+│       ├── minimal_report.pptx
+│       └── social_pitch.pptx
+├── tests
+│   ├── conftest.py
+│   ├── __pycache__
+│   │   ├── conftest.cpython-312-pytest-8.4.2.pyc
+│   │   ├── test_compat.cpython-312-pytest-8.4.2.pyc
+│   │   ├── test_projects_api.cpython-312-pytest-8.4.2.pyc
+│   │   ├── test_projects_patch.cpython-312-pytest-8.4.2.pyc
+│   │   └── test_smoke.cpython-312-pytest-8.4.2.pyc
+│   ├── test_compat.py
+│   ├── test_projects_api.py
+│   ├── test_projects_patch.py
+│   └── test_smoke.py
+├── tools
+├── tsconfig.json
+├── _upload
+│   ├── graph.json
+│   ├── projects.sqlite
+│   ├── projects.sqlite.json
+│   ├── projects.sqlite.sql
+│   └── raw_dummy.json
+├── upload_stratgen_20251025_0012
+│   └── _upload
+│       ├── graph.json
+│       ├── projects.sqlite
+│       ├── projects.sqlite.json
+│       ├── projects.sqlite.sql
+│       └── raw_dummy.json
+├── upload_stratgen_20251025_0012.zip
+└── ystemctl cat stratgen.service
+
+116 directories, 1292 files

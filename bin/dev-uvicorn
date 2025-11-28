@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP="backend.api:app"
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8001}"
+RELOAD="${RELOAD:---reload}"
+exec "$DIR/.venv/bin/uvicorn" "$APP" --host "$HOST" --port "$PORT" $RELOAD

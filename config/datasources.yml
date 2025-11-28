@@ -1,0 +1,15 @@
+talkwalker:
+  base_url: https://api.talkwalker.com
+  api_key: ${TALKWALKER_API_KEY}
+
+statista:
+  base_url: https://api.statista.com
+  api_key: ${STATISTA_API_KEY}
+
+brandwatch:
+  base_url: https://api.brandwatch.com
+  client_id: ${BRANDWATCH_CLIENT_ID}
+  client_secret: ${BRANDWATCH_CLIENT_SECRET}
+
+custom_uploads:
+  root: data/raw

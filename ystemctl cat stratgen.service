@@ -1,0 +1,20 @@
+[0;1;34m# ]8;;file://sodaen-System-Product-Name/etc/systemd/system/stratgen.service/etc/systemd/system/stratgen.service]8;;[0m
+[0;1;36m[Unit][0m
+Description=StratGen API (Gunicorn/Uvicorn in venv)
+After=network-online.target ollama.service
+Wants=network-online.target
+[0;1;38;5;245m[0m
+[0;1;36m[Service][0m
+Type=simple
+User=sodaen
+Group=sodaen
+WorkingDirectory=/home/sodaen/stratgen
+EnvironmentFile=/home/sodaen/stratgen/.env
+ExecStart=/home/sodaen/stratgen/.venv/bin/gunicorn -k uvicorn.workers.UvicornWorker backend.api:app --bind 127.0.0.1:8000 --workers 4 --threads 1 --timeout 120
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+[0;1;38;5;245m[0m
+[0;1;36m[Install][0m
+WantedBy=multi-user.target

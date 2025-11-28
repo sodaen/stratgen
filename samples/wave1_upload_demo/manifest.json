@@ -1,0 +1,36 @@
+{
+  "version": "0.1",
+  "project": {
+    "customer_name": "Acme GmbH",
+    "topic": "Go-to-Market 2026 (RAG)",
+    "scope": "medium"
+  },
+  "assets": [
+    {
+      "path": "acme_logo.png",
+      "section": "title",
+      "type": "logo",
+      "hints": { "placement_hint": "cover", "priority": "high" },
+      "confidence": 0.95
+    },
+    {
+      "path": "kpi_quarterly.csv",
+      "section": "kpis",
+      "type": "kpi",
+      "hints": { "chart": { "rebuild": true, "preferred": "line" } },
+      "confidence": 0.8
+    },
+    {
+      "path": "market_notes.txt",
+      "section": "insights_datasources",
+      "type": "reference",
+      "hints": { "placement_hint": "body" },
+      "confidence": 0.6
+    }
+  ],
+  "placeholder_policy": {
+    "auto_place_threshold": 0.8,
+    "suggest_threshold": 0.5,
+    "below_threshold_placeholder": true
+  }
+}

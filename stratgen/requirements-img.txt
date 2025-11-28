@@ -1,0 +1,6 @@
+diffusers>=0.28
+transformers>=4.41
+accelerate>=0.30
+# Für CPU-only PyTorch (funktioniert ohne CUDA, langsamer):
+# Du kannst später passend zu deiner GPU installieren; für CPU:
+torch --index-url https://download.pytorch.org/whl/cpu
