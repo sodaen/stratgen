@@ -171,6 +171,24 @@ except ImportError:
     HAS_VISUAL_INTELLIGENCE = False
     enhance_all_slides = None
 
+# Learning & Adaptation (Stufe 4)
+try:
+    from services.learning_adaptation import (
+        record_feedback,
+        predict_quality,
+        record_quality_result,
+        get_merged_style,
+        get_improvement_suggestions,
+        learn_from_all_templates,
+        get_feedback_stats,
+        check_status as learning_status
+    )
+    HAS_LEARNING = True
+except ImportError:
+    HAS_LEARNING = False
+    predict_quality = None
+    get_merged_style = None
+
 # Template Learner (Quick Win 2)
 try:
     from services.template_learner import (
@@ -1400,7 +1418,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.3",
+        "version": "3.4",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1419,6 +1437,7 @@ def agent_v3_status():
             "knowledge": HAS_KNOWLEDGE,
             "knowledge_enhanced": HAS_KNOWLEDGE_ENHANCED,
             "visual_intelligence": HAS_VISUAL_INTELLIGENCE,
+            "learning_adaptation": HAS_LEARNING,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
