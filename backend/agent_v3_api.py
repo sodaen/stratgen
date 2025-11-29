@@ -1,37 +1,42 @@
 # -*- coding: utf-8 -*-
 """
-backend/agent_v3.py
-===================
-Agent V3 - Vollständige Orchestrierung aller Services.
+backend/agent_v3_api.py
+=======================
+Agent V3.1 - Mit Quick Wins + Agent Intelligence (Stufe 1)
 
-Dieser Agent ersetzt V1 und V2 und verbindet:
-- LLM Content Generation (nicht mehr hardcoded!)
-- Knowledge/RAG Search
-- Asset Tagging & Matching
-- Chart Generation
-- Template Learning
-- Feedback Integration
-- PPTX Rendering
+QUICK WINS:
+1. NLG-Module Integration (12 vorhandene Module aktiviert)
+2. Template-Learner Integration (lernt aus /raw)
+3. Feedback-Loop Integration (speichert Qualitätsdaten)
+4. Multi-Model Support (verschiedene Ollama-Modelle für verschiedene Tasks)
+
+STUFE 1 - AGENT INTELLIGENCE:
+- Multi-Step Reasoning Chain
+- Kontextuelles Slide-Generieren
+- Dynamische Slide-Anzahl
+- Iterative Verbesserung
+- Selbstkritik und Auto-Revision
 
 Pipeline:
-1. BRIEFING    → Parse & Analyse
-2. KNOWLEDGE   → RAG Search + Enrichment
-3. STRUCTURE   → Outline basierend auf Deck-Size
-4. CONTENT     → LLM-generierte Slides
-5. VISUALS     → Charts + Asset-Matching
-6. CRITIQUE    → Qualitätsprüfung
-7. RENDER      → PPTX/PDF/HTML Export
-8. FEEDBACK    → Quality Score speichern
+1. ANALYZE   → Briefing verstehen, Komplexität einschätzen
+2. PLAN      → Struktur dynamisch planen
+3. RESEARCH  → RAG + Knowledge sammeln
+4. DRAFT     → Content generieren (kontextbewusst)
+5. CRITIQUE  → Selbstkritik
+6. REVISE    → Verbesserung (iterativ)
+7. VISUALIZE → Charts + Assets
+8. RENDER    → PPTX Export
 """
 from __future__ import annotations
 import os
 import time
 import json
-import requests
+import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from enum import Enum
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
@@ -48,11 +53,74 @@ try:
         generate_critique,
         generate_metrics,
         generate_slide_content,
-        check_ollama
+        generate_from_template,
+        check_ollama,
+        _ollama_generate
     )
     HAS_LLM_CONTENT = True
 except ImportError:
     HAS_LLM_CONTENT = False
+    _ollama_generate = None
+
+# NLG Modules (Quick Win 1)
+try:
+    from services.nlg import (
+        mod_exec_summary,
+        mod_audience,
+        mod_insights,
+        mod_positioning,
+        mod_messaging,
+        mod_channels,
+        mod_metrics,
+        mod_risks,
+        mod_next_steps
+    )
+    HAS_NLG = True
+except ImportError:
+    HAS_NLG = False
+
+# Spezifische NLG-Module
+NLG_MODULES = {}
+try:
+    from services.nlg.personas import generate as nlg_personas
+    NLG_MODULES["personas"] = nlg_personas
+except ImportError:
+    pass
+try:
+    from services.nlg.gtm_basics import generate as nlg_gtm
+    NLG_MODULES["gtm"] = nlg_gtm
+except ImportError:
+    pass
+try:
+    from services.nlg.funnel import generate as nlg_funnel
+    NLG_MODULES["funnel"] = nlg_funnel
+except ImportError:
+    pass
+try:
+    from services.nlg.kpis import generate as nlg_kpis
+    NLG_MODULES["kpis"] = nlg_kpis
+except ImportError:
+    pass
+try:
+    from services.nlg.market_sizing import generate as nlg_market
+    NLG_MODULES["market_sizing"] = nlg_market
+except ImportError:
+    pass
+try:
+    from services.nlg.competitive import generate as nlg_competitive
+    NLG_MODULES["competitive"] = nlg_competitive
+except ImportError:
+    pass
+try:
+    from services.nlg.value_proof import generate as nlg_value
+    NLG_MODULES["value_proof"] = nlg_value
+except ImportError:
+    pass
+try:
+    from services.nlg.risks_mitigations import generate as nlg_risks
+    NLG_MODULES["risks"] = nlg_risks
+except ImportError:
+    pass
 
 # Asset Tagger
 try:
@@ -70,30 +138,35 @@ try:
     from services.chart_generator import (
         create_bar_chart,
         create_pie_chart,
+        create_line_chart,
         create_timeline,
         create_funnel_chart,
+        create_gauge_chart,
+        create_comparison_matrix,
         auto_create_chart
     )
     HAS_CHART_GEN = True
 except ImportError:
     HAS_CHART_GEN = False
 
-# Template Learner
+# Template Learner (Quick Win 2)
 try:
     from services.template_learner import (
         suggest_structure,
+        scan_templates,
         get_statistics as get_template_stats
     )
     HAS_TEMPLATE_LEARNER = True
 except ImportError:
     HAS_TEMPLATE_LEARNER = False
 
-# Feedback Loop
+# Feedback Loop (Quick Win 3)
 try:
     from services.feedback_loop import (
         get_quality_score,
         get_improvement_suggestions,
-        record_feedback
+        record_feedback,
+        analyze_patterns
     )
     HAS_FEEDBACK = True
 except ImportError:
@@ -102,48 +175,35 @@ except ImportError:
 # Knowledge/RAG
 try:
     from services.knowledge import search as knowledge_search, scan_dir as scan_knowledge
+    HAS_KNOWLEDGE = True
 except ImportError:
     knowledge_search = None
-    scan_knowledge = None
-
-# Generator (für Fallback)
-try:
-    from services.generator import generate as legacy_generate
-except ImportError:
-    legacy_generate = None
+    HAS_KNOWLEDGE = False
 
 # ============================================
 # KONFIGURATION
 # ============================================
 
-API_BASE = os.getenv("STRATGEN_INTERNAL_URL", "http://127.0.0.1:8011").rstrip("/")
 EXPORTS_DIR = os.getenv("STRATGEN_EXPORTS_DIR", "data/exports")
 UPLOADS_DIR = os.getenv("STRATGEN_UPLOADS_DIR", "data/uploads")
+RAW_DIR = os.getenv("STRATGEN_RAW_DIR", "data/raw")
 
-# Deck-Size Konfiguration
-DECK_SIZES = {
-    "short": {"min_slides": 5, "max_slides": 10, "target": 7},
-    "medium": {"min_slides": 12, "max_slides": 25, "target": 18},
-    "large": {"min_slides": 25, "max_slides": 50, "target": 35},
+# Multi-Model Konfiguration (Quick Win 4)
+OLLAMA_MODELS = {
+    "default": os.getenv("LLM_MODEL", "mistral"),
+    "fast": "mistral",           # Schnell für einfache Tasks
+    "quality": "llama3:8b",      # Qualität für wichtige Inhalte
+    "creative": "mistral",       # Kreativ für Ideen
+    "analysis": "qwen2.5:7b-instruct",  # Analyse/Reasoning
 }
 
-# Slide-Typen für verschiedene Module
-SLIDE_MODULES = {
-    "title": {"required": True, "order": 0},
-    "agenda": {"required": False, "order": 1, "min_size": "medium"},
-    "executive_summary": {"required": True, "order": 2},
-    "problem": {"required": True, "order": 3},
-    "solution": {"required": True, "order": 4},
-    "use_cases": {"required": False, "order": 5, "expandable": True},
-    "benefits": {"required": True, "order": 6},
-    "roi": {"required": False, "order": 7, "min_size": "medium"},
-    "roadmap": {"required": True, "order": 8},
-    "team": {"required": False, "order": 9, "min_size": "large"},
-    "competitive": {"required": False, "order": 10, "min_size": "large"},
-    "risks": {"required": False, "order": 11, "min_size": "medium"},
-    "next_steps": {"required": True, "order": 12},
-    "appendix": {"required": False, "order": 13, "min_size": "large"},
-    "contact": {"required": True, "order": 14},
+# Agent Intelligence Konfiguration
+AGENT_CONFIG = {
+    "max_iterations": 3,         # Max Verbesserungsschleifen
+    "quality_threshold": 7.5,    # Mindestqualität (1-10)
+    "min_slides": 5,
+    "max_slides": 50,
+    "context_window_slides": 3,  # Slides vor/nach für Kontext
 }
 
 # ============================================
@@ -151,6 +211,13 @@ SLIDE_MODULES = {
 # ============================================
 
 router = APIRouter(prefix="/agent", tags=["agent-v3"])
+
+
+class DeckSize(str, Enum):
+    SHORT = "short"
+    MEDIUM = "medium"
+    LARGE = "large"
+    AUTO = "auto"  # Agent entscheidet
 
 
 class AgentV3Request(BaseModel):
@@ -163,7 +230,7 @@ class AgentV3Request(BaseModel):
     audience: str = ""
     
     # Konfiguration
-    deck_size: str = "medium"  # short, medium, large
+    deck_size: DeckSize = DeckSize.MEDIUM
     language: str = "de"
     style: str = "professional"
     
@@ -174,10 +241,41 @@ class AgentV3Request(BaseModel):
     include_critique: bool = True
     export_pptx: bool = True
     
+    # Agent Intelligence
+    auto_improve: bool = True    # Iterative Verbesserung
+    max_iterations: int = 2      # Max Verbesserungsschleifen
+    use_nlg_modules: bool = True # NLG-Module nutzen
+    learn_from_templates: bool = True  # Aus /raw lernen
+    
     # Advanced
     k: int = 5  # RAG top-k
-    use_cases: List[str] = []
-    custom_sections: List[str] = []
+    use_cases: List[str] = Field(default_factory=list)
+    custom_sections: List[str] = Field(default_factory=list)
+    model_override: str = ""     # Spezifisches Modell erzwingen
+
+
+class SlideContent(BaseModel):
+    """Ein einzelner Slide."""
+    type: str
+    title: str
+    bullets: List[str] = Field(default_factory=list)
+    notes: str = ""
+    layout_hint: str = "Title and Content"
+    citations: List[str] = Field(default_factory=list)
+    chart: Optional[str] = None
+    image: Optional[str] = None
+    has_chart: bool = False
+    confidence: float = 0.8  # Wie sicher ist der Agent über diesen Slide
+
+
+class AgentPlan(BaseModel):
+    """Der Plan des Agents."""
+    complexity: str = "medium"  # low, medium, high
+    estimated_slides: int = 15
+    key_topics: List[str] = Field(default_factory=list)
+    recommended_sections: List[str] = Field(default_factory=list)
+    research_queries: List[str] = Field(default_factory=list)
+    rationale: str = ""
 
 
 class AgentV3Response(BaseModel):
@@ -187,8 +285,13 @@ class AgentV3Response(BaseModel):
     project_id: Optional[str] = None
     
     # Ergebnisse
-    slides: List[Dict[str, Any]] = []
+    slides: List[Dict[str, Any]] = Field(default_factory=list)
     slide_count: int = 0
+    
+    # Agent Intelligence
+    plan: Optional[Dict[str, Any]] = None
+    iterations: int = 1
+    final_quality: float = 0.0
     
     # Exports
     pptx_url: Optional[str] = None
@@ -199,8 +302,9 @@ class AgentV3Response(BaseModel):
     duration_s: float = 0
     
     # Details
-    phases: Dict[str, Any] = {}
-    warnings: List[str] = []
+    phases: Dict[str, Any] = Field(default_factory=dict)
+    warnings: List[str] = Field(default_factory=list)
+    improvements: List[str] = Field(default_factory=list)
 
 
 # ============================================
@@ -212,248 +316,315 @@ def _generate_run_id() -> str:
     return f"v3-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{os.urandom(4).hex()}"
 
 
-def _http_get(path: str, params: dict = None, timeout: int = 30) -> Optional[dict]:
-    """HTTP GET Request an interne API."""
-    try:
-        resp = requests.get(f"{API_BASE}{path}", params=params, timeout=timeout)
-        if resp.status_code == 200:
-            return resp.json()
-    except Exception:
-        pass
-    return None
+def _select_model(task: str, override: str = "") -> str:
+    """Wählt das beste Modell für einen Task (Quick Win 4)."""
+    if override:
+        return override
+    return OLLAMA_MODELS.get(task, OLLAMA_MODELS["default"])
 
 
-def _http_post(path: str, json_data: dict = None, timeout: int = 60) -> Optional[dict]:
-    """HTTP POST Request an interne API."""
-    try:
-        resp = requests.post(f"{API_BASE}{path}", json=json_data, timeout=timeout)
-        if resp.status_code == 200:
-            return resp.json()
-    except Exception:
-        pass
-    return None
+def _llm_call(prompt: str, task: str = "default", model_override: str = "", max_tokens: int = 1000) -> str:
+    """Zentraler LLM-Call mit Model-Selection."""
+    if not HAS_LLM_CONTENT or not _ollama_generate:
+        return ""
+    
+    model = _select_model(task, model_override)
+    result = _ollama_generate(prompt, model=model, max_tokens=max_tokens)
+    return result.get("text", "") if isinstance(result, dict) else str(result)
 
 
 # ============================================
-# PHASE 1: BRIEFING ANALYSE
+# PHASE 1: ANALYZE (Agent Intelligence)
 # ============================================
 
-def phase_briefing(req: AgentV3Request) -> Dict[str, Any]:
+def phase_analyze(req: AgentV3Request) -> AgentPlan:
     """
-    Phase 1: Analysiert das Briefing und extrahiert Struktur.
+    Phase 1: Analysiert das Briefing und erstellt einen Plan.
+    Der Agent "denkt" über die Aufgabe nach.
     """
-    result = {
-        "topic": req.topic,
-        "customer": req.customer_name,
-        "industry": req.industry,
-        "audience": req.audience,
-        "deck_size": req.deck_size,
-        "use_cases": req.use_cases or [],
-        "keywords": [],
-    }
+    # Komplexität einschätzen
+    brief_length = len(req.brief)
+    has_use_cases = len(req.use_cases) > 0
+    has_custom = len(req.custom_sections) > 0
     
-    # Keywords aus Brief extrahieren
-    brief_text = f"{req.topic} {req.brief} {req.industry}".lower()
-    keyword_patterns = [
-        "roi", "kosten", "einsparung", "effizienz", "automation",
-        "digital", "transformation", "ki", "ai", "strategie",
-        "marketing", "sales", "growth", "expansion"
-    ]
+    if brief_length < 100 and not has_use_cases:
+        complexity = "low"
+        estimated = 7
+    elif brief_length > 500 or has_use_cases or has_custom:
+        complexity = "high"
+        estimated = 25
+    else:
+        complexity = "medium"
+        estimated = 15
     
-    result["keywords"] = [kw for kw in keyword_patterns if kw in brief_text]
+    # Deck Size Override
+    if req.deck_size == DeckSize.SHORT:
+        estimated = min(estimated, 10)
+    elif req.deck_size == DeckSize.LARGE:
+        estimated = max(estimated, 25)
+    elif req.deck_size == DeckSize.AUTO:
+        pass  # Agent entscheidet
     
-    # Use Cases aus Brief extrahieren wenn nicht angegeben
-    if not result["use_cases"] and req.brief:
-        # Einfache Extraktion - könnte mit LLM verbessert werden
-        if HAS_LLM_CONTENT:
-            # TODO: LLM-basierte Use-Case-Extraktion
+    # LLM-basierte Analyse (wenn verfügbar)
+    key_topics = []
+    research_queries = []
+    rationale = ""
+    
+    if HAS_LLM_CONTENT and req.brief:
+        analysis_prompt = f"""Analysiere dieses Briefing für eine Strategie-Präsentation:
+
+Thema: {req.topic}
+Briefing: {req.brief}
+Kunde: {req.customer_name}
+Branche: {req.industry}
+Zielgruppe: {req.audience}
+
+Gib zurück (JSON):
+{{
+    "key_topics": ["Liste der 3-5 wichtigsten Themen"],
+    "research_queries": ["3-5 Suchbegriffe für Knowledge Base"],
+    "recommended_sections": ["empfohlene Slide-Typen"],
+    "rationale": "Kurze Begründung für die Struktur"
+}}
+
+NUR JSON, keine Erklärung."""
+
+        try:
+            result = _llm_call(analysis_prompt, task="analysis", max_tokens=500)
+            # JSON extrahieren
+            import re
+            json_match = re.search(r'\{.*\}', result, re.DOTALL)
+            if json_match:
+                data = json.loads(json_match.group())
+                key_topics = data.get("key_topics", [])[:5]
+                research_queries = data.get("research_queries", [])[:5]
+                rationale = data.get("rationale", "")
+        except Exception:
             pass
     
-    return result
+    # Fallback Key Topics
+    if not key_topics:
+        key_topics = [req.topic]
+        if req.industry:
+            key_topics.append(f"{req.industry} Strategie")
+        if req.customer_name:
+            key_topics.append(f"Lösung für {req.customer_name}")
+    
+    # Fallback Research Queries
+    if not research_queries:
+        research_queries = [
+            req.topic,
+            f"{req.topic} {req.industry}",
+            f"{req.topic} Best Practices"
+        ]
+    
+    return AgentPlan(
+        complexity=complexity,
+        estimated_slides=estimated,
+        key_topics=key_topics,
+        research_queries=research_queries,
+        rationale=rationale or f"Basierend auf Briefing-Länge ({brief_length} Zeichen) und Komplexität"
+    )
 
 
 # ============================================
-# PHASE 2: KNOWLEDGE SEARCH (RAG)
+# PHASE 2: RESEARCH (Enhanced RAG)
 # ============================================
 
-def phase_knowledge(req: AgentV3Request, briefing: Dict[str, Any]) -> Dict[str, Any]:
+def phase_research(req: AgentV3Request, plan: AgentPlan) -> Dict[str, Any]:
     """
     Phase 2: Sucht relevantes Wissen aus Knowledge Base.
+    Nutzt die geplanten Research-Queries.
     """
     result = {
         "sources": [],
         "facts": [],
         "citations": [],
+        "template_insights": [],
     }
     
     if not req.use_rag:
         return result
     
-    # Knowledge Search
-    query = f"{req.topic} {req.brief} {req.industry}"
+    # Knowledge Base durchsuchen
+    if HAS_KNOWLEDGE and knowledge_search:
+        all_results = []
+        for query in plan.research_queries[:5]:
+            try:
+                search_result = knowledge_search(query, limit=3, semantic=1)
+                if search_result.get("ok"):
+                    all_results.extend(search_result.get("results", []))
+            except Exception:
+                pass
+        
+        # Deduplizieren
+        seen_paths = set()
+        for item in all_results:
+            path = item.get("path", "")
+            if path not in seen_paths:
+                seen_paths.add(path)
+                result["sources"].append({
+                    "path": path,
+                    "title": item.get("title") or Path(path).stem,
+                    "snippet": item.get("snippet", "")[:300]
+                })
+                if item.get("snippet"):
+                    result["facts"].append(item["snippet"][:400])
     
-    if knowledge_search:
+    # Template-Insights (Quick Win 2)
+    if req.learn_from_templates and HAS_TEMPLATE_LEARNER:
         try:
-            search_result = knowledge_search(query, limit=req.k, semantic=1)
-            if search_result.get("ok"):
-                for item in search_result.get("results", []):
-                    result["sources"].append({
-                        "path": item.get("path"),
-                        "title": item.get("title") or Path(item.get("path", "")).stem,
-                        "snippet": item.get("snippet", "")[:200]
-                    })
-                    if item.get("snippet"):
-                        result["facts"].append(item["snippet"][:300])
+            # Templates scannen falls noch nicht geschehen
+            scan_templates(RAW_DIR)
+            
+            # Statistiken holen
+            stats = get_template_stats()
+            if stats.get("ok") and stats.get("patterns"):
+                patterns = stats["patterns"]
+                result["template_insights"] = [
+                    f"Durchschnittlich {patterns.get('avg_bullets_per_slide', 4)} Bullets pro Slide",
+                    f"Durchschnittlich {patterns.get('avg_slides_per_deck', 15)} Slides pro Deck",
+                ]
         except Exception:
             pass
-    
-    # Fallback: HTTP API
-    if not result["sources"]:
-        resp = _http_get("/knowledge/search_semantic", {"q": query, "k": req.k})
-        if resp:
-            for item in resp.get("results", []) or resp.get("items", []):
-                result["sources"].append({
-                    "path": item.get("path"),
-                    "title": item.get("title", ""),
-                    "snippet": item.get("snippet", "")[:200]
-                })
     
     return result
 
 
 # ============================================
-# PHASE 3: STRUCTURE PLANNING
+# PHASE 3: STRUCTURE (Dynamic Planning)
 # ============================================
 
-def phase_structure(req: AgentV3Request, briefing: Dict[str, Any]) -> Dict[str, Any]:
+def phase_structure(req: AgentV3Request, plan: AgentPlan, research: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Phase 3: Plant die Deck-Struktur basierend auf Größe und Briefing.
+    Phase 3: Plant die Deck-Struktur dynamisch basierend auf Analyse.
     """
-    size_config = DECK_SIZES.get(req.deck_size, DECK_SIZES["medium"])
-    
-    # Basis-Struktur aus Template Learner
-    if HAS_TEMPLATE_LEARNER:
-        suggestion = suggest_structure(
-            deck_size=req.deck_size,
-            topic=req.topic,
-            industry=req.industry
-        )
-        if suggestion.get("ok"):
-            return {
-                "slides": suggestion.get("slides", []),
-                "target_count": len(suggestion.get("slides", [])),
-                "source": "template_learner"
-            }
-    
-    # Fallback: Manuell aufbauen
     slides = []
     
-    for module, config in sorted(SLIDE_MODULES.items(), key=lambda x: x[1]["order"]):
-        # Prüfe ob Modul für diese Größe relevant
-        min_size = config.get("min_size")
-        if min_size:
-            size_order = {"short": 0, "medium": 1, "large": 2}
-            if size_order.get(req.deck_size, 1) < size_order.get(min_size, 1):
-                continue
-        
-        # Füge Slide hinzu
+    # Template-Learner Vorschlag (Quick Win 2)
+    if req.learn_from_templates and HAS_TEMPLATE_LEARNER:
+        try:
+            size_map = {"short": "short", "medium": "medium", "large": "large", "auto": "medium"}
+            suggestion = suggest_structure(
+                deck_size=size_map.get(req.deck_size.value, "medium"),
+                topic=req.topic,
+                industry=req.industry
+            )
+            if suggestion.get("ok") and suggestion.get("slides"):
+                return suggestion["slides"]
+        except Exception:
+            pass
+    
+    # Dynamische Struktur basierend auf Komplexität
+    base_modules = [
+        {"type": "title", "title": req.topic, "required": True},
+        {"type": "executive_summary", "title": "Executive Summary", "required": True},
+        {"type": "problem", "title": "Herausforderung", "required": True},
+        {"type": "solution", "title": "Unser Ansatz", "required": True},
+        {"type": "benefits", "title": "Ihr Nutzen", "required": True},
+        {"type": "next_steps", "title": "Nächste Schritte", "required": True},
+        {"type": "contact", "title": "Kontakt", "required": True},
+    ]
+    
+    optional_modules = [
+        {"type": "agenda", "title": "Agenda", "complexity": "medium"},
+        {"type": "use_case", "title": "Use Case", "complexity": "medium"},
+        {"type": "roi", "title": "ROI & Business Case", "complexity": "medium"},
+        {"type": "roadmap", "title": "Roadmap", "complexity": "low"},
+        {"type": "team", "title": "Unser Team", "complexity": "high"},
+        {"type": "competitive", "title": "Marktpositionierung", "complexity": "high"},
+        {"type": "risks", "title": "Risiken & Mitigation", "complexity": "high"},
+        {"type": "personas", "title": "Zielgruppen", "complexity": "high"},
+        {"type": "kpis", "title": "KPIs & Metriken", "complexity": "medium"},
+    ]
+    
+    complexity_order = {"low": 0, "medium": 1, "high": 2}
+    plan_complexity = complexity_order.get(plan.complexity, 1)
+    
+    # Required Slides
+    for mod in base_modules:
         slides.append({
-            "type": module,
-            "title": _get_default_title(module, req.language),
-            "order": config["order"]
+            "type": mod["type"],
+            "title": mod["title"],
+            "order": len(slides)
         })
-        
-        # Expandable Slides (z.B. Use Cases)
-        if config.get("expandable") and module == "use_cases":
-            for i, uc in enumerate(briefing.get("use_cases", [])[:5]):
-                slides.append({
-                    "type": "use_case_detail",
-                    "title": f"Use Case: {uc}",
-                    "use_case": uc,
-                    "order": config["order"] + 0.1 * (i + 1)
-                })
     
-    # Sortieren
-    slides.sort(key=lambda x: x.get("order", 99))
+    # Optional Slides basierend auf Komplexität
+    for mod in optional_modules:
+        mod_complexity = complexity_order.get(mod.get("complexity", "medium"), 1)
+        if mod_complexity <= plan_complexity:
+            # Vor "next_steps" einfügen
+            insert_idx = len(slides) - 2
+            slides.insert(insert_idx, {
+                "type": mod["type"],
+                "title": mod["title"],
+                "order": insert_idx
+            })
     
-    # Custom Sections einfügen
+    # Use Cases hinzufügen
+    if req.use_cases:
+        insert_idx = next((i for i, s in enumerate(slides) if s["type"] == "benefits"), len(slides) - 2)
+        for i, uc in enumerate(req.use_cases[:5]):
+            slides.insert(insert_idx + i, {
+                "type": "use_case_detail",
+                "title": f"Use Case: {uc}",
+                "use_case": uc,
+                "order": insert_idx + i
+            })
+    
+    # Custom Sections
     if req.custom_sections:
-        insert_idx = len(slides) - 2  # Vor "next_steps" und "contact"
+        insert_idx = len(slides) - 2
         for section in req.custom_sections:
             slides.insert(insert_idx, {
                 "type": "custom",
                 "title": section,
-                "order": 50
+                "order": insert_idx
             })
             insert_idx += 1
     
-    return {
-        "slides": slides,
-        "target_count": len(slides),
-        "source": "rule_based"
-    }
-
-
-def _get_default_title(module: str, language: str = "de") -> str:
-    """Gibt den Default-Titel für ein Modul zurück."""
-    titles_de = {
-        "title": "Strategiepräsentation",
-        "agenda": "Agenda",
-        "executive_summary": "Executive Summary",
-        "problem": "Herausforderung",
-        "solution": "Unser Ansatz",
-        "use_cases": "Use Cases",
-        "benefits": "Ihr Nutzen",
-        "roi": "ROI & Business Case",
-        "roadmap": "Roadmap",
-        "team": "Unser Team",
-        "competitive": "Marktpositionierung",
-        "risks": "Risiken & Mitigation",
-        "next_steps": "Nächste Schritte",
-        "appendix": "Anhang",
-        "contact": "Kontakt",
-    }
+    # Auf Plan-Größe begrenzen
+    max_slides = min(plan.estimated_slides + 5, AGENT_CONFIG["max_slides"])
+    if len(slides) > max_slides:
+        # Entferne optionale Slides von hinten
+        required_types = {"title", "executive_summary", "solution", "next_steps", "contact"}
+        slides = [s for s in slides if s["type"] in required_types][:max_slides]
     
-    titles_en = {
-        "title": "Strategy Presentation",
-        "agenda": "Agenda",
-        "executive_summary": "Executive Summary",
-        "problem": "Challenge",
-        "solution": "Our Approach",
-        "use_cases": "Use Cases",
-        "benefits": "Your Benefits",
-        "roi": "ROI & Business Case",
-        "roadmap": "Roadmap",
-        "team": "Our Team",
-        "competitive": "Market Position",
-        "risks": "Risks & Mitigation",
-        "next_steps": "Next Steps",
-        "appendix": "Appendix",
-        "contact": "Contact",
-    }
-    
-    titles = titles_de if language == "de" else titles_en
-    return titles.get(module, module.replace("_", " ").title())
+    return slides
 
 
 # ============================================
-# PHASE 4: CONTENT GENERATION
+# PHASE 4: DRAFT (Contextual Content Generation)
 # ============================================
 
-def phase_content(
+def phase_draft(
     req: AgentV3Request,
-    structure: Dict[str, Any],
-    knowledge: Dict[str, Any]
+    structure: List[Dict[str, Any]],
+    research: Dict[str, Any],
+    iteration: int = 1
 ) -> List[Dict[str, Any]]:
     """
-    Phase 4: Generiert Content für jeden Slide via LLM.
+    Phase 4: Generiert Content für jeden Slide.
+    Kontextbewusst: Jeder Slide kennt seine Nachbarn.
     """
     slides = []
-    facts_context = "\n".join(knowledge.get("facts", [])[:5])
+    facts_context = "\n".join(research.get("facts", [])[:5])
+    total_slides = len(structure)
     
-    for slide_def in structure.get("slides", []):
+    for idx, slide_def in enumerate(structure):
         slide_type = slide_def.get("type", "content")
         title = slide_def.get("title", "")
+        
+        # Kontext aufbauen (Agent Intelligence)
+        prev_slide = structure[idx - 1] if idx > 0 else None
+        next_slide = structure[idx + 1] if idx < total_slides - 1 else None
+        
+        context_info = f"""
+Position: Slide {idx + 1} von {total_slides}
+Vorheriger Slide: {prev_slide['title'] if prev_slide else 'Keiner (Start)'}
+Nächster Slide: {next_slide['title'] if next_slide else 'Keiner (Ende)'}
+Gesamtthema: {req.topic}
+"""
         
         slide = {
             "type": slide_type,
@@ -462,34 +633,85 @@ def phase_content(
             "notes": "",
             "layout_hint": _get_layout_hint(slide_type),
             "citations": [],
+            "confidence": 0.8,
         }
         
-        # LLM-basierte Content-Generierung
-        if HAS_LLM_CONTENT:
+        # NLG-Module nutzen (Quick Win 1)
+        if req.use_nlg_modules and slide_type in NLG_MODULES:
             try:
-                content = generate_slide_content(
-                    slide_type=slide_type,
-                    title=title,
-                    brief=req.brief or req.topic,
-                    context=facts_context,
-                    num_bullets=_get_bullet_count(slide_type, req.deck_size),
-                    language=req.language
+                nlg_result = NLG_MODULES[slide_type](
+                    {"customer_name": req.customer_name, "topic": req.topic, "brief": req.brief},
+                    {}
+                )
+                if nlg_result:
+                    slide["bullets"] = nlg_result.get("bullets", [])[:6]
+                    slide["notes"] = nlg_result.get("notes", "")
+                    slide["confidence"] = 0.9
+            except Exception:
+                pass
+        
+        # LLM-basierte Content-Generierung (falls NLG nicht genutzt/fehlgeschlagen)
+        if not slide["bullets"] and HAS_LLM_CONTENT:
+            try:
+                # Kontextbewusster Prompt
+                content_prompt = f"""Erstelle Inhalt für diesen Präsentations-Slide:
+
+KONTEXT:
+{context_info}
+
+SLIDE-DETAILS:
+Typ: {slide_type}
+Titel: {title}
+
+BRIEFING:
+Thema: {req.topic}
+Details: {req.brief}
+Kunde: {req.customer_name}
+Branche: {req.industry}
+
+FAKTEN AUS RECHERCHE:
+{facts_context[:500] if facts_context else 'Keine zusätzlichen Fakten'}
+
+ITERATION: {iteration} (höher = mehr Fokus auf Qualität)
+
+Erstelle:
+1. 3-5 prägnante Bullet-Points (je max 15 Wörter)
+2. Speaker Notes (2-4 Sätze zur Erläuterung)
+
+Der Inhalt muss nahtlos zum vorherigen und nächsten Slide passen.
+
+Output als JSON:
+{{"bullets": ["..."], "notes": "..."}}
+
+NUR JSON, keine Erklärung."""
+
+                result = _llm_call(
+                    content_prompt, 
+                    task="quality" if iteration > 1 else "default",
+                    model_override=req.model_override,
+                    max_tokens=600
                 )
                 
-                slide["bullets"] = content.get("bullets", [])
-                slide["notes"] = content.get("notes", "")
-                
+                # JSON parsen
+                import re
+                json_match = re.search(r'\{.*\}', result, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group())
+                    slide["bullets"] = data.get("bullets", [])[:6]
+                    slide["notes"] = data.get("notes", "")
+                    slide["confidence"] = 0.85
+                    
             except Exception as e:
-                slide["notes"] = f"[Content-Generierung fehlgeschlagen: {str(e)}]"
-                slide["bullets"] = [f"[Inhalt für {title}]"]
-        else:
-            # Fallback: Platzhalter
-            slide["bullets"] = [f"• Punkt 1 zu {title}", f"• Punkt 2 zu {title}", f"• Punkt 3 zu {title}"]
-            slide["notes"] = f"Erläuterungen zu {title}"
+                slide["notes"] = f"[Generierung: {str(e)[:50]}]"
         
-        # Citations aus Knowledge hinzufügen
-        if knowledge.get("sources") and slide_type in ["executive_summary", "problem", "roi"]:
-            slide["citations"] = [s["title"] for s in knowledge["sources"][:2]]
+        # Fallback
+        if not slide["bullets"]:
+            slide["bullets"] = [f"• Punkt zu {title}"]
+            slide["confidence"] = 0.5
+        
+        # Citations aus Research
+        if research.get("sources") and slide_type in ["executive_summary", "problem", "roi"]:
+            slide["citations"] = [s["title"] for s in research["sources"][:2]]
         
         slides.append(slide)
     
@@ -504,7 +726,7 @@ def _get_layout_hint(slide_type: str) -> str:
         "executive_summary": "Title and Content",
         "problem": "Title and Content",
         "solution": "Title and Content",
-        "use_cases": "Title and Content",
+        "use_case": "Title and Content",
         "use_case_detail": "Two Content",
         "benefits": "Title and Content",
         "roi": "Title and Content",
@@ -512,84 +734,279 @@ def _get_layout_hint(slide_type: str) -> str:
         "team": "Title and Content",
         "competitive": "Comparison",
         "risks": "Title and Content",
+        "kpis": "Title and Content",
+        "personas": "Title and Content",
         "next_steps": "Title and Content",
-        "appendix": "Title and Content",
         "contact": "Title and Content",
     }
     return layouts.get(slide_type, "Title and Content")
 
 
-def _get_bullet_count(slide_type: str, deck_size: str) -> int:
-    """Bestimmt die Anzahl Bullets basierend auf Slide-Typ und Deck-Größe."""
-    base = {"short": 3, "medium": 4, "large": 5}
+# ============================================
+# PHASE 5: CRITIQUE (Self-Evaluation)
+# ============================================
+
+def phase_critique(
+    req: AgentV3Request,
+    slides: List[Dict[str, Any]],
+    plan: AgentPlan
+) -> Dict[str, Any]:
+    """
+    Phase 5: Agent bewertet seinen eigenen Output.
+    """
+    result = {
+        "score": 7.0,
+        "issues": [],
+        "suggestions": [],
+        "should_revise": False,
+    }
     
-    # Einige Slide-Typen brauchen mehr/weniger
-    if slide_type in ["title", "contact"]:
-        return 1
-    if slide_type == "agenda":
-        return 6
-    if slide_type == "executive_summary":
-        return 4
+    # Basis-Bewertung
+    total_bullets = sum(len(s.get("bullets", [])) for s in slides)
+    avg_bullets = total_bullets / len(slides) if slides else 0
+    avg_confidence = sum(s.get("confidence", 0.5) for s in slides) / len(slides) if slides else 0
     
-    return base.get(deck_size, 4)
+    # Score berechnen
+    score = 5.0
+    
+    # Bullet-Count Check
+    if 3 <= avg_bullets <= 5:
+        score += 1.0
+    elif avg_bullets < 2:
+        result["issues"].append("Zu wenig Inhalt pro Slide")
+        result["suggestions"].append("Mehr Details hinzufügen")
+    elif avg_bullets > 6:
+        result["issues"].append("Zu viel Text pro Slide")
+        result["suggestions"].append("Auf Kernaussagen fokussieren")
+    
+    # Confidence Check
+    score += avg_confidence * 2  # Max +2
+    
+    # Struktur Check
+    required_types = {"title", "executive_summary", "next_steps"}
+    present_types = {s.get("type") for s in slides}
+    missing = required_types - present_types
+    if missing:
+        result["issues"].append(f"Fehlende Slides: {missing}")
+        score -= len(missing) * 0.5
+    
+    # LLM-basierte Kritik (wenn verfügbar und gewünscht)
+    if req.include_critique and HAS_LLM_CONTENT:
+        try:
+            critique_prompt = f"""Bewerte diese Präsentation kritisch:
+
+THEMA: {req.topic}
+SLIDES: {len(slides)}
+INHALT-ÜBERSICHT:
+{chr(10).join([f"- {s.get('title')}: {len(s.get('bullets', []))} Bullets" for s in slides[:10]])}
+
+Bewerte auf einer Skala von 1-10:
+- Ist die Struktur logisch?
+- Sind die Inhalte relevant?
+- Fehlt etwas Wichtiges?
+- Ist die Präsentation überzeugend?
+
+Output als JSON:
+{{"score": 7, "issues": ["..."], "suggestions": ["..."]}}
+
+NUR JSON."""
+
+            llm_result = _llm_call(critique_prompt, task="analysis", max_tokens=400)
+            
+            import re
+            json_match = re.search(r'\{.*\}', llm_result, re.DOTALL)
+            if json_match:
+                data = json.loads(json_match.group())
+                llm_score = data.get("score", 7)
+                # Kombiniere Scores
+                score = (score + llm_score) / 2
+                result["issues"].extend(data.get("issues", [])[:3])
+                result["suggestions"].extend(data.get("suggestions", [])[:3])
+                
+        except Exception:
+            pass
+    
+    # Feedback-Loop Integration (Quick Win 3)
+    if HAS_FEEDBACK:
+        try:
+            fb_suggestions = get_improvement_suggestions(
+                content={"slides": slides},
+                slide_types=[s.get("type") for s in slides]
+            )
+            for s in fb_suggestions[:3]:
+                if s.get("priority") == "high":
+                    result["suggestions"].append(s.get("message", ""))
+        except Exception:
+            pass
+    
+    result["score"] = round(max(1, min(10, score)), 1)
+    result["should_revise"] = result["score"] < AGENT_CONFIG["quality_threshold"] and req.auto_improve
+    
+    return result
 
 
 # ============================================
-# PHASE 5: VISUALS (Charts & Assets)
+# PHASE 6: REVISE (Iterative Improvement)
 # ============================================
 
-def phase_visuals(
+def phase_revise(
+    req: AgentV3Request,
+    slides: List[Dict[str, Any]],
+    critique: Dict[str, Any],
+    research: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    """
+    Phase 6: Verbessert Slides basierend auf Kritik.
+    """
+    if not critique.get("should_revise"):
+        return slides
+    
+    improved_slides = []
+    
+    for slide in slides:
+        # Slides mit niedriger Confidence verbessern
+        if slide.get("confidence", 1.0) < 0.7:
+            if HAS_LLM_CONTENT:
+                try:
+                    improve_prompt = f"""Verbessere diesen Slide:
+
+AKTUELL:
+Titel: {slide.get('title')}
+Bullets: {slide.get('bullets')}
+
+KRITIK:
+{chr(10).join(critique.get('issues', []))}
+
+VERBESSERUNGSVORSCHLÄGE:
+{chr(10).join(critique.get('suggestions', []))}
+
+Erstelle verbesserte Bullets (3-5 Stück, prägnant).
+
+Output als JSON:
+{{"bullets": ["..."], "notes": "..."}}"""
+
+                    result = _llm_call(improve_prompt, task="quality", max_tokens=400)
+                    
+                    import re
+                    json_match = re.search(r'\{.*\}', result, re.DOTALL)
+                    if json_match:
+                        data = json.loads(json_match.group())
+                        slide["bullets"] = data.get("bullets", slide["bullets"])
+                        slide["notes"] = data.get("notes", slide["notes"])
+                        slide["confidence"] = 0.85
+                        slide["revised"] = True
+                except Exception:
+                    pass
+        
+        improved_slides.append(slide)
+    
+    return improved_slides
+
+
+# ============================================
+# PHASE 7: VISUALIZE (Charts & Assets)
+# ============================================
+
+def phase_visualize(
     req: AgentV3Request,
     slides: List[Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     """
-    Phase 5: Fügt Charts und Assets zu Slides hinzu.
+    Phase 7: Fügt Charts und Assets zu Slides hinzu.
     """
-    # Charts generieren
-    if req.generate_charts and HAS_CHART_GEN:
-        for slide in slides:
-            slide_type = slide.get("type", "")
-            
-            # Roadmap → Timeline Chart
-            if slide_type == "roadmap":
-                try:
-                    result = create_timeline(
-                        phases=[
-                            {"name": "Phase 1", "duration": "2 Wo", "description": "Discovery"},
-                            {"name": "Phase 2", "duration": "4 Wo", "description": "Pilot"},
-                            {"name": "Phase 3", "duration": "8 Wo", "description": "Rollout"},
-                            {"name": "Phase 4", "duration": "Ongoing", "description": "Optimierung"},
-                        ],
-                        title=""
-                    )
-                    if result.get("ok"):
-                        slide["chart"] = result.get("path")
-                        slide["has_chart"] = True
-                except Exception:
-                    pass
-            
-            # ROI → Bar Chart
-            if slide_type == "roi":
-                try:
-                    result = create_bar_chart(
-                        labels=["Kosten", "Einsparung Y1", "Einsparung Y2", "Einsparung Y3"],
-                        values=[100, 40, 80, 120],
-                        title="ROI Projektion",
-                        horizontal=True
-                    )
-                    if result.get("ok"):
-                        slide["chart"] = result.get("path")
-                        slide["has_chart"] = True
-                except Exception:
-                    pass
+    if not req.generate_charts:
+        return slides
     
-    # Assets matchen
+    if not HAS_CHART_GEN:
+        return slides
+    
+    for slide in slides:
+        slide_type = slide.get("type", "")
+        
+        # Roadmap → Timeline
+        if slide_type == "roadmap":
+            try:
+                result = create_timeline(
+                    phases=[
+                        {"name": "Phase 1", "duration": "2 Wo", "description": "Discovery"},
+                        {"name": "Phase 2", "duration": "4 Wo", "description": "Pilot"},
+                        {"name": "Phase 3", "duration": "8 Wo", "description": "Rollout"},
+                        {"name": "Phase 4", "duration": "Ongoing", "description": "Optimierung"},
+                    ],
+                    title=""
+                )
+                if result.get("ok"):
+                    slide["chart"] = result.get("path")
+                    slide["has_chart"] = True
+            except Exception:
+                pass
+        
+        # ROI → Bar Chart
+        elif slide_type == "roi":
+            try:
+                result = create_bar_chart(
+                    labels=["Investition", "Jahr 1", "Jahr 2", "Jahr 3"],
+                    values=[-100, 30, 80, 150],
+                    title="ROI Projektion",
+                    horizontal=True
+                )
+                if result.get("ok"):
+                    slide["chart"] = result.get("path")
+                    slide["has_chart"] = True
+            except Exception:
+                pass
+        
+        # KPIs → Gauge oder Bar
+        elif slide_type == "kpis":
+            try:
+                result = create_bar_chart(
+                    labels=["Conversion", "Retention", "NPS", "ROI"],
+                    values=[15, 85, 72, 45],
+                    title="Key Performance Indicators"
+                )
+                if result.get("ok"):
+                    slide["chart"] = result.get("path")
+                    slide["has_chart"] = True
+            except Exception:
+                pass
+        
+        # Funnel
+        elif "funnel" in slide_type.lower() or "pipeline" in slide.get("title", "").lower():
+            try:
+                result = create_funnel_chart(
+                    stages=["Awareness", "Interest", "Consideration", "Intent", "Purchase"],
+                    values=[1000, 600, 400, 200, 80],
+                    title="Sales Funnel"
+                )
+                if result.get("ok"):
+                    slide["chart"] = result.get("path")
+                    slide["has_chart"] = True
+            except Exception:
+                pass
+        
+        # Competitive → Matrix
+        elif slide_type == "competitive":
+            try:
+                result = create_comparison_matrix(
+                    items=["Wir", "Wettbewerber A", "Wettbewerber B"],
+                    criteria=["Preis", "Qualität", "Service", "Innovation"],
+                    scores=[
+                        [8, 9, 9, 8],
+                        [6, 7, 5, 6],
+                        [7, 6, 7, 5]
+                    ],
+                    title="Marktvergleich"
+                )
+                if result.get("ok"):
+                    slide["chart"] = result.get("path")
+                    slide["has_chart"] = True
+            except Exception:
+                pass
+    
+    # Asset Matching
     if req.match_assets and HAS_ASSET_TAGGER:
         try:
-            # Erst Uploads scannen
             scan_uploads_directory(UPLOADS_DIR)
-            
-            # Dann zu Slides matchen
             slides = match_assets_to_slides(slides)
         except Exception:
             pass
@@ -598,59 +1015,7 @@ def phase_visuals(
 
 
 # ============================================
-# PHASE 6: CRITIQUE & QUALITY
-# ============================================
-
-def phase_critique(
-    req: AgentV3Request,
-    slides: List[Dict[str, Any]]
-) -> Dict[str, Any]:
-    """
-    Phase 6: Qualitätsprüfung und Kritik.
-    """
-    result = {
-        "score": 7.0,
-        "issues": [],
-        "suggestions": [],
-    }
-    
-    if not req.include_critique:
-        return result
-    
-    # Auto Quality Score
-    if HAS_FEEDBACK:
-        try:
-            quality = get_quality_score(content={"slides": slides})
-            result["score"] = quality.get("score", 7.0)
-            result["suggestions"] = quality.get("suggestions", [])
-        except Exception:
-            pass
-    
-    # LLM-basierte Kritik (optional, kann langsam sein)
-    if HAS_LLM_CONTENT and len(slides) <= 15:
-        try:
-            # Nur bei kleineren Decks
-            content_summary = "\n".join([
-                f"Slide: {s.get('title')} - Bullets: {len(s.get('bullets', []))}"
-                for s in slides[:10]
-            ])
-            
-            critique = generate_critique(content_summary, "presentation")
-            result["issues"] = critique.get("risks", [])
-            if critique.get("improvements"):
-                result["suggestions"].extend(critique["improvements"][:3])
-            
-            # Score anpassen basierend auf Critique
-            llm_score = critique.get("score", 7)
-            result["score"] = round((result["score"] + llm_score) / 2, 1)
-        except Exception:
-            pass
-    
-    return result
-
-
-# ============================================
-# PHASE 7: RENDERING
+# PHASE 8: RENDER (PPTX Export)
 # ============================================
 
 def phase_render(
@@ -659,8 +1024,7 @@ def phase_render(
     run_id: str
 ) -> Dict[str, Any]:
     """
-    Phase 7: Rendert das Deck zu PPTX/PDF.
-    Baut PPTX direkt ohne externe API-Calls (vermeidet Worker-Sync-Problem).
+    Phase 8: Rendert das Deck zu PPTX.
     """
     result = {
         "pptx_url": None,
@@ -671,7 +1035,6 @@ def phase_render(
     if not req.export_pptx:
         return result
     
-    # Direkt PPTX bauen (ohne Umweg über /projects/save)
     try:
         from pptx import Presentation
         from pptx.util import Pt, Inches
@@ -686,7 +1049,7 @@ def phase_render(
         notes = slide_data.get("notes", "")
         slide_type = slide_data.get("type", "content")
         
-        # Layout wählen (0=Title, 1=Title+Content, 5=Blank)
+        # Layout wählen
         if slide_type == "title":
             layout = prs.slide_layouts[0]
         elif not bullets:
@@ -696,11 +1059,11 @@ def phase_render(
         
         slide = prs.slides.add_slide(layout)
         
-        # Titel setzen
+        # Titel
         if slide.shapes.title:
             slide.shapes.title.text = title
         
-        # Bullets setzen
+        # Bullets
         if bullets and len(slide.shapes.placeholders) > 1:
             try:
                 body = slide.shapes.placeholders[1].text_frame
@@ -715,14 +1078,14 @@ def phase_render(
             except Exception:
                 pass
         
-        # Speaker Notes
+        # Notes
         if notes and slide.notes_slide:
             try:
                 slide.notes_slide.notes_text_frame.text = str(notes)
             except Exception:
                 pass
         
-        # Chart einfügen wenn vorhanden
+        # Chart
         chart_path = slide_data.get("chart")
         if chart_path and os.path.exists(chart_path):
             try:
@@ -736,7 +1099,7 @@ def phase_render(
                 pass
     
     # Speichern
-    exports_dir = Path("data/exports")
+    exports_dir = Path(EXPORTS_DIR)
     exports_dir.mkdir(parents=True, exist_ok=True)
     
     ts = int(time.time())
@@ -759,78 +1122,115 @@ def phase_render(
 @router.post("/run_v3", response_model=AgentV3Response)
 async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> AgentV3Response:
     """
-    Agent V3: Vollständige Deck-Generierung.
+    Agent V3.1: Intelligente Deck-Generierung mit Multi-Step Reasoning.
     
-    Orchestriert alle Services für professionelle Präsentationen:
-    - LLM-basierte Content-Generierung
-    - RAG Knowledge Integration
-    - Chart & Asset Integration
-    - Quality Critique
-    - PPTX Export
+    Features:
+    - Analyse & Planning Phase
+    - Kontextbewusste Content-Generierung
+    - Iterative Selbstverbesserung
+    - NLG-Module Integration
+    - Template Learning
+    - Feedback-Loop Integration
     """
     run_id = _generate_run_id()
     t0 = time.time()
     warnings = []
+    improvements = []
     phases = {}
     
-    # Service-Checks
-    if not HAS_LLM_CONTENT:
-        warnings.append("llm_content nicht verfügbar - Fallback auf Platzhalter")
-    
-    # === PHASE 1: Briefing ===
+    # === PHASE 1: ANALYZE ===
     t1 = time.time()
-    briefing = phase_briefing(req)
-    phases["briefing"] = {"duration_ms": int((time.time() - t1) * 1000)}
-    
-    # === PHASE 2: Knowledge ===
-    t2 = time.time()
-    knowledge = phase_knowledge(req, briefing)
-    phases["knowledge"] = {
-        "duration_ms": int((time.time() - t2) * 1000),
-        "sources_found": len(knowledge.get("sources", []))
+    plan = phase_analyze(req)
+    phases["analyze"] = {
+        "duration_ms": int((time.time() - t1) * 1000),
+        "complexity": plan.complexity,
+        "estimated_slides": plan.estimated_slides
     }
     
-    # === PHASE 3: Structure ===
+    # === PHASE 2: RESEARCH ===
+    t2 = time.time()
+    research = phase_research(req, plan)
+    phases["research"] = {
+        "duration_ms": int((time.time() - t2) * 1000),
+        "sources_found": len(research.get("sources", [])),
+        "facts_gathered": len(research.get("facts", []))
+    }
+    
+    # === PHASE 3: STRUCTURE ===
     t3 = time.time()
-    structure = phase_structure(req, briefing)
+    structure = phase_structure(req, plan, research)
     phases["structure"] = {
         "duration_ms": int((time.time() - t3) * 1000),
-        "planned_slides": len(structure.get("slides", []))
+        "planned_slides": len(structure)
     }
     
-    # === PHASE 4: Content ===
-    t4 = time.time()
-    slides = phase_content(req, structure, knowledge)
-    phases["content"] = {
-        "duration_ms": int((time.time() - t4) * 1000),
-        "generated_slides": len(slides)
-    }
+    # === ITERATIVE IMPROVEMENT LOOP ===
+    slides = []
+    iteration = 1
+    final_critique = {"score": 0}
     
-    # === PHASE 5: Visuals ===
-    t5 = time.time()
-    slides = phase_visuals(req, slides)
+    for iteration in range(1, req.max_iterations + 1):
+        # === PHASE 4: DRAFT ===
+        t4 = time.time()
+        slides = phase_draft(req, structure, research, iteration)
+        phases[f"draft_{iteration}"] = {
+            "duration_ms": int((time.time() - t4) * 1000),
+            "generated_slides": len(slides)
+        }
+        
+        # === PHASE 5: CRITIQUE ===
+        t5 = time.time()
+        critique = phase_critique(req, slides, plan)
+        phases[f"critique_{iteration}"] = {
+            "duration_ms": int((time.time() - t5) * 1000),
+            "score": critique.get("score")
+        }
+        final_critique = critique
+        
+        # Qualität gut genug?
+        if not critique.get("should_revise") or iteration >= req.max_iterations:
+            break
+        
+        # === PHASE 6: REVISE ===
+        t6 = time.time()
+        slides = phase_revise(req, slides, critique, research)
+        phases[f"revise_{iteration}"] = {
+            "duration_ms": int((time.time() - t6) * 1000),
+            "slides_revised": sum(1 for s in slides if s.get("revised"))
+        }
+        improvements.append(f"Iteration {iteration}: Score {critique.get('score')} → Überarbeitung")
+    
+    # === PHASE 7: VISUALIZE ===
+    t7 = time.time()
+    slides = phase_visualize(req, slides)
     charts_count = sum(1 for s in slides if s.get("has_chart"))
-    phases["visuals"] = {
-        "duration_ms": int((time.time() - t5) * 1000),
+    phases["visualize"] = {
+        "duration_ms": int((time.time() - t7) * 1000),
         "charts_generated": charts_count
     }
     
-    # === PHASE 6: Critique ===
-    t6 = time.time()
-    critique = phase_critique(req, slides)
-    phases["critique"] = {
-        "duration_ms": int((time.time() - t6) * 1000),
-        "quality_score": critique.get("score")
-    }
-    warnings.extend(critique.get("issues", [])[:3])
-    
-    # === PHASE 7: Render ===
-    t7 = time.time()
+    # === PHASE 8: RENDER ===
+    t8 = time.time()
     render_result = phase_render(req, slides, run_id)
     phases["render"] = {
-        "duration_ms": int((time.time() - t7) * 1000),
+        "duration_ms": int((time.time() - t8) * 1000),
         "exported": render_result.get("pptx_url") is not None
     }
+    
+    # Feedback speichern (Quick Win 3)
+    if HAS_FEEDBACK:
+        try:
+            background_tasks.add_task(
+                record_feedback,
+                project_id=run_id,
+                overall_score=int(final_critique.get("score", 7)),
+                comments=f"Auto-generated, iterations={iteration}"
+            )
+        except Exception:
+            pass
+    
+    # Warnings aus Critique
+    warnings.extend(final_critique.get("issues", [])[:5])
     
     # Response
     duration = round(time.time() - t0, 2)
@@ -841,12 +1241,16 @@ async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> Agen
         project_id=render_result.get("project_id"),
         slides=slides,
         slide_count=len(slides),
+        plan=plan.model_dump(),
+        iterations=iteration,
+        final_quality=final_critique.get("score", 7.0),
         pptx_url=render_result.get("pptx_url"),
         pdf_url=render_result.get("pdf_url"),
-        quality_score=critique.get("score"),
+        quality_score=final_critique.get("score"),
         duration_s=duration,
         phases=phases,
-        warnings=warnings
+        warnings=warnings,
+        improvements=improvements
     )
 
 
@@ -857,34 +1261,42 @@ async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> Agen
 @router.get("/v3/status")
 def agent_v3_status():
     """Gibt den Status aller Services zurück."""
-    status = {
-        "version": "3.0",
+    return {
+        "version": "3.1",
+        "features": {
+            "agent_intelligence": True,
+            "iterative_improvement": True,
+            "nlg_modules": len(NLG_MODULES) > 0,
+            "template_learning": HAS_TEMPLATE_LEARNER,
+            "feedback_loop": HAS_FEEDBACK,
+            "multi_model": True,
+        },
         "services": {
             "llm_content": HAS_LLM_CONTENT,
+            "nlg_modules_count": len(NLG_MODULES),
             "asset_tagger": HAS_ASSET_TAGGER,
             "chart_generator": HAS_CHART_GEN,
             "template_learner": HAS_TEMPLATE_LEARNER,
             "feedback_loop": HAS_FEEDBACK,
+            "knowledge": HAS_KNOWLEDGE,
         },
-        "ollama": None,
+        "models": OLLAMA_MODELS,
+        "config": AGENT_CONFIG,
+        "ollama": check_ollama() if HAS_LLM_CONTENT else {"ok": False}
     }
-    
-    # Ollama Status
-    if HAS_LLM_CONTENT:
-        try:
-            status["ollama"] = check_ollama()
-        except Exception:
-            status["ollama"] = {"ok": False}
-    
-    return status
 
 
-@router.get("/v3/deck_sizes")
-def get_deck_sizes():
-    """Gibt verfügbare Deck-Größen zurück."""
+@router.post("/v3/analyze")
+async def analyze_briefing(req: AgentV3Request):
+    """
+    Nur Analyse-Phase: Gibt Plan zurück ohne Content zu generieren.
+    Für Vorschau/Planung.
+    """
+    plan = phase_analyze(req)
     return {
-        "sizes": DECK_SIZES,
-        "default": "medium"
+        "ok": True,
+        "plan": plan.model_dump(),
+        "deck_size": req.deck_size.value,
     }
 
 
@@ -892,23 +1304,33 @@ def get_deck_sizes():
 async def preview_structure(req: AgentV3Request):
     """
     Gibt nur die geplante Struktur zurück (ohne Content-Generierung).
-    Schneller für Vorschau/Planung.
     """
-    briefing = phase_briefing(req)
-    structure = phase_structure(req, briefing)
+    plan = phase_analyze(req)
+    research = phase_research(req, plan)
+    structure = phase_structure(req, plan, research)
     
     return {
         "ok": True,
-        "deck_size": req.deck_size,
-        "slides": structure.get("slides", []),
-        "slide_count": len(structure.get("slides", []))
+        "plan": plan.model_dump(),
+        "slides": structure,
+        "slide_count": len(structure),
+        "research_sources": len(research.get("sources", []))
     }
 
 
-# ============================================
-# REGISTER
-# ============================================
-
-def register_router(app):
-    """Registriert den Agent V3 Router bei der App."""
-    app.include_router(router)
+@router.get("/v3/models")
+def get_available_models():
+    """Gibt verfügbare Ollama-Modelle zurück."""
+    result = {
+        "configured": OLLAMA_MODELS,
+        "available": []
+    }
+    
+    if HAS_LLM_CONTENT:
+        try:
+            status = check_ollama()
+            result["available"] = status.get("available_models", [])
+        except Exception:
+            pass
+    
+    return result
