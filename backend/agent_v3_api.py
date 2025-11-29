@@ -156,6 +156,21 @@ try:
 except ImportError:
     HAS_CHART_GEN = False
 
+# Visual Intelligence (Stufe 3)
+try:
+    from services.visual_intelligence import (
+        enhance_slide_visuals,
+        enhance_all_slides,
+        generate_chart_for_slide,
+        recommend_images_for_slide,
+        recommend_layout,
+        check_status as visual_status
+    )
+    HAS_VISUAL_INTELLIGENCE = True
+except ImportError:
+    HAS_VISUAL_INTELLIGENCE = False
+    enhance_all_slides = None
+
 # Template Learner (Quick Win 2)
 try:
     from services.template_learner import (
@@ -996,14 +1011,35 @@ Output als JSON:
 
 def phase_visualize(
     req: AgentV3Request,
-    slides: List[Dict[str, Any]]
+    slides: List[Dict[str, Any]],
+    context: Dict[str, Any] = None
 ) -> List[Dict[str, Any]]:
     """
-    Phase 7: Fügt Charts und Assets zu Slides hinzu.
+    Phase 7: Enhanced Visuals mit Visual Intelligence.
+    Fügt Charts, Images und Layout-Optimierung hinzu.
     """
     if not req.generate_charts:
         return slides
     
+    # === VISUAL INTELLIGENCE (Stufe 3) ===
+    if HAS_VISUAL_INTELLIGENCE and enhance_all_slides:
+        try:
+            enhanced = enhance_all_slides(
+                slides=slides,
+                context=context or {
+                    "topic": req.topic,
+                    "industry": req.industry,
+                    "customer_name": req.customer_name
+                },
+                generate_charts=True,
+                recommend_images_flag=req.match_assets,
+                use_llm=True
+            )
+            return enhanced
+        except Exception as e:
+            pass  # Fallback zu altem Code
+    
+    # === FALLBACK: Alter Code ===
     if not HAS_CHART_GEN:
         return slides
     
@@ -1290,7 +1326,12 @@ async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> Agen
     
     # === PHASE 7: VISUALIZE ===
     t7 = time.time()
-    slides = phase_visualize(req, slides)
+    slides = phase_visualize(req, slides, context={
+        "topic": req.topic,
+        "industry": req.industry,
+        "customer_name": req.customer_name,
+        "brief": req.brief
+    })
     charts_count = sum(1 for s in slides if s.get("has_chart"))
     phases["visualize"] = {
         "duration_ms": int((time.time() - t7) * 1000),
@@ -1359,7 +1400,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.2",
+        "version": "3.3",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1377,6 +1418,7 @@ def agent_v3_status():
             "feedback_loop": HAS_FEEDBACK,
             "knowledge": HAS_KNOWLEDGE,
             "knowledge_enhanced": HAS_KNOWLEDGE_ENHANCED,
+            "visual_intelligence": HAS_VISUAL_INTELLIGENCE,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
