@@ -55,12 +55,19 @@ try:
         generate_slide_content,
         generate_from_template,
         check_ollama,
-        _ollama_generate
     )
     HAS_LLM_CONTENT = True
 except ImportError:
     HAS_LLM_CONTENT = False
-    _ollama_generate = None
+
+# Direkter LLM-Zugriff über services/llm.py
+try:
+    from services.llm import generate as llm_generate, is_enabled as llm_enabled
+    HAS_LLM = True
+except ImportError:
+    llm_generate = None
+    llm_enabled = None
+    HAS_LLM = False
 
 # NLG Modules (Quick Win 1)
 try:
@@ -251,7 +258,7 @@ class AgentV3Request(BaseModel):
     k: int = 5  # RAG top-k
     use_cases: List[str] = Field(default_factory=list)
     custom_sections: List[str] = Field(default_factory=list)
-    model_override: str = ""     # Spezifisches Modell erzwingen
+    llm_model: str = ""     # Spezifisches Modell erzwingen (z.B. "llama3:8b")
 
 
 class SlideContent(BaseModel):
@@ -325,12 +332,28 @@ def _select_model(task: str, override: str = "") -> str:
 
 def _llm_call(prompt: str, task: str = "default", model_override: str = "", max_tokens: int = 1000) -> str:
     """Zentraler LLM-Call mit Model-Selection."""
-    if not HAS_LLM_CONTENT or not _ollama_generate:
+    # Nutze services/llm.py generate() direkt
+    if not HAS_LLM or not llm_generate:
+        return ""
+    
+    if llm_enabled and not llm_enabled():
         return ""
     
     model = _select_model(task, model_override)
-    result = _ollama_generate(prompt, model=model, max_tokens=max_tokens)
-    return result.get("text", "") if isinstance(result, dict) else str(result)
+    
+    try:
+        result = llm_generate(
+            prompt=prompt,
+            model=model,
+            max_tokens=max_tokens
+        )
+        if isinstance(result, dict):
+            if result.get("ok"):
+                return result.get("response", "")
+            return ""
+        return str(result)
+    except Exception as e:
+        return ""
 
 
 # ============================================
@@ -688,7 +711,7 @@ NUR JSON, keine Erklärung."""
                 result = _llm_call(
                     content_prompt, 
                     task="quality" if iteration > 1 else "default",
-                    model_override=req.model_override,
+                    model_override=req.llm_model,
                     max_tokens=600
                 )
                 
