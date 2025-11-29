@@ -189,26 +189,107 @@ def search_knowledge_base(query: str, k: int = 5) -> List[SearchResult]:
     """Sucht in der Knowledge Base (data/knowledge)."""
     results = []
     
-    if not HAS_KNOWLEDGE or not kb_search:
-        return results
+    # 1. Datenbankbasierte Suche (wenn verfügbar)
+    if HAS_KNOWLEDGE and kb_search:
+        try:
+            search_result = kb_search(query, limit=k, semantic=1)
+            if search_result.get("ok"):
+                for item in search_result.get("results", []):
+                    path = item.get("path", "")
+                    results.append(SearchResult(
+                        path=path,
+                        title=item.get("title") or Path(path).stem if path else "Unbekannt",
+                        snippet=item.get("snippet", "")[:400],
+                        score=item.get("score", 0.5),
+                        source_type="knowledge",
+                        metadata={"original": item}
+                    ))
+        except Exception as e:
+            pass
     
-    try:
-        search_result = kb_search(query, limit=k, semantic=1)
-        if search_result.get("ok"):
-            for item in search_result.get("results", []):
-                path = item.get("path", "")
-                results.append(SearchResult(
-                    path=path,
-                    title=item.get("title") or Path(path).stem if path else "Unbekannt",
-                    snippet=item.get("snippet", "")[:400],
-                    score=item.get("score", 0.5),
-                    source_type="knowledge",
-                    metadata={"original": item}
-                ))
-    except Exception as e:
-        pass
+    # 2. Direkte Verzeichnis-Suche (Fallback/Ergänzung)
+    knowledge_path = Path(KNOWLEDGE_DIR)
+    if knowledge_path.exists():
+        query_lower = query.lower()
+        query_words = set(query_lower.split())
+        
+        # Unterstützte Dateitypen
+        supported_extensions = [".txt", ".md", ".pdf", ".csv", ".json", ".xml", ".html"]
+        
+        for file_path in knowledge_path.rglob("*"):
+            if file_path.is_file() and file_path.suffix.lower() in supported_extensions:
+                # Nicht doppelt hinzufügen
+                if str(file_path) in [r.path for r in results]:
+                    continue
+                
+                score = 0.0
+                snippet = ""
+                
+                # Dateiname-Matching
+                filename_lower = file_path.stem.lower()
+                for word in query_words:
+                    if word in filename_lower:
+                        score += 0.4
+                
+                # Content-Matching für Textdateien
+                if file_path.suffix.lower() in [".txt", ".md", ".csv"]:
+                    try:
+                        content = file_path.read_text(encoding="utf-8")[:5000]
+                        content_lower = content.lower()
+                        
+                        for word in query_words:
+                            if word in content_lower:
+                                score += 0.25
+                        
+                        # Snippet erstellen
+                        for word in query_words:
+                            idx = content_lower.find(word)
+                            if idx >= 0:
+                                start = max(0, idx - 100)
+                                end = min(len(content), idx + 200)
+                                snippet = content[start:end].strip()
+                                break
+                        
+                        if not snippet:
+                            snippet = content[:300].strip()
+                    except Exception:
+                        pass
+                
+                # PDF-Matching
+                elif file_path.suffix.lower() == ".pdf":
+                    try:
+                        import fitz
+                        doc = fitz.open(str(file_path))
+                        text = ""
+                        for page in doc[:2]:
+                            text += page.get_text()[:2000]
+                        doc.close()
+                        
+                        text_lower = text.lower()
+                        for word in query_words:
+                            if word in text_lower:
+                                score += 0.25
+                        
+                        snippet = text[:300].strip() if text else f"PDF: {file_path.name}"
+                    except ImportError:
+                        snippet = f"PDF: {file_path.name}"
+                    except Exception:
+                        snippet = f"PDF: {file_path.name}"
+                
+                if score >= MIN_RELEVANCE_SCORE:
+                    results.append(SearchResult(
+                        path=str(file_path),
+                        title=file_path.stem,
+                        snippet=snippet or f"Datei: {file_path.name}",
+                        score=min(1.0, score),
+                        source_type="knowledge",
+                        metadata={"size": file_path.stat().st_size, "type": file_path.suffix}
+                    ))
+        
+        # Nach Score sortieren
+        results.sort(key=lambda x: x.score, reverse=True)
     
-    return results
+    return results[:k]
 
 
 def search_templates(query: str, k: int = 3) -> List[SearchResult]:
@@ -262,12 +343,17 @@ def search_uploads(query: str, k: int = 3) -> List[SearchResult]:
                     score += 0.3
             
             # Content-based matching für Textdateien
-            if file_path.suffix in [".txt", ".md", ".csv"]:
+            if file_path.suffix.lower() in [".txt", ".md", ".csv", ".json", ".xml", ".html"]:
                 try:
-                    content = file_path.read_text(encoding="utf-8")[:2000].lower()
+                    content = file_path.read_text(encoding="utf-8")[:5000].lower()
+                    word_matches = 0
                     for word in query_words:
                         if word in content:
+                            word_matches += 1
                             score += 0.2
+                    # Bonus für mehrere Treffer
+                    if word_matches >= 2:
+                        score += 0.3
                 except Exception:
                     pass
             
@@ -470,15 +556,39 @@ def extract_facts_from_results(results: List[SearchResult]) -> List[Fact]:
         # Aus Datei (für Textdateien)
         if result.source_type in ["knowledge", "upload"]:
             file_path = Path(result.path)
-            if file_path.exists() and file_path.suffix in [".txt", ".md"]:
+            if file_path.exists() and file_path.suffix.lower() in [".txt", ".md", ".csv", ".json", ".xml", ".html"]:
                 try:
-                    content = file_path.read_text(encoding="utf-8")[:3000]
+                    content = file_path.read_text(encoding="utf-8")[:5000]
                     file_facts = extract_facts_from_text(
                         content,
                         source_path=result.path,
                         source_title=result.title
                     )
                     all_facts.extend(file_facts)
+                except Exception:
+                    pass
+        
+        # PDF-Support (wenn PyMuPDF verfügbar)
+        if result.source_type in ["knowledge", "upload"]:
+            file_path = Path(result.path)
+            if file_path.exists() and file_path.suffix.lower() == ".pdf":
+                try:
+                    import fitz  # PyMuPDF
+                    doc = fitz.open(str(file_path))
+                    text = ""
+                    for page in doc[:3]:  # Erste 3 Seiten
+                        text += page.get_text()[:2000]
+                    doc.close()
+                    
+                    if text:
+                        pdf_facts = extract_facts_from_text(
+                            text,
+                            source_path=result.path,
+                            source_title=result.title
+                        )
+                        all_facts.extend(pdf_facts)
+                except ImportError:
+                    pass
                 except Exception:
                     pass
     
