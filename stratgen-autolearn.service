@@ -1,0 +1,16 @@
+[Unit]
+Description=StratGen Auto-Learner Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=sodaen
+WorkingDirectory=/home/sodaen/stratgen
+Environment="PATH=/home/sodaen/stratgen/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONPATH=/home/sodaen/stratgen"
+ExecStart=/home/sodaen/stratgen/.venv/bin/python3 services/auto_learner.py daemon
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
