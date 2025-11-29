@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251129-231708",
+  "created_utc": "20251129-232308",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "ced694a",
+    "commit": "e04fe48",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8908662,
-      "mtime": 1764458194,
-      "sha256": "57e7e2087439a7945a7f0d42a30664ab14d44bd9fede9355b192b292c330d26d"
+      "size": 8909222,
+      "mtime": 1764458554,
+      "sha256": "dd9ed9d3a16d36a9f98d557b5c167d5922c2ed4add4739fd9bd4547f789db99e"
     },
     {
       "path": "COMMANDS.md",
@@ -11762,9 +11762,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1727511,
-      "mtime": 1764457877,
-      "sha256": "ddd146879459198f52a1cdd3037678691f9404bde021b07139d643f74aa1ea80"
+      "size": 1727716,
+      "mtime": 1764458237,
+      "sha256": "413de901f1846af5c7795b01e3b49e035c1484f3882fb23a8e0ee5045be0359f"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -13651,6 +13651,12 @@
       "sha256": "ddd146879459198f52a1cdd3037678691f9404bde021b07139d643f74aa1ea80"
     },
     {
+      "path": "changelogs/snapshots/20251129-231708.json",
+      "size": 1727716,
+      "mtime": 1764458237,
+      "sha256": "413de901f1846af5c7795b01e3b49e035c1484f3882fb23a8e0ee5045be0359f"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -13733,6 +13739,12 @@
       "size": 1459,
       "mtime": 1764441999,
       "sha256": "c997c56811cb7e60f29b961a618d4f77cbbab5b669e959dc50e6b0865309ac38"
+    },
+    {
+      "path": "data/autolearn.sqlite",
+      "size": 69632,
+      "mtime": 1764458494,
+      "sha256": "3a2ba40730295db123e833bec7e54c178f43869d7349db419c4a44a616bf99a4"
     },
     {
       "path": "data/brands/Acme GmbH.json",
@@ -19287,8 +19299,8 @@
     {
       "path": "data/templates_learned.json",
       "size": 392788,
-      "mtime": 1764441969,
-      "sha256": "bebd9a1b4915ff1a67eac260a55617bf694bd804e19e1a4db0448ba8fcc30177"
+      "mtime": 1764458378,
+      "sha256": "41e92bf39a188f6c7ecbfbe29983611ab55801675319b100a1587f7fda063948"
     },
     {
       "path": "data/uploads/acme_personas.txt",
@@ -45325,6 +45337,12 @@
       "sha256": "5bdcc9d157d833e6e5bdde58380a553d19d6f9d86d51443d1aec523eced3c255"
     },
     {
+      "path": "scripts/install_autolearner.sh",
+      "size": 2560,
+      "mtime": 1764458488,
+      "sha256": "5154b6433a802675ac512384f835eaf535e3436d3d6cc5c54b3ee5c8b1264e06"
+    },
+    {
       "path": "scripts/install_stufe2.sh",
       "size": 2706,
       "mtime": 1764442536,
@@ -45823,6 +45841,12 @@
       "sha256": "5ac2ac48f119b515083ad587260e455ea00ceb5c4495da1a7ae29b96c0d38bc7"
     },
     {
+      "path": "services/__pycache__/auto_learner.cpython-312.pyc",
+      "size": 22646,
+      "mtime": 1764458488,
+      "sha256": "0a699d3c0ed25d7f6215a9c76ec9455508e5c2826448a1acc70959b5be7301ff"
+    },
+    {
       "path": "services/__pycache__/brand_store.cpython-312.pyc",
       "size": 3496,
       "mtime": 1764396904,
@@ -46037,6 +46061,12 @@
       "size": 506,
       "mtime": 1759564088,
       "sha256": "041871458e08d32a54d17eb37c7fdb9a6e8a16d5677d496abc3203ee36047d9d"
+    },
+    {
+      "path": "services/auto_learner.py",
+      "size": 17948,
+      "mtime": 1764458488,
+      "sha256": "9de8aa2d4a6c7a8cccef5063108446ced2c9d44d7968955fec596077db9e3d5c"
     },
     {
       "path": "services/brand.py",
@@ -46703,6 +46733,12 @@
       "size": 686,
       "mtime": 1762961758,
       "sha256": "81d9ab91adfcea27006c95c20d21afb69c7fabfcfe157d79b4f7f5e89188537a"
+    },
+    {
+      "path": "stratgen-autolearn.service",
+      "size": 419,
+      "mtime": 1764458488,
+      "sha256": "d5df582887825017c10c62d13cd3ac18ee1516d1e2d3866f8bf6dd9bd91ec1fc"
     },
     {
       "path": "stratgen/.env.example",
