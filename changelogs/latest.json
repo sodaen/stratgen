@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251129-185108",
+  "created_utc": "20251129-185708",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "c4f4d01",
+    "commit": "edd0a5d",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8891156,
-      "mtime": 1764442220,
-      "sha256": "d40e72e6a36b940be426bf46ca93c8efd450331b9212c9b1d0a988b22ef1c8d2"
+      "size": 8891678,
+      "mtime": 1764442581,
+      "sha256": "359d611894218863a5a338553b9f5b744f670dfdfa54808cfa72a84b90f83af6"
     },
     {
       "path": "COMMANDS.md",
@@ -10184,9 +10184,9 @@
     },
     {
       "path": "backend/__pycache__/agent_v3_api.cpython-312.pyc",
-      "size": 45739,
-      "mtime": 1764436546,
-      "sha256": "7246cef6218e235af3f35693f2b1033af2fea66dda60db92656dd5a1f74c5ef9"
+      "size": 48025,
+      "mtime": 1764442537,
+      "sha256": "e31da6c711183301028cadaa2e3bc9452ef4982525c5cad8eb5dc3498c5296cf"
     },
     {
       "path": "backend/__pycache__/analytics_api.cpython-312.pyc",
@@ -10598,15 +10598,21 @@
     },
     {
       "path": "backend/agent_v3_api.py",
-      "size": 42589,
-      "mtime": 1764442206,
-      "sha256": "6af5490695bfc7281f7d6ec7e04a45cd4aa145b597e0915b7831a0a66c32f268"
+      "size": 45330,
+      "mtime": 1764442536,
+      "sha256": "e9348c9814cdcfe95eb4efab815d49961ada8ac6b9117665f521e0eb284a7779"
     },
     {
       "path": "backend/agent_v3_api.py.backup_20251129_181130",
       "size": 42094,
       "mtime": 1764442206,
       "sha256": "3b0d0129aefe1eac2c93dda53ea6754abc83adaf649fb1181bdd6d54cf73764a"
+    },
+    {
+      "path": "backend/agent_v3_api.py.backup_20251129_195536",
+      "size": 42589,
+      "mtime": 1764442536,
+      "sha256": "6af5490695bfc7281f7d6ec7e04a45cd4aa145b597e0915b7831a0a66c32f268"
     },
     {
       "path": "backend/analytics_api.py",
@@ -11738,9 +11744,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1714136,
-      "mtime": 1764442206,
-      "sha256": "0e45e88ad9e6624611a0f0cb7a798a6f99067fa6c5558612c02ae9ea0583d6c7"
+      "size": 1714341,
+      "mtime": 1764442277,
+      "sha256": "002e6c3c192089b7ac76db074cf30f7235a9fc236fa0dc69e26066205b8a603c"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -13355,6 +13361,12 @@
       "size": 1714136,
       "mtime": 1764442207,
       "sha256": "0e45e88ad9e6624611a0f0cb7a798a6f99067fa6c5558612c02ae9ea0583d6c7"
+    },
+    {
+      "path": "changelogs/snapshots/20251129-185108.json",
+      "size": 1714341,
+      "mtime": 1764442277,
+      "sha256": "002e6c3c192089b7ac76db074cf30f7235a9fc236fa0dc69e26066205b8a603c"
     },
     {
       "path": "config/datasources.yml",
@@ -43549,6 +43561,12 @@
       "sha256": "2a99482553b2429bb625dbdf4ac603e8ac776ef83c12c89c3b9a65be00a2b54b"
     },
     {
+      "path": "patch_knowledge_enhanced.py",
+      "size": 10186,
+      "mtime": 1764442536,
+      "sha256": "db7fee4ab5d6de99d34c602580de40035147e3bd632c885d0f0100bdbf54d8ef"
+    },
+    {
       "path": "patch_llm_call.py",
       "size": 3876,
       "mtime": 1764442207,
@@ -45001,6 +45019,12 @@
       "sha256": "5bdcc9d157d833e6e5bdde58380a553d19d6f9d86d51443d1aec523eced3c255"
     },
     {
+      "path": "scripts/install_stufe2.sh",
+      "size": 2706,
+      "mtime": 1764442536,
+      "sha256": "9dc93588079792c8c97b81af8324bd117164b37169f9f8d5d1d610533084037a"
+    },
+    {
       "path": "scripts/knowledge_probe.sh",
       "size": 2063,
       "mtime": 1763669589,
@@ -45541,6 +45565,12 @@
       "sha256": "ee61dad7b47958d2eccf78071b5ae95902dce703928b3c1e7b7ec7766e4784b8"
     },
     {
+      "path": "services/__pycache__/knowledge_enhanced.cpython-312.pyc",
+      "size": 29740,
+      "mtime": 1764442536,
+      "sha256": "1b854d84975526b65aa5b261b83e5277514163f3eafb455b565f2dc0130b2f07"
+    },
+    {
       "path": "services/__pycache__/knowledge_graph.cpython-312.pyc",
       "size": 3951,
       "mtime": 1764396905,
@@ -45845,6 +45875,12 @@
       "size": 29617,
       "mtime": 1761424439,
       "sha256": "3172e19593233c93dad310cda969048159296bd84f5a14c22ab8152058a4c345"
+    },
+    {
+      "path": "services/knowledge_enhanced.py",
+      "size": 25109,
+      "mtime": 1764442536,
+      "sha256": "e6dcad32d1c2dc08418bcb23fcf129e04d753996f5f40fa847e982154a5b003e"
     },
     {
       "path": "services/knowledge_graph.py",
