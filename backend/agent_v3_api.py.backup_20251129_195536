@@ -179,29 +179,13 @@ try:
 except ImportError:
     HAS_FEEDBACK = False
 
-# Knowledge/RAG (Basic)
+# Knowledge/RAG
 try:
     from services.knowledge import search as knowledge_search, scan_dir as scan_knowledge
     HAS_KNOWLEDGE = True
 except ImportError:
     knowledge_search = None
     HAS_KNOWLEDGE = False
-
-# Knowledge Enhanced (Stufe 2)
-try:
-    from services.knowledge_enhanced import (
-        multi_source_search,
-        extract_facts_from_results,
-        build_research_context,
-        research_for_slide,
-        CitationManager,
-        check_status as knowledge_status
-    )
-    HAS_KNOWLEDGE_ENHANCED = True
-except ImportError:
-    HAS_KNOWLEDGE_ENHANCED = False
-    multi_source_search = None
-    CitationManager = None
 
 # ============================================
 # KONFIGURATION
@@ -472,72 +456,21 @@ NUR JSON, keine Erklärung."""
 
 def phase_research(req: AgentV3Request, plan: AgentPlan) -> Dict[str, Any]:
     """
-    Phase 2: Enhanced Research mit Multi-Source RAG und Fact Extraction.
-    Nutzt knowledge_enhanced.py für bessere Ergebnisse.
+    Phase 2: Sucht relevantes Wissen aus Knowledge Base.
+    Nutzt die geplanten Research-Queries.
     """
     result = {
         "sources": [],
         "facts": [],
         "citations": [],
         "template_insights": [],
-        "citation_manager": None,
     }
     
     if not req.use_rag:
         return result
     
-    context = {
-        "topic": req.topic,
-        "industry": req.industry,
-        "customer_name": req.customer_name,
-        "brief": req.brief
-    }
-    
-    # === ENHANCED RESEARCH (Stufe 2) ===
-    if HAS_KNOWLEDGE_ENHANCED and multi_source_search:
-        try:
-            # Citation Manager erstellen
-            result["citation_manager"] = CitationManager() if CitationManager else None
-            
-            # Multi-Source-Suche
-            for query in plan.research_queries[:5]:
-                research = multi_source_search(
-                    query=query,
-                    context=context,
-                    sources=["knowledge", "templates", "uploads"],
-                    k=5
-                )
-                
-                # Ergebnisse sammeln
-                for res in research.results:
-                    if res.path not in [s.get("path") for s in result["sources"]]:
-                        result["sources"].append({
-                            "path": res.path,
-                            "title": res.title,
-                            "snippet": res.snippet[:400],
-                            "score": res.score,
-                            "source_type": res.source_type
-                        })
-                        
-                        # Citation hinzufügen
-                        if result["citation_manager"]:
-                            result["citation_manager"].add_source(
-                                res.path, res.title, res.snippet
-                            )
-                
-                # Fakten extrahieren
-                if research.results:
-                    extracted_facts = extract_facts_from_results(research.results)
-                    for fact in extracted_facts:
-                        if fact.text not in result["facts"]:
-                            result["facts"].append(fact.text)
-            
-        except Exception as e:
-            # Fallback zu Basic Search
-            pass
-    
-    # === FALLBACK: Basic Knowledge Search ===
-    if not result["sources"] and HAS_KNOWLEDGE and knowledge_search:
+    # Knowledge Base durchsuchen
+    if HAS_KNOWLEDGE and knowledge_search:
         all_results = []
         for query in plan.research_queries[:5]:
             try:
@@ -561,10 +494,13 @@ def phase_research(req: AgentV3Request, plan: AgentPlan) -> Dict[str, Any]:
                 if item.get("snippet"):
                     result["facts"].append(item["snippet"][:400])
     
-    # === Template-Insights (Quick Win 2) ===
+    # Template-Insights (Quick Win 2)
     if req.learn_from_templates and HAS_TEMPLATE_LEARNER:
         try:
+            # Templates scannen falls noch nicht geschehen
             scan_templates(RAW_DIR)
+            
+            # Statistiken holen
             stats = get_template_stats()
             if stats.get("ok") and stats.get("patterns"):
                 patterns = stats["patterns"]
@@ -1240,8 +1176,7 @@ async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> Agen
     phases["research"] = {
         "duration_ms": int((time.time() - t2) * 1000),
         "sources_found": len(research.get("sources", [])),
-        "facts_gathered": len(research.get("facts", [])),
-        "enhanced": HAS_KNOWLEDGE_ENHANCED
+        "facts_gathered": len(research.get("facts", []))
     }
     
     # === PHASE 3: STRUCTURE ===
@@ -1349,17 +1284,8 @@ async def run_v3(req: AgentV3Request, background_tasks: BackgroundTasks) -> Agen
 @router.get("/v3/status")
 def agent_v3_status():
     """Gibt den Status aller Services zurück."""
-    
-    # Knowledge Enhanced Status
-    ke_status = {}
-    if HAS_KNOWLEDGE_ENHANCED:
-        try:
-            ke_status = knowledge_status()
-        except Exception:
-            ke_status = {"ok": False}
-    
     return {
-        "version": "3.2",
+        "version": "3.1",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1376,7 +1302,6 @@ def agent_v3_status():
             "template_learner": HAS_TEMPLATE_LEARNER,
             "feedback_loop": HAS_FEEDBACK,
             "knowledge": HAS_KNOWLEDGE,
-            "knowledge_enhanced": HAS_KNOWLEDGE_ENHANCED,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
