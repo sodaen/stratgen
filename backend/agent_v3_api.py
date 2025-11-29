@@ -189,6 +189,23 @@ except ImportError:
     predict_quality = None
     get_merged_style = None
 
+# Multi-Modal Export (Stufe 5)
+try:
+    from services.multimodal_export import (
+        export_to_html,
+        export_to_pdf,
+        export_to_markdown,
+        export_to_json,
+        export_presentation,
+        get_available_formats,
+        check_status as export_status
+    )
+    HAS_MULTIMODAL_EXPORT = True
+except ImportError:
+    HAS_MULTIMODAL_EXPORT = False
+    export_to_html = None
+    export_to_pdf = None
+
 # Template Learner (Quick Win 2)
 try:
     from services.template_learner import (
@@ -296,6 +313,10 @@ class AgentV3Request(BaseModel):
     match_assets: bool = True
     include_critique: bool = True
     export_pptx: bool = True
+    export_html: bool = False      # HTML/Reveal.js Export
+    export_pdf: bool = False       # PDF Export
+    export_markdown: bool = False  # Markdown Export
+    export_json: bool = False      # JSON Export
     
     # Agent Intelligence
     auto_improve: bool = True    # Iterative Verbesserung
@@ -352,6 +373,10 @@ class AgentV3Response(BaseModel):
     # Exports
     pptx_url: Optional[str] = None
     pdf_url: Optional[str] = None
+    html_url: Optional[str] = None      # Stufe 5
+    markdown_url: Optional[str] = None  # Stufe 5
+    json_url: Optional[str] = None      # Stufe 5
+    exports: Optional[Dict[str, Any]] = None  # Alle Exports
     
     # Metriken
     quality_score: Optional[float] = None
@@ -1418,7 +1443,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.4",
+        "version": "3.5",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1438,6 +1463,7 @@ def agent_v3_status():
             "knowledge_enhanced": HAS_KNOWLEDGE_ENHANCED,
             "visual_intelligence": HAS_VISUAL_INTELLIGENCE,
             "learning_adaptation": HAS_LEARNING,
+            "multimodal_export": HAS_MULTIMODAL_EXPORT,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
