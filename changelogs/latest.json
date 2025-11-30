@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251130-192108",
+  "created_utc": "20251130-192708",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "9961a03",
+    "commit": "90fa913",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 8980605,
-      "mtime": 1764530434,
-      "sha256": "dd3522695c006741fa96917c2f2fef600212572e76e694f64af63ea0ac329b4d"
+      "size": 8982175,
+      "mtime": 1764530794,
+      "sha256": "0cb42afcf72392e77e9b3ec5b436414030a64f64668d29f6a360ad39b601e720"
     },
     {
       "path": "COMMANDS.md",
@@ -10335,8 +10335,8 @@
     {
       "path": "backend/__pycache__/killer_features_api.cpython-312.pyc",
       "size": 6756,
-      "mtime": 1764522192,
-      "sha256": "dc9ef9b01d1b48ae4b094583c9030711e83d5c54945856d03eda6edc831a643f"
+      "mtime": 1764530667,
+      "sha256": "f448b252e11a96890d758659e1126acf39e477e3035bcc8a142757eb1e043f66"
     },
     {
       "path": "backend/__pycache__/knowledge_answer_api.cpython-312.pyc",
@@ -10355,6 +10355,12 @@
       "size": 1250,
       "mtime": 1764396915,
       "sha256": "e57c02f391c20481e1c52c1410916e03d1bdd8a463a1e416def8a9d13cd838be"
+    },
+    {
+      "path": "backend/__pycache__/live_generator_api.cpython-312.pyc",
+      "size": 9686,
+      "mtime": 1764530667,
+      "sha256": "e8d99aae99db29407f9195106fdcaca9ed156f36a3da3355b6ed1c58722b6e36"
     },
     {
       "path": "backend/__pycache__/messaging_api.cpython-312.pyc",
@@ -10604,9 +10610,9 @@
     },
     {
       "path": "backend/agent_v3_api.py",
-      "size": 48826,
-      "mtime": 1764522176,
-      "sha256": "2af1b75aa160277b8a48972776e2c94aeb9fcfc6c63e4c37ba6b3dbd6824ab9f"
+      "size": 49552,
+      "mtime": 1764530604,
+      "sha256": "09cfad094ffa23bfd7d39c326e567b3adf48ca855b35b3851174d27e62a4dae9"
     },
     {
       "path": "backend/agent_v3_api.py.backup_20251129_181130",
@@ -10835,6 +10841,12 @@
       "size": 790,
       "mtime": 1762159587,
       "sha256": "a6fe3a2fdc07650d8cc1f22084d0122c9f3ad693deb606e36b147b05948a5228"
+    },
+    {
+      "path": "backend/live_generator_api.py",
+      "size": 8459,
+      "mtime": 1764530604,
+      "sha256": "5fa71efbe7bded7fca23ee5d5d92dafa61ff60ee48eef76d7fff050945d81358"
     },
     {
       "path": "backend/llm_local.py",
@@ -11171,6 +11183,12 @@
       "size": 1559,
       "mtime": 1762332665,
       "sha256": "0b65f12b731685c8afd6f560adf52b81406d0f806730b687bf675a026fc7d771"
+    },
+    {
+      "path": "backups/advanced_20251130_202324/agent_v3_api.py",
+      "size": 48826,
+      "mtime": 1764530604,
+      "sha256": "2af1b75aa160277b8a48972776e2c94aeb9fcfc6c63e4c37ba6b3dbd6824ab9f"
     },
     {
       "path": "backups/ingest_2025-10-03_170947.py",
@@ -11780,9 +11798,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1772930,
-      "mtime": 1764530118,
-      "sha256": "afb27e4fbe566f6d906f51a6cdf6d349f4e13ad6a700807736d14466df147e8e"
+      "size": 1773135,
+      "mtime": 1764530478,
+      "sha256": "0441a74c7507560771d08afd81755314c815c5ce2df79ed84abd7d490e548819"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -14887,6 +14905,12 @@
       "sha256": "afb27e4fbe566f6d906f51a6cdf6d349f4e13ad6a700807736d14466df147e8e"
     },
     {
+      "path": "changelogs/snapshots/20251130-192108.json",
+      "size": 1773135,
+      "mtime": 1764530478,
+      "sha256": "0441a74c7507560771d08afd81755314c815c5ce2df79ed84abd7d490e548819"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -14975,6 +14999,12 @@
       "size": 73728,
       "mtime": 1764522183,
       "sha256": "ec6dd533296443d690e7641e5b7ddcbe544f6d064439b0c907fb35f5cc2e5b65"
+    },
+    {
+      "path": "data/brand_voice.sqlite",
+      "size": 32768,
+      "mtime": 1764530660,
+      "sha256": "9d42d475f8af159027011acbb0b50f8e9999579f3ac49740c7fc731a9f139c1f"
     },
     {
       "path": "data/brands/Acme GmbH.json",
@@ -20285,6 +20315,18 @@
       "size": 68,
       "mtime": 1760544091,
       "sha256": "5b8c49f4abbd81a91f17dffaa2ccee4eb458b018572efc990202626c8f695b4e"
+    },
+    {
+      "path": "data/slide_dna.sqlite",
+      "size": 835584,
+      "mtime": 1764530609,
+      "sha256": "f1ca11ed1ce668ab8e2b9c763d4fbac47b784f0534f909c3a69d0a75634a0a5a"
+    },
+    {
+      "path": "data/slide_matcher.sqlite",
+      "size": 54755328,
+      "mtime": 1764530656,
+      "sha256": "f746b5a01be6b62033999b7c5eb5ed4858743a9b116778646f2a4a2e8556daa3"
     },
     {
       "path": "data/snapshots/proj-04ce39c297eb46f5abf3aa2afa8acd1c-1763212378.json",
@@ -46561,6 +46603,12 @@
       "sha256": "8c1a19495803b31e0c1a69e803ce699dbbda343b3d8fabb7c6addf46db9fa886"
     },
     {
+      "path": "scripts/install_advanced_features.sh",
+      "size": 7308,
+      "mtime": 1764530604,
+      "sha256": "a508b5e524816e80fb552109a7edf79a5fca933e10eca1453cf7c46579d4c7d3"
+    },
+    {
       "path": "scripts/install_agent_v3.sh",
       "size": 4264,
       "mtime": 1764365677,
@@ -47071,6 +47119,12 @@
       "sha256": "20c292863478e4bfb96e2141ac7898909ff01c007bad47ae1fe103f901c70026"
     },
     {
+      "path": "services/__pycache__/argument_engine.cpython-312.pyc",
+      "size": 18844,
+      "mtime": 1764530604,
+      "sha256": "b7aeaa3acb3a122c97b5512984523249bc042976fe7e96ec3af00a8d921ba300"
+    },
+    {
       "path": "services/__pycache__/asset_tagger.cpython-312.pyc",
       "size": 23971,
       "mtime": 1764396902,
@@ -47087,6 +47141,12 @@
       "size": 3496,
       "mtime": 1764396904,
       "sha256": "dc9f5854ddc9d805b1f01b34d70a5963117698b3ca65e0dafb4a4037e9636ad8"
+    },
+    {
+      "path": "services/__pycache__/brand_voice_extractor.cpython-312.pyc",
+      "size": 23948,
+      "mtime": 1764530604,
+      "sha256": "3830f7ec506124392809c775dccd5c8721468b91a41a5a7ddfb8d750fb9279a9"
     },
     {
       "path": "services/__pycache__/briefing_analyzer.cpython-312.pyc",
@@ -47117,6 +47177,12 @@
       "size": 18850,
       "mtime": 1764522176,
       "sha256": "f4cf259be23f19574182b93506840acba268e02bd1e274a41eca42285ecf39eb"
+    },
+    {
+      "path": "services/__pycache__/content_intelligence.cpython-312.pyc",
+      "size": 18811,
+      "mtime": 1764530604,
+      "sha256": "00b0629293cd11fa518a6b2ef9e06de5f8d838e82421e53efb16393fca8e0464"
     },
     {
       "path": "services/__pycache__/datasource_store.cpython-312.pyc",
@@ -47185,6 +47251,12 @@
       "sha256": "174ccb981083d1345a66a6dcda89d52c52ee34aa5c91f5a513d9587e36524f71"
     },
     {
+      "path": "services/__pycache__/live_generator.cpython-312.pyc",
+      "size": 28876,
+      "mtime": 1764530604,
+      "sha256": "3af3e8b151c6ab1319bac7dc3039119e02bd72f3b87e1288eab75e7cfad0dc56"
+    },
+    {
       "path": "services/__pycache__/llm.cpython-312.pyc",
       "size": 3646,
       "mtime": 1764436546,
@@ -47225,6 +47297,18 @@
       "size": 20982,
       "mtime": 1764522176,
       "sha256": "d0fbf717f7e673dd5fb2688c303252d872500a163d78375abbb4d25023b927ff"
+    },
+    {
+      "path": "services/__pycache__/semantic_slide_matcher.cpython-312.pyc",
+      "size": 17806,
+      "mtime": 1764530604,
+      "sha256": "4d11132227b93fc410eaed9379268388983eb43a1cd65b3978fc172ddb937146"
+    },
+    {
+      "path": "services/__pycache__/slide_dna_analyzer.cpython-312.pyc",
+      "size": 20450,
+      "mtime": 1764530604,
+      "sha256": "80d5aa399406cff3af85e6d540198204b179e9392aca4ad29cd1cfdb17133230"
     },
     {
       "path": "services/__pycache__/story_engine.cpython-312.pyc",
@@ -47311,6 +47395,12 @@
       "sha256": "1dae4b96a14f2903402d0503b822f365c672ba59032b0a1a652b01a4d324715e"
     },
     {
+      "path": "services/argument_engine.py",
+      "size": 16405,
+      "mtime": 1764530604,
+      "sha256": "640576f0acdb7335f531c66b211d0e827b9a830fff2b1ea254666c2b4144e843"
+    },
+    {
       "path": "services/asset_resolver.py",
       "size": 5720,
       "mtime": 1762935400,
@@ -47345,6 +47435,12 @@
       "size": 2164,
       "mtime": 1759521123,
       "sha256": "708d0cd7401029254af1588af7706f0a7f59025af68448a27e17245a19a5469f"
+    },
+    {
+      "path": "services/brand_voice_extractor.py",
+      "size": 18740,
+      "mtime": 1764530604,
+      "sha256": "c9528bb55e078d7a463b323789578afb3b42c1f2c575f05492860288787ac70b"
     },
     {
       "path": "services/briefing_analyzer.py",
@@ -47411,6 +47507,12 @@
       "size": 3499,
       "mtime": 1759785525,
       "sha256": "c3ae89ec27861bc037cd9cb413490fc0ba1735dbd5a40b4efd3c74a99ecedacf"
+    },
+    {
+      "path": "services/content_intelligence.py",
+      "size": 17915,
+      "mtime": 1764530604,
+      "sha256": "c2529895287bf1d1d7ea01bf0ac4a5de1491743cf67d8d527cf8331981deb8ef"
     },
     {
       "path": "services/critic.py",
@@ -47567,6 +47669,12 @@
       "size": 25146,
       "mtime": 1764459475,
       "sha256": "62938b68839b0f92c57e6b7fde7b7da2717c0401c42a5fa79d030321bfdb19fa"
+    },
+    {
+      "path": "services/live_generator.py",
+      "size": 23915,
+      "mtime": 1764530604,
+      "sha256": "73c9651759988139319f43dbf6ac7da7ee9d3b71369b32751b6327ec7ff733fe"
     },
     {
       "path": "services/llm.py",
@@ -47903,6 +48011,18 @@
       "size": 18706,
       "mtime": 1764522176,
       "sha256": "9139e82c79bc308b924e46800d6780f688a3723705abeff760888abae96ac3ef"
+    },
+    {
+      "path": "services/semantic_slide_matcher.py",
+      "size": 14956,
+      "mtime": 1764530604,
+      "sha256": "88d0272663b2557148ff77beca591d57a19c7d9d7bb6cecd7d1e92c3a22bcade"
+    },
+    {
+      "path": "services/slide_dna_analyzer.py",
+      "size": 17794,
+      "mtime": 1764530604,
+      "sha256": "b648103cccf169499f5b36e73e25e960396f1cb9814f85f3dffc3190cb46e644"
     },
     {
       "path": "services/sources_store.py",

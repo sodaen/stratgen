@@ -197,6 +197,19 @@ try:
     from services.story_engine import create_story_structure, build_narrative_arc, generate_hooks
     from services.briefing_analyzer import analyze as analyze_briefing, BriefingQuality
     HAS_KILLER_FEATURES = True
+
+# Advanced Features (Stufe 7)
+try:
+    from services.slide_dna_analyzer import extract_slide_dna, get_optimal_structure
+    from services.semantic_slide_matcher import get_slide_suggestions
+    from services.brand_voice_extractor import get_writing_guidelines
+    from services.argument_engine import check_deck_consistency
+    from services.content_intelligence import score_deck_complexity, detect_knowledge_gaps
+    from services.live_generator import live_generator
+    HAS_ADVANCED_FEATURES = True
+except ImportError as e:
+    HAS_ADVANCED_FEATURES = False
+    print(f"Advanced Features nicht verfügbar: {e}")
 except ImportError as e:
     HAS_KILLER_FEATURES = False
     print(f"Killer-Features nicht verfügbar: {e}")
@@ -1455,7 +1468,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.6",
+        "version": "3.7",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1477,6 +1490,8 @@ def agent_v3_status():
             "learning_adaptation": HAS_LEARNING,
             "multimodal_export": HAS_MULTIMODAL_EXPORT,
             "killer_features": HAS_KILLER_FEATURES,
+            "advanced_features": HAS_ADVANCED_FEATURES,
+            "live_generator": HAS_ADVANCED_FEATURES,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
