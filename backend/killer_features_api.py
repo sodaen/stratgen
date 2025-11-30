@@ -188,3 +188,5 @@ def api_list_frameworks():
     if not HAS_FEATURES:
         raise HTTPException(500, "Killer-Features nicht verfügbar")
     return list_frameworks()
+
+# Fix: Persona-Response korrigieren
