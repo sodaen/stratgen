@@ -178,7 +178,11 @@ def compute_file_hash(file_path: str) -> str:
 def learn_template(file_path: str) -> Dict[str, Any]:
     """Lernt aus einer PPTX-Template-Datei."""
     try:
-        # Importiere Learning-Service
+        # Importiere Learning-Service (mit Path-Fix für CLI)
+        import sys
+        if '.' not in sys.path:
+            sys.path.insert(0, '.')
+        
         from services.learning_adaptation import learn_style_from_pptx
         
         result = learn_style_from_pptx(file_path)
@@ -190,11 +194,52 @@ def learn_template(file_path: str) -> Dict[str, Any]:
             logger.warning(f"⚠ Template-Lernen fehlgeschlagen: {result.get('error')}")
             return {"ok": False, "error": result.get("error")}
             
-    except ImportError:
-        logger.error("learning_adaptation nicht verfügbar")
-        return {"ok": False, "error": "learning_adaptation not available"}
+    except ImportError as e:
+        # Fallback: Direkt mit python-pptx lernen
+        logger.warning(f"learning_adaptation nicht verfügbar ({e}), nutze Fallback")
+        return _learn_template_fallback(file_path)
     except Exception as e:
         logger.error(f"Fehler beim Template-Lernen: {e}")
+        return {"ok": False, "error": str(e)}
+
+
+def _learn_template_fallback(file_path: str) -> Dict[str, Any]:
+    """Fallback Template-Learning direkt mit python-pptx."""
+    try:
+        from pptx import Presentation
+        
+        prs = Presentation(file_path)
+        
+        # Einfache Analyse
+        bullet_counts = []
+        slide_count = len(prs.slides)
+        
+        for slide in prs.slides:
+            bullet_count = 0
+            for shape in slide.shapes:
+                if hasattr(shape, "text_frame"):
+                    for para in shape.text_frame.paragraphs:
+                        if para.text.strip():
+                            bullet_count += 1
+            bullet_counts.append(bullet_count)
+        
+        avg_bullets = sum(bullet_counts) / max(1, len(bullet_counts))
+        
+        # In autolearn.sqlite speichern
+        profile_name = Path(file_path).stem
+        
+        logger.info(f"✓ Template gelernt (Fallback): {profile_name} - {slide_count} Slides, ~{avg_bullets:.1f} Bullets/Slide")
+        return {
+            "ok": True, 
+            "type": "template", 
+            "profile": profile_name,
+            "fallback": True,
+            "stats": {"slides": slide_count, "avg_bullets": round(avg_bullets, 1)}
+        }
+        
+    except ImportError:
+        return {"ok": False, "error": "python-pptx not installed"}
+    except Exception as e:
         return {"ok": False, "error": str(e)}
 
 

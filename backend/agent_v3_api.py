@@ -189,6 +189,18 @@ except ImportError:
     predict_quality = None
     get_merged_style = None
 
+# Killer-Features (Stufe 6)
+try:
+    from services.persona_engine import generate_persona, generate_personas, analyze_audience, list_archetypes
+    from services.competitive_intelligence import analyze_competition, generate_swot, generate_battle_card
+    from services.roi_calculator import generate_business_case, calculate_project_roi
+    from services.story_engine import create_story_structure, build_narrative_arc, generate_hooks
+    from services.briefing_analyzer import analyze as analyze_briefing, BriefingQuality
+    HAS_KILLER_FEATURES = True
+except ImportError as e:
+    HAS_KILLER_FEATURES = False
+    print(f"Killer-Features nicht verfügbar: {e}")
+
 # Multi-Modal Export (Stufe 5)
 try:
     from services.multimodal_export import (
@@ -1443,7 +1455,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.5",
+        "version": "3.6",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1464,6 +1476,7 @@ def agent_v3_status():
             "visual_intelligence": HAS_VISUAL_INTELLIGENCE,
             "learning_adaptation": HAS_LEARNING,
             "multimodal_export": HAS_MULTIMODAL_EXPORT,
+            "killer_features": HAS_KILLER_FEATURES,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
