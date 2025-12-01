@@ -168,9 +168,7 @@ async def delete_file(file_path: str):
 @router.post("/index")
 async def index_files():
     """Triggert Indexierung aller Dateien"""
-    from services.auto_learner import AutoLearner
-    from services.slide_dna_analyzer import SlideDNAAnalyzer
-    from services.knowledge_base import KnowledgeBase
+    from services.auto_learner import learn_new_files, scan_all_directories
     
     results = {
         "templates_analyzed": 0,
@@ -178,6 +176,25 @@ async def index_files():
         "embeddings_generated": 0,
         "errors": []
     }
+    
+    try:
+        # Scan und lerne neue Dateien
+        learn_result = learn_new_files(scan_type="manual")
+        results["templates_analyzed"] = learn_result.get("templates_learned", 0)
+        results["documents_indexed"] = learn_result.get("knowledge_indexed", 0)
+        
+        # Generiere Embeddings
+        try:
+            from backend.knowledge_api import embed_local_docs
+            embed_result = await embed_local_docs()
+            results["embeddings_generated"] = embed_result.get("indexed", 0)
+        except Exception as e:
+            results["errors"].append(f"Embedding error: {str(e)}")
+            
+        return results
+    except Exception as e:
+        results["errors"].append(str(e))
+        return results
     
     try:
         # Analyze templates
