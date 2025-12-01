@@ -102,6 +102,56 @@ class ApiService {
   async indexFiles() {
     return this.request<any>('/files/index', { method: 'POST' })
   }
+
+  async getStorageInfo() {
+    return this.request<any>('/files/storage')
+  }
+
+  // Sessions
+  async getActiveSessions() {
+    return this.request<any[]>('/sessions/active')
+  }
+
+  async createSession(config: any) {
+    return this.request<any>('/sessions/create', {
+      method: 'POST',
+      body: JSON.stringify({ config })
+    })
+  }
+
+  async getSessionStatus(sessionId: string) {
+    return this.request<any>(`/sessions/${sessionId}/status`)
+  }
+
+  async startSession(sessionId: string) {
+    return this.request<any>(`/sessions/${sessionId}/start`, {
+      method: 'POST'
+    })
+  }
+
+  async uploadToSession(sessionId: string, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch(`${API_BASE}/sessions/${sessionId}/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+    return response.json()
+  }
+
+  // Analytics
+  async getUsageStats() {
+    return this.request<any>('/analytics/usage')
+  }
+
+  async getPerformanceStats() {
+    return this.request<any>('/analytics/performance')
+  }
+
+  async getDailyUsage(days: number = 7) {
+    return this.request<any[]>(`/analytics/daily?days=${days}`)
+  }
 }
 
 export const api = new ApiService()
