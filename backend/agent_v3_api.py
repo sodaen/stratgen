@@ -214,6 +214,20 @@ except ImportError as e:
     HAS_ADVANCED_FEATURES = False
     print(f"Advanced Features nicht verfügbar: {e}")
 
+# Feature Orchestrator (Integration Layer)
+try:
+    from services.feature_orchestrator import (
+        orchestrator,
+        orchestrate_analysis,
+        orchestrate_quality_check,
+        check_status as orchestrator_status
+    )
+    HAS_ORCHESTRATOR = True
+except ImportError as e:
+    HAS_ORCHESTRATOR = False
+    orchestrator = None
+    print(f"Feature Orchestrator nicht verfügbar: {e}")
+
 # Multi-Modal Export (Stufe 5)
 try:
     from services.multimodal_export import (
@@ -1468,7 +1482,7 @@ def agent_v3_status():
             ke_status = {"ok": False}
     
     return {
-        "version": "3.7",
+        "version": "3.8",
         "features": {
             "agent_intelligence": True,
             "iterative_improvement": True,
@@ -1492,6 +1506,7 @@ def agent_v3_status():
             "killer_features": HAS_KILLER_FEATURES,
             "advanced_features": HAS_ADVANCED_FEATURES,
             "live_generator": HAS_ADVANCED_FEATURES,
+            "orchestrator": HAS_ORCHESTRATOR,
         },
         "models": OLLAMA_MODELS,
         "config": AGENT_CONFIG,
