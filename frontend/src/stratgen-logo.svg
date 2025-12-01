@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" fill="none">
-  <g fill="none" stroke="#5BD0FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="4" y="4" width="72" height="72" rx="16"/>
-    <path d="M22 56 L40 24 L58 56"/>
-    <path d="M40 46 L46 56"/>
-  </g>
-  <text x="92" y="50" font-size="28" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto" fill="#5BD0FF" letter-spacing="1">STRATGEN</text>
-</svg>
