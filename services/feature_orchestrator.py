@@ -106,6 +106,9 @@ try:
     HAS_KNOWLEDGE = True
 except ImportError:
     HAS_KNOWLEDGE = False
+    # Fallback wenn Import fehlschlägt
+    def check_knowledge_available():
+        return False
 
 
 # ============================================
