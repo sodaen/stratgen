@@ -12,7 +12,7 @@ import asyncio
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
-# In-memory session storage (in Production: Redis/DB)
+# In-memory session storage
 active_sessions: Dict[str, Dict[str, Any]] = {}
 
 BASE_DIR = Path(__file__).parent.parent
@@ -59,7 +59,7 @@ def update_session(session_id: str, **kwargs):
         session_dir = SESSIONS_DIR / session_id
         if session_dir.exists():
             with open(session_dir / "config.json", "w") as f:
-                json.dump(active_sessions[session_id], f, indent=2)
+                json.dump(active_sessions[session_id], f, indent=2, default=str)
 
 
 async def run_generation(session_id: str):
@@ -72,34 +72,58 @@ async def run_generation(session_id: str):
         config = session.get("config", {})
         
         # Import Live Generator
-        from services.live_generator import LiveGenerator
+        from services.live_generator import LiveGenerator, LiveGenerationRequest
         
         generator = LiveGenerator()
         
-        # Callback für Progress Updates
-        def progress_callback(phase: str, progress: float, slide_num: int = 0):
-            update_session(
-                session_id,
-                phase=phase,
-                progress=progress,
-                slides_generated=slide_num
-            )
-        
-        # Generiere
-        update_session(session_id, status="running", phase="analyze")
-        
-        result = await asyncio.to_thread(
-            generator.generate_full,
+        # Erstelle Request
+        request = LiveGenerationRequest(
             briefing=config.get("brief", ""),
             company_name=config.get("company_name", ""),
             project_name=config.get("project_name", ""),
             industry=config.get("industry", "Technology"),
             audience=config.get("audience", "C-Level"),
             deck_size=config.get("deck_size", 10),
-            temperature=config.get("temperature", 0.7),
             style=config.get("style", "corporate"),
-            progress_callback=progress_callback
+            temperature=config.get("temperature", 0.7)
         )
+        
+        # Erstelle Generator Session
+        gen_id = generator.create_session(request)
+        
+        # Speichere Generator ID
+        update_session(session_id, generation_id=gen_id, status="running", phase="analyze")
+        
+        slides = []
+        
+        # Führe Generation aus und sammle Events
+        async for event in generator.generate_async(gen_id):
+            event_type = event.get("type", "")
+            
+            if event_type == "phase_start":
+                phase = event.get("data", {}).get("phase", event.get("phase", ""))
+                update_session(session_id, phase=phase)
+                
+            elif event_type == "progress":
+                progress = event.get("progress", event.get("data", {}).get("progress", 0))
+                update_session(session_id, progress=progress)
+                
+            elif event_type == "slide_generated" or event_type == "slide":
+                slide = event.get("slide", event.get("data", {}).get("slide", {}))
+                if slide:
+                    slides.append(slide)
+                    update_session(session_id, slides_generated=len(slides))
+                    
+            elif event_type == "complete" or event_type == "completed":
+                final_slides = event.get("slides", event.get("data", {}).get("slides", slides))
+                if final_slides:
+                    slides = final_slides
+                break
+                
+            elif event_type == "error":
+                error = event.get("message", event.get("error", "Unknown error"))
+                update_session(session_id, status="error", errors=[error])
+                return
         
         # Speichere Ergebnis
         update_session(
@@ -107,25 +131,26 @@ async def run_generation(session_id: str):
             status="complete",
             phase="complete",
             progress=100.0,
-            slides_generated=len(result.get("slides", [])),
-            result=result
+            slides_generated=len(slides),
+            result={"slides": slides}
         )
         
         # Speichere Slides separat
         session_dir = SESSIONS_DIR / session_id
         with open(session_dir / "slides.json", "w") as f:
-            json.dump(result.get("slides", []), f, indent=2)
+            json.dump(slides, f, indent=2, default=str)
             
     except Exception as e:
         import traceback
-        error_msg = f"{str(e)}\n{traceback.format_exc()}"
+        error_msg = str(e)
+        print(f"[Session {session_id}] Generation error: {error_msg}")
+        print(traceback.format_exc())
         update_session(
             session_id,
             status="error",
             phase="error",
-            errors=[str(e)]
+            errors=[error_msg]
         )
-        print(f"[Session {session_id}] Generation error: {error_msg}")
 
 
 @router.post("/create", response_model=SessionStatus)
@@ -162,12 +187,11 @@ async def create_session(data: SessionCreate):
     return SessionStatus(**session)
 
 
-@router.get("/active", response_model=List[SessionStatus])
+@router.get("/active")
 async def get_active_sessions():
     """Gibt alle aktiven Sessions zurück"""
-    # Filter nur running sessions
-    running = [s for s in active_sessions.values() if s.get("status") == "running"]
-    return [SessionStatus(**s) for s in running]
+    # Return all sessions, not just running
+    return list(active_sessions.values())
 
 
 @router.get("/{session_id}/status")
@@ -202,7 +226,8 @@ async def get_session_slides(session_id: str):
     # Oder aus Session
     if session_id in active_sessions:
         result = active_sessions[session_id].get("result", {})
-        return {"slides": result.get("slides", [])}
+        if result:
+            return {"slides": result.get("slides", [])}
     
     return {"slides": []}
 
@@ -258,6 +283,26 @@ async def start_session(session_id: str, background_tasks: BackgroundTasks):
     background_tasks.add_task(run_generation, session_id)
     
     return {"success": True, "session_id": session_id, "status": "starting"}
+
+
+@router.put("/{session_id}/slides")
+async def update_session_slides(session_id: str, data: Dict[str, Any]):
+    """Aktualisiert die Slides einer Session (vom Editor)"""
+    session_dir = SESSIONS_DIR / session_id
+    session_dir.mkdir(parents=True, exist_ok=True)
+    
+    slides = data.get("slides", [])
+    
+    with open(session_dir / "slides.json", "w") as f:
+        json.dump(slides, f, indent=2, default=str)
+    
+    if session_id in active_sessions:
+        if active_sessions[session_id].get("result"):
+            active_sessions[session_id]["result"]["slides"] = slides
+        else:
+            active_sessions[session_id]["result"] = {"slides": slides}
+    
+    return {"success": True, "slides_count": len(slides)}
 
 
 @router.delete("/{session_id}")
