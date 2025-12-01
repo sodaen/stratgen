@@ -40,6 +40,25 @@ MIN_FACT_CONFIDENCE = 0.6
 MAX_SOURCES_PER_SLIDE = 3
 MAX_FACTS_PER_QUERY = 10
 
+
+# ============================================
+# DYNAMIC STATUS CHECK
+# ============================================
+
+def check_knowledge_available() -> bool:
+    """Prüft dynamisch ob Knowledge Base verfügbar ist."""
+    import os
+    embeddings_dir = os.path.join(KNOWLEDGE_DIR, "embeddings")
+    vectors_file = os.path.join(embeddings_dir, "vectors.jsonl")
+    index_file = os.path.join(embeddings_dir, "index.json")
+    
+    # Prüfe ob Embeddings existieren
+    if os.path.exists(vectors_file) and os.path.exists(index_file):
+        # Prüfe ob Dateien nicht leer sind
+        if os.path.getsize(vectors_file) > 100:
+            return True
+    return False
+
 # ============================================
 # DATA CLASSES
 # ============================================
@@ -910,7 +929,7 @@ def check_status() -> Dict[str, Any]:
     return {
         "ok": True,
         "services": {
-            "knowledge_base": HAS_KNOWLEDGE,
+            "knowledge_base": check_knowledge_available(),
             "template_learner": HAS_TEMPLATE_LEARNER,
             "llm": HAS_LLM and (llm_enabled() if llm_enabled else False)
         },
