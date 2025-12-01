@@ -102,7 +102,7 @@ except ImportError:
 
 # Knowledge Enhanced
 try:
-    from services.knowledge_enhanced import search_knowledge_base, extract_facts, check_knowledge_available
+    from services.knowledge_enhanced import search_knowledge_base, extract_facts_from_results as extract_facts, check_knowledge_available
     HAS_KNOWLEDGE = True
 except ImportError:
     HAS_KNOWLEDGE = False
