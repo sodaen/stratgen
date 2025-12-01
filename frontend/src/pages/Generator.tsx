@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
@@ -75,7 +75,16 @@ export default function Generator() {
   const [slides, setSlides] = useState<GeneratedSlide[]>([])
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  const [eventSource, setEventSource] = useState<EventSource | null>(null)
+  const pollingRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+      }
+    }
+  }, [])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(f => ({
@@ -101,6 +110,58 @@ export default function Generator() {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index))
   }
 
+  const pollSessionStatus = async (sid: string) => {
+    try {
+      const response = await fetch(`/api/sessions/${sid}/status`)
+      if (!response.ok) throw new Error('Status fetch failed')
+      
+      const status = await response.json()
+      
+      setCurrentPhase(status.phase || '')
+      setProgress(status.progress || 0)
+      
+      if (status.slides_generated > 0 && slides.length === 0) {
+        // Fetch slides
+        const slidesResponse = await fetch(`/api/sessions/${sid}/slides`)
+        if (slidesResponse.ok) {
+          const data = await slidesResponse.json()
+          if (data.slides && data.slides.length > 0) {
+            setSlides(data.slides)
+          }
+        }
+      }
+      
+      if (status.status === 'complete') {
+        // Stop polling
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current)
+          pollingRef.current = null
+        }
+        setIsGenerating(false)
+        setProgress(100)
+        setCurrentPhase('Complete!')
+        
+        // Fetch final slides
+        const slidesResponse = await fetch(`/api/sessions/${sid}/slides`)
+        if (slidesResponse.ok) {
+          const data = await slidesResponse.json()
+          if (data.slides) {
+            setSlides(data.slides)
+          }
+        }
+      } else if (status.status === 'error') {
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current)
+          pollingRef.current = null
+        }
+        setIsGenerating(false)
+        setError(status.errors?.[0] || 'Generation failed')
+      }
+    } catch (err) {
+      console.error('Polling error:', err)
+    }
+  }
+
   const handleGenerate = async () => {
     if (!config.brief.trim()) {
       setError('Please enter a briefing')
@@ -111,21 +172,38 @@ export default function Generator() {
     setError(null)
     setSlides([])
     setProgress(0)
-    setCurrentPhase('Initializing...')
+    setCurrentPhase('Creating session...')
 
     try {
       // 1. Create session
-      const session = await api.createSession(config)
+      const createResponse = await fetch('/api/sessions/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config })
+      })
+      
+      if (!createResponse.ok) throw new Error('Failed to create session')
+      
+      const session = await createResponse.json()
       setSessionId(session.id)
+      setCurrentPhase('Starting generation...')
       
-      // 2. Upload files if any
-      // (In real implementation, upload files to session)
+      // 2. Start generation
+      const startResponse = await fetch(`/api/sessions/${session.id}/start`, {
+        method: 'POST'
+      })
       
-      // 3. Start generation and connect to SSE
-      await api.startSession(session.id)
+      if (!startResponse.ok) throw new Error('Failed to start generation')
       
-      // 4. Connect to SSE stream
-      connectToSSE(session.id)
+      setCurrentPhase('Analyzing...')
+      
+      // 3. Start polling for status
+      pollingRef.current = setInterval(() => {
+        pollSessionStatus(session.id)
+      }, 2000)
+      
+      // Initial poll
+      setTimeout(() => pollSessionStatus(session.id), 500)
       
     } catch (err: any) {
       setError(err.message || 'Failed to start generation')
@@ -133,87 +211,10 @@ export default function Generator() {
     }
   }
 
-  const connectToSSE = (generationId: string) => {
-    if (eventSource) {
-      eventSource.close()
-    }
-
-    const es = new EventSource(`/api/live/stream/${generationId}`)
-    
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        handleSSEEvent(data)
-      } catch (e) {
-        console.error('SSE parse error:', e)
-      }
-    }
-
-    es.onerror = (err) => {
-      console.error('SSE error:', err)
-      // Don't set error immediately - might just be stream ending
-    }
-
-    setEventSource(es)
-  }
-
-  const handleSSEEvent = (data: any) => {
-    console.log('SSE Event:', data)
-    
-    switch (data.type) {
-      case 'phase_start':
-        setCurrentPhase(data.phase)
-        break
-        
-      case 'phase_complete':
-        // Update progress based on phase
-        const phases = ['analyze', 'structure', 'draft', 'critique', 'revise', 'visualize', 'render', 'export']
-        const phaseIndex = phases.indexOf(data.phase)
-        if (phaseIndex >= 0) {
-          setProgress(((phaseIndex + 1) / phases.length) * 100)
-        }
-        break
-        
-      case 'slide_generated':
-      case 'slide':
-        if (data.slide) {
-          setSlides(prev => [...prev, data.slide])
-        }
-        break
-        
-      case 'progress':
-        setProgress(data.progress || 0)
-        if (data.phase) setCurrentPhase(data.phase)
-        break
-        
-      case 'complete':
-        setIsGenerating(false)
-        setProgress(100)
-        setCurrentPhase('Complete!')
-        if (data.slides) {
-          setSlides(data.slides)
-        }
-        if (eventSource) {
-          eventSource.close()
-          setEventSource(null)
-        }
-        break
-        
-      case 'error':
-        setError(data.error || 'Generation failed')
-        setIsGenerating(false)
-        if (eventSource) {
-          eventSource.close()
-          setEventSource(null)
-        }
-        break
-    }
-  }
-
   const handleCancel = () => {
-    if (eventSource) {
-      eventSource.close()
-      setEventSource(null)
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current)
+      pollingRef.current = null
     }
     setIsGenerating(false)
     setCurrentPhase('')
@@ -225,6 +226,8 @@ export default function Generator() {
     
     try {
       const response = await fetch(`/api/export/${format}/${sessionId}`)
+      if (!response.ok) throw new Error('Export failed')
+      
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -320,7 +323,7 @@ export default function Generator() {
                 onChange={(e) => setConfig({...config, brief: e.target.value})}
                 rows={6}
                 className="w-full px-4 py-3 bg-dark-border rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
-                placeholder="Describe your presentation requirements in detail...&#10;&#10;Example: Create a strategic presentation for our AI initiative in manufacturing. Focus on predictive maintenance, quality control, and process optimization. Budget is 500k EUR, timeline 18 months. Target audience is the executive board."
+                placeholder="Describe your presentation requirements in detail..."
                 disabled={isGenerating}
               />
             </div>
@@ -333,16 +336,12 @@ export default function Generator() {
                 <input
                   type="range"
                   min="5"
-                  max="150"
+                  max="50"
                   value={config.deck_size}
                   onChange={(e) => setConfig({...config, deck_size: parseInt(e.target.value)})}
                   className="w-full"
                   disabled={isGenerating}
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1">
-                  <span>5</span>
-                  <span>150</span>
-                </div>
               </div>
 
               <div>
@@ -359,10 +358,6 @@ export default function Generator() {
                   className="w-full"
                   disabled={isGenerating}
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1">
-                  <span>Focused</span>
-                  <span>Creative</span>
-                </div>
               </div>
             </div>
 
@@ -387,27 +382,6 @@ export default function Generator() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm text-slate-400 mb-2">Core Colors</label>
-              <div className="flex gap-4">
-                {(['primary', 'secondary', 'accent'] as const).map((colorKey) => (
-                  <div key={colorKey} className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={config.colors[colorKey]}
-                      onChange={(e) => setConfig({
-                        ...config, 
-                        colors: {...config.colors, [colorKey]: e.target.value}
-                      })}
-                      className="w-10 h-10 rounded-lg cursor-pointer border-0"
-                      disabled={isGenerating}
-                    />
-                    <span className="text-xs text-slate-500 capitalize">{colorKey}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* File Upload */}
             <div>
               <label className="block text-sm text-slate-400 mb-2">Additional Files (optional)</label>
@@ -424,10 +398,8 @@ export default function Generator() {
                 <input {...getInputProps()} />
                 <Upload className="w-8 h-8 text-slate-500 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">Drop files here or click to upload</p>
-                <p className="text-xs text-slate-600 mt-1">Images, PDFs, Documents</p>
               </div>
               
-              {/* Uploaded Files List */}
               {uploadedFiles.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {uploadedFiles.map((file, index) => (
@@ -496,6 +468,26 @@ export default function Generator() {
               </button>
             </div>
           </div>
+        ) : slides.length > 0 ? (
+          <div className="flex gap-3">
+            <button 
+              onClick={openInEditor}
+              className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-green-500/25 transition-all"
+            >
+              <CheckCircle className="w-5 h-5" />
+              Open in Editor
+            </button>
+            <button 
+              onClick={() => {
+                setSlides([])
+                setSessionId(null)
+                setProgress(0)
+              }}
+              className="py-4 px-6 bg-dark-card border border-dark-border rounded-xl text-slate-400 hover:text-white transition-colors"
+            >
+              New
+            </button>
+          </div>
         ) : (
           <button 
             onClick={handleGenerate}
@@ -513,12 +505,7 @@ export default function Generator() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white">Live Preview</h2>
             {slides.length > 0 && (
-              <button
-                onClick={openInEditor}
-                className="text-sm text-blue-400 hover:text-blue-300"
-              >
-                Open in Editor →
-              </button>
+              <span className="text-sm text-slate-500">{slides.length} slides</span>
             )}
           </div>
           
@@ -563,7 +550,7 @@ export default function Generator() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2">
-                {slides.slice(0, 10).map((_, index) => (
+                {slides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlideIndex(index)}
@@ -573,9 +560,6 @@ export default function Generator() {
                     )}
                   />
                 ))}
-                {slides.length > 10 && (
-                  <span className="text-xs text-slate-500">+{slides.length - 10}</span>
-                )}
               </div>
               <button
                 onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
@@ -588,54 +572,25 @@ export default function Generator() {
           )}
         </div>
 
-        {/* Pipeline Status Mini */}
-        <div className="bg-dark-card rounded-2xl border border-dark-border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Pipeline Status</h2>
-            {sessionId && (
-              <span className="text-xs text-slate-500">ID: {sessionId}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {['Analyze', 'Structure', 'Draft', 'Critique', 'Revise', 'Visualize', 'Render', 'Export'].map((phase, i) => {
-              const phaseProgress = progress / 100 * 8
-              const isComplete = i < phaseProgress
-              const isActive = i === Math.floor(phaseProgress) && isGenerating
-              
-              return (
-                <div key={phase} className="flex-1 text-center">
-                  <div className={cn(
-                    "w-full h-2 rounded-full transition-all",
-                    isComplete ? "bg-green-500" :
-                    isActive ? "bg-blue-500 animate-pulse" :
-                    "bg-dark-border"
-                  )} />
-                  <p className="text-xs text-slate-500 mt-1 truncate">{phase}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
         {/* Export Buttons */}
-        <div className="flex gap-4">
-          <button 
-            onClick={() => handleExport('pptx')}
-            disabled={slides.length === 0}
-            className="flex-1 py-3 bg-dark-card rounded-xl border border-dark-border text-slate-400 flex items-center justify-center gap-2 hover:bg-dark-border hover:text-white transition-colors disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            Export PPTX
-          </button>
-          <button 
-            onClick={() => handleExport('pdf')}
-            disabled={slides.length === 0}
-            className="flex-1 py-3 bg-dark-card rounded-xl border border-dark-border text-slate-400 flex items-center justify-center gap-2 hover:bg-dark-border hover:text-white transition-colors disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            Export PDF
-          </button>
-        </div>
+        {slides.length > 0 && (
+          <div className="flex gap-4">
+            <button 
+              onClick={() => handleExport('pptx')}
+              className="flex-1 py-3 bg-dark-card rounded-xl border border-dark-border text-slate-400 flex items-center justify-center gap-2 hover:bg-dark-border hover:text-white transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export PPTX
+            </button>
+            <button 
+              onClick={() => handleExport('pdf')}
+              className="flex-1 py-3 bg-dark-card rounded-xl border border-dark-border text-slate-400 flex items-center justify-center gap-2 hover:bg-dark-border hover:text-white transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export PDF
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
