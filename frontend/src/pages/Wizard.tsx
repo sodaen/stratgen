@@ -194,7 +194,7 @@ export default function Wizard() {
       await api.startSession(session.id)
 
       // 4. Connect to SSE stream
-      connectToSSE(session.id)
+      startPolling(session.id)
 
     } catch (err: any) {
       setError(err.message || 'Failed to start generation')
