@@ -197,6 +197,9 @@ try:
     from services.story_engine import create_story_structure, build_narrative_arc, generate_hooks
     from services.briefing_analyzer import analyze as analyze_briefing, BriefingQuality
     HAS_KILLER_FEATURES = True
+except ImportError as e:
+    HAS_KILLER_FEATURES = False
+    print(f"Killer-Features nicht verfügbar: {e}")
 
 # Advanced Features (Stufe 7)
 try:
@@ -210,9 +213,6 @@ try:
 except ImportError as e:
     HAS_ADVANCED_FEATURES = False
     print(f"Advanced Features nicht verfügbar: {e}")
-except ImportError as e:
-    HAS_KILLER_FEATURES = False
-    print(f"Killer-Features nicht verfügbar: {e}")
 
 # Multi-Modal Export (Stufe 5)
 try:
