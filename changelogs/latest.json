@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251201-134908",
+  "created_utc": "20251201-135447",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "1a28e71",
+    "commit": "e40988f",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9057306,
-      "mtime": 1764596910,
-      "sha256": "7eaeb03a7fe5e36bb4570858b3beb3cdf09575d2d360f62b41b6fe8c637598b5"
+      "size": 9057662,
+      "mtime": 1764597270,
+      "sha256": "6f332f493cb7c4cff5a9a7955bc97c27912ba043414e5e163aa8c96be1bd255c"
     },
     {
       "path": "COMMANDS.md",
@@ -10363,6 +10363,12 @@
       "sha256": "e8d99aae99db29407f9195106fdcaca9ed156f36a3da3355b6ed1c58722b6e36"
     },
     {
+      "path": "backend/__pycache__/main_api.cpython-312.pyc",
+      "size": 1407,
+      "mtime": 1764597274,
+      "sha256": "1d1a253e67457a597a654e9e465592302e39acbfee040ef8108f26037422b032"
+    },
+    {
       "path": "backend/__pycache__/messaging_api.cpython-312.pyc",
       "size": 1617,
       "mtime": 1764396905,
@@ -10508,9 +10514,9 @@
     },
     {
       "path": "backend/__pycache__/system_api.cpython-312.pyc",
-      "size": 1309,
-      "mtime": 1764396915,
-      "sha256": "af2035485507e26fc5b653649c77ae545743ccde3e2c17b661711c0b631ef435"
+      "size": 4862,
+      "mtime": 1764597274,
+      "sha256": "198f3be12d5c936eb13f0b670958f84a0196c8b0913e67f049a82ac4f1b095d4"
     },
     {
       "path": "backend/__pycache__/telemetry_api.cpython-312.pyc",
@@ -10658,9 +10664,9 @@
     },
     {
       "path": "backend/analytics_api.py",
-      "size": 944,
-      "mtime": 1762159587,
-      "sha256": "8983497ca8378fa8ce7fba5de0953906cc01635281538a40ea3af0ef11192505"
+      "size": 1732,
+      "mtime": 1764597213,
+      "sha256": "be8a2b2b7b7dcee95fc39092ff3a1b9cc33eac186f061a3157b39b720c80e023"
     },
     {
       "path": "backend/api.py",
@@ -10785,7 +10791,7 @@
     {
       "path": "backend/files_api.py",
       "size": 7380,
-      "mtime": 1764596908,
+      "mtime": 1764597213,
       "sha256": "3ed1387c9ded740a83ad0e818699f716e169848827571a34fafd8ed6cb3a9230"
     },
     {
@@ -10871,6 +10877,12 @@
       "size": 1379,
       "mtime": 1762159587,
       "sha256": "dae2ff1bd5a348edb92c772b5a16ca99061f83e8923580558073088343617e33"
+    },
+    {
+      "path": "backend/main_api.py",
+      "size": 848,
+      "mtime": 1764597274,
+      "sha256": "04da3ba5ec9d5b053a7d7cd0837a041c92351c572e873f32afffcead22921362"
     },
     {
       "path": "backend/messaging_api.py",
@@ -11119,6 +11131,12 @@
       "sha256": "dd662f60a7707e6845a07ea0997c48db9ce84b8eb43ce794b3ec59c0bfe28e1f"
     },
     {
+      "path": "backend/sessions_api.py",
+      "size": 5335,
+      "mtime": 1764597213,
+      "sha256": "019841265cb89b5eba63f1a0d7ce61aad837dc6ec3256b1fc0911e09bf1a866e"
+    },
+    {
       "path": "backend/settings.py",
       "size": 630,
       "mtime": 1759605860,
@@ -11151,7 +11169,7 @@
     {
       "path": "backend/system_api.py",
       "size": 3850,
-      "mtime": 1764596908,
+      "mtime": 1764597213,
       "sha256": "d1977ef5da75036f25c62c5aab70fd8fe9cf28fe921971b0c54a833cea92c3e3"
     },
     {
@@ -11834,9 +11852,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3094714,
-      "mtime": 1764596659,
-      "sha256": "c9cdc0937bbef2256c4169a4531ed3f57893de3ff7f9b55dbacc5a8fb6186130"
+      "size": 3103419,
+      "mtime": 1764596959,
+      "sha256": "63310aaa38080a70c50e12c83ec5bdd0359fbb7380e56d086077d0afe4063cc7"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -16067,6 +16085,12 @@
       "size": 3094714,
       "mtime": 1764596659,
       "sha256": "c9cdc0937bbef2256c4169a4531ed3f57893de3ff7f9b55dbacc5a8fb6186130"
+    },
+    {
+      "path": "changelogs/snapshots/20251201-134908.json",
+      "size": 3103419,
+      "mtime": 1764596959,
+      "sha256": "63310aaa38080a70c50e12c83ec5bdd0359fbb7380e56d086077d0afe4063cc7"
     },
     {
       "path": "config/datasources.yml",
@@ -84573,14 +84597,14 @@
     {
       "path": "workers/__pycache__/__init__.cpython-312.pyc",
       "size": 138,
-      "mtime": 1764590839,
-      "sha256": "c80a4cda666213ebebd54d57b91c889f77e677a34e7edf38dc40eb6e903e9b2b"
+      "mtime": 1764597288,
+      "sha256": "2565f5469234a8344da95eda171e9e7f4e2eb494f9930e8c086491fc6637d743"
     },
     {
       "path": "workers/__pycache__/celery_app.cpython-312.pyc",
       "size": 5563,
-      "mtime": 1764590691,
-      "sha256": "8428cd2881dcc16e735febbabea98d6f4e5166713ee509a0ba05e24d9ec41560"
+      "mtime": 1764597288,
+      "sha256": "a9f1fe36d274448b6e7f0b0207766aabd47a4911a638b391a8955a196aacb854"
     },
     {
       "path": "workers/celery_app.py",
@@ -84597,32 +84621,32 @@
     {
       "path": "workers/tasks/__pycache__/__init__.cpython-312.pyc",
       "size": 144,
-      "mtime": 1764591845,
-      "sha256": "ae827fa2fdba895ab89e525010bc464ca0a11c578d709c057b7fade84097ba5e"
+      "mtime": 1764597288,
+      "sha256": "2411d29f152bdd0d4f4661e4a0c33741d864410b6a696973058da26a60eafece"
     },
     {
       "path": "workers/tasks/__pycache__/analysis_tasks.cpython-312.pyc",
       "size": 13011,
-      "mtime": 1764591845,
-      "sha256": "74ea2ebe82cf48dbcee240910bf33253c81b5ecd769874da84d91b94e21ba0fa"
+      "mtime": 1764597288,
+      "sha256": "d759e3f04e2dc7f771f390c6f8d894ab4eb76027627202db564d38fcf9a6a545"
     },
     {
       "path": "workers/tasks/__pycache__/export_tasks.cpython-312.pyc",
       "size": 15555,
-      "mtime": 1764591845,
-      "sha256": "351d60e80f6695ef33caf1f67e8ed7deee11556f3148d4b7e87d337d359ae2ee"
+      "mtime": 1764597288,
+      "sha256": "918e00f451e9bf06db2e6522d1137d223d880ae783b622f98f29df87d3918146"
     },
     {
       "path": "workers/tasks/__pycache__/generation_tasks.cpython-312.pyc",
       "size": 12389,
-      "mtime": 1764591845,
-      "sha256": "8449a0be8d5807e82b1a57e062af493d0116cbd555d444fab1296e484c26d416"
+      "mtime": 1764597288,
+      "sha256": "dd8a53773d9fc6e223a3d25c769d788e831268974cb83e787baac284de5c2cab"
     },
     {
       "path": "workers/tasks/__pycache__/llm_tasks.cpython-312.pyc",
       "size": 9017,
-      "mtime": 1764591845,
-      "sha256": "efc86a2d74efaae749ed0cabed6961ae25cf5fc950738341b39636c6acf7ab45"
+      "mtime": 1764597288,
+      "sha256": "d345deba548657ad34dda087ba07d3a0fb6e7b800aaa6a3f3f38462fe0b3dca3"
     },
     {
       "path": "workers/tasks/analysis_tasks.py",
