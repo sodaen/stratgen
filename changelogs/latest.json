@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251201-065008",
+  "created_utc": "20251201-065605",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "e66bce7",
+    "commit": "06682bd",
     "branch": "staging"
   },
   "files": [
@@ -2594,9 +2594,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9022851,
-      "mtime": 1764571748,
-      "sha256": "255e898ec64ad2d75117eafd729727d1bf284b5f50403b53a29925a50b6cfd3c"
+      "size": 9023889,
+      "mtime": 1764572109,
+      "sha256": "c47458a6d6381a15103deae1a999be11fe4685581b057e42d1d4331262da4eb3"
     },
     {
       "path": "COMMANDS.md",
@@ -10184,9 +10184,9 @@
     },
     {
       "path": "backend/__pycache__/agent_v3_api.cpython-312.pyc",
-      "size": 51846,
-      "mtime": 1764570383,
-      "sha256": "6bd338f93b6d2a3442a11e855edd678cb4cfe7b9989a1081d362034093c74d51"
+      "size": 52260,
+      "mtime": 1764571893,
+      "sha256": "dbb487ad513746f08aa8dcb4382e4c2d75d47e87e9775546b4600a4b6a0961cd"
     },
     {
       "path": "backend/__pycache__/analytics_api.cpython-312.pyc",
@@ -10385,6 +10385,12 @@
       "size": 4868,
       "mtime": 1764396915,
       "sha256": "51be12021260cbda9dc776aa2c975d04e73a75233371da7071b09c78b976db72"
+    },
+    {
+      "path": "backend/__pycache__/orchestrator_api.cpython-312.pyc",
+      "size": 7303,
+      "mtime": 1764571900,
+      "sha256": "406b74e9b2e220b6852fabf4b5de5f366ed844860572d8764984179578edbcd0"
     },
     {
       "path": "backend/__pycache__/outline_api.cpython-312.pyc",
@@ -10610,9 +10616,9 @@
     },
     {
       "path": "backend/agent_v3_api.py",
-      "size": 49552,
-      "mtime": 1764570383,
-      "sha256": "ff2a81bbfbb210013d00a266b927e3ad08945b04fadb7c175cd37039043c49d5"
+      "size": 49995,
+      "mtime": 1764571893,
+      "sha256": "2abe9ba4cb5e3974e95e7ddc5c700a4fbdc6c3962885184ea8659b6a84d98442"
     },
     {
       "path": "backend/agent_v3_api.py.backup_20251129_181130",
@@ -10909,6 +10915,12 @@
       "sha256": "3e3b7fe40a1a78b878e9ba930594c0284339247cb7276a0ffb227fd35d884163"
     },
     {
+      "path": "backend/orchestrator_api.py",
+      "size": 6182,
+      "mtime": 1764571893,
+      "sha256": "f0447bb5c9e1b5a48accff5524526eba841cc1161f58ea34a23782f9041a57b5"
+    },
+    {
       "path": "backend/outline_api.py",
       "size": 6633,
       "mtime": 1759787947,
@@ -11195,6 +11207,12 @@
       "size": 6836,
       "mtime": 1759504187,
       "sha256": "a94a653af6311060173550f7a9c64ebed9d16adadb62bf72f397e36b22c269ea"
+    },
+    {
+      "path": "backups/integration_20251201_075133/agent_v3_api.py",
+      "size": 49552,
+      "mtime": 1764571893,
+      "sha256": "ff2a81bbfbb210013d00a266b927e3ad08945b04fadb7c175cd37039043c49d5"
     },
     {
       "path": "backups/killer_features_20251130_180256/agent_v3_api.py",
@@ -11798,9 +11816,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 1800539,
-      "mtime": 1764571458,
-      "sha256": "03b2911681f4232fb5ffe764d35c4aa98124a504c94e0785b12cbcffc4da9ba6"
+      "size": 1800744,
+      "mtime": 1764571818,
+      "sha256": "c23f17c1149e09cc7f8d05e53284a1f934165c2e70154182f5c9ebc92c4086a7"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -15599,6 +15617,12 @@
       "size": 1800539,
       "mtime": 1764571458,
       "sha256": "03b2911681f4232fb5ffe764d35c4aa98124a504c94e0785b12cbcffc4da9ba6"
+    },
+    {
+      "path": "changelogs/snapshots/20251201-065008.json",
+      "size": 1800744,
+      "mtime": 1764571818,
+      "sha256": "c23f17c1149e09cc7f8d05e53284a1f934165c2e70154182f5c9ebc92c4086a7"
     },
     {
       "path": "config/datasources.yml",
@@ -47311,6 +47335,12 @@
       "sha256": "5154b6433a802675ac512384f835eaf535e3436d3d6cc5c54b3ee5c8b1264e06"
     },
     {
+      "path": "scripts/install_integration.sh",
+      "size": 3071,
+      "mtime": 1764571893,
+      "sha256": "c1031e24210e8c830e4a23205c3c21e81b94a8241d0629533e5e81c8da2ff944"
+    },
+    {
       "path": "scripts/install_killer_features.sh",
       "size": 12745,
       "mtime": 1764522176,
@@ -47435,6 +47465,12 @@
       "size": 491,
       "mtime": 1764165795,
       "sha256": "aff5a53c108db17b74b3e2659470d91c881be8fdab7cf1710dbfa8ca373595f0"
+    },
+    {
+      "path": "scripts/patch_agent_v3_integration.py",
+      "size": 7279,
+      "mtime": 1764571893,
+      "sha256": "96b819b2ea5155f8dff42fb78309109db6371375844b698955384a4048f0b87f"
     },
     {
       "path": "scripts/pdf_tables_to_facts.py",
@@ -47887,6 +47923,12 @@
       "sha256": "c63a14142215dc42f508b2ad21e80bf8e3d1e2142f6bd150c9e84a4158e512b8"
     },
     {
+      "path": "services/__pycache__/feature_orchestrator.cpython-312.pyc",
+      "size": 24827,
+      "mtime": 1764571893,
+      "sha256": "55a1245d0e3c56a24fe6702e7620fec0d11912a717a4dab586407596b1f96340"
+    },
+    {
       "path": "services/__pycache__/feedback_loop.cpython-312.pyc",
       "size": 23327,
       "mtime": 1764396904,
@@ -48275,6 +48317,12 @@
       "size": 3350,
       "mtime": 1761344358,
       "sha256": "02ca68adc2636a28a3abf44c89a790223d9bb190516bab24d25654688506ec6c"
+    },
+    {
+      "path": "services/feature_orchestrator.py",
+      "size": 22118,
+      "mtime": 1764571893,
+      "sha256": "b1c8589da890a2d0f7aaa488109849f33e7b595b2875282179c3d30b10b77a7f"
     },
     {
       "path": "services/feedback_loop.py",
