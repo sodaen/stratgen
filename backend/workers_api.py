@@ -124,32 +124,34 @@ def submit_task(req: TaskSubmitRequest):
     # Task-Mapping
     task_map = {
         "llm": {
-            "generate_content": "workers.tasks.llm_tasks.generate_content",
-            "generate_embedding": "workers.tasks.llm_tasks.generate_embedding",
-            "generate_slide_content": "workers.tasks.llm_tasks.generate_slide_content",
+            "generate_content": "llm.generate_content",
+            "generate_embedding": "llm.generate_embedding",
+            "generate_slide_content": "llm.generate_slide_content",
+            "batch_generate": "llm.batch_generate",
         },
         "analysis": {
-            "briefing": "workers.tasks.analysis_tasks.analyze_briefing",
-            "dna": "workers.tasks.analysis_tasks.analyze_dna",
-            "voice": "workers.tasks.analysis_tasks.analyze_voice",
-            "story": "workers.tasks.analysis_tasks.analyze_story",
-            "semantic": "workers.tasks.analysis_tasks.find_similar_slides",
-            "consistency": "workers.tasks.analysis_tasks.check_consistency",
-            "orchestrate": "workers.tasks.analysis_tasks.orchestrate_analysis",
+            "briefing": "analysis.briefing",
+            "dna": "analysis.dna",
+            "voice": "analysis.voice",
+            "story": "analysis.story",
+            "semantic": "analysis.semantic",
+            "consistency": "analysis.consistency",
+            "orchestrate": "analysis.orchestrate",
+            "objections": "analysis.objections",
         },
         "generation": {
-            "slide": "workers.tasks.generation_tasks.generate_slide",
-            "deck": "workers.tasks.generation_tasks.generate_deck",
-            "deck_parallel": "workers.tasks.generation_tasks.generate_deck_parallel",
-            "full_pipeline": "workers.tasks.generation_tasks.generate_full_pipeline",
+            "slide": "generation.slide",
+            "deck": "generation.deck",
+            "deck_parallel": "generation.deck_parallel",
+            "full_pipeline": "generation.full_pipeline",
         },
         "export": {
-            "pptx": "workers.tasks.export_tasks.export_pptx",
-            "html": "workers.tasks.export_tasks.export_html",
-            "pdf": "workers.tasks.export_tasks.export_pdf",
-            "markdown": "workers.tasks.export_tasks.export_markdown",
-            "json": "workers.tasks.export_tasks.export_json",
-            "multi": "workers.tasks.export_tasks.export_multi",
+            "pptx": "export.pptx",
+            "html": "export.html",
+            "pdf": "export.pdf",
+            "markdown": "export.markdown",
+            "json": "export.json",
+            "multi": "export.multi",
         }
     }
     
@@ -251,7 +253,7 @@ def submit_full_pipeline(req: FullPipelineRequest):
     try:
         # Task einreichen
         result = celery_app.send_task(
-            "workers.tasks.generation_tasks.generate_full_pipeline",
+            "generation.full_pipeline",
             kwargs={
                 "topic": req.topic,
                 "brief": req.brief,
