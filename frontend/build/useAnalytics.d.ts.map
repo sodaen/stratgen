@@ -1,1 +1,0 @@
-{"version":3,"file":"useAnalytics.d.ts","sourceRoot":"","sources":["../ts/useAnalytics.ts"],"names":[],"mappings":"AAGA,KAAK,mBAAmB,GAAG;IACzB,YAAY,CAAC,EAAE,OAAO,CAAC;IACvB,SAAS,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAC1B,MAAM,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;CACxB,CAAC;AAEF,wBAAgB,YAAY,CAAC,IAAI,GAAE,mBAAwB;;EA0B1D;AAED,eAAe,YAAY,CAAC"}
