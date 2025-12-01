@@ -102,7 +102,7 @@ except ImportError:
 
 # Knowledge Enhanced
 try:
-    from services.knowledge_enhanced import search_knowledge_base, extract_facts
+    from services.knowledge_enhanced import search_knowledge_base, extract_facts, check_knowledge_available
     HAS_KNOWLEDGE = True
 except ImportError:
     HAS_KNOWLEDGE = False
@@ -196,7 +196,7 @@ class FeatureOrchestrator:
             "voice": HAS_VOICE,
             "arguments": HAS_ARGUMENTS,
             "content_intel": HAS_CONTENT_INTEL,
-            "knowledge": HAS_KNOWLEDGE
+            "knowledge": check_knowledge_available()
         }
         
         if self.verbose:
@@ -633,7 +633,7 @@ def check_status() -> Dict[str, Any]:
         "voice": HAS_VOICE,
         "arguments": HAS_ARGUMENTS,
         "content_intel": HAS_CONTENT_INTEL,
-        "knowledge": HAS_KNOWLEDGE
+        "knowledge": check_knowledge_available()
     }
     
     available = sum(1 for v in features.values() if v)
