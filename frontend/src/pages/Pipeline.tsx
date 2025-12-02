@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Search,
-  FileText,
   Layout,
   PenTool,
   MessageSquare,
@@ -17,7 +16,6 @@ import {
   Loader2,
   AlertCircle,
   Server,
-  Clock,
   XCircle
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -30,7 +28,6 @@ interface PipelinePhase {
   icon: React.ElementType
   status: 'pending' | 'running' | 'complete' | 'error'
   duration?: number
-  worker?: string
 }
 
 interface ActiveSession {
@@ -44,7 +41,7 @@ interface ActiveSession {
   startedAt: string
 }
 
-const pipelinePhases: Omit<PipelinePhase, 'status' | 'duration' | 'worker'>[] = [
+const pipelinePhases: Omit<PipelinePhase, 'status' | 'duration'>[] = [
   { id: 'analyze', name: 'Analyze', icon: Search },
   { id: 'structure', name: 'Structure', icon: Layout },
   { id: 'draft', name: 'Draft', icon: PenTool },
@@ -55,7 +52,7 @@ const pipelinePhases: Omit<PipelinePhase, 'status' | 'duration' | 'worker'>[] = 
   { id: 'export', name: 'Export', icon: Download },
 ]
 
-const phaseOrder = ['analyze', 'structure', 'draft', 'critique', 'revise', 'visualize', 'render', 'export']
+const phaseOrder = ['pending', 'analyze', 'structure', 'draft', 'critique', 'revise', 'visualize', 'render', 'export', 'complete']
 
 function PhaseNode({ phase, isLast }: { phase: PipelinePhase; isLast: boolean }) {
   const Icon = phase.icon
@@ -102,13 +99,6 @@ function PhaseNode({ phase, isLast }: { phase: PipelinePhase; isLast: boolean })
           </div>
         )}
       </motion.div>
-      
-      {phase.worker && (
-        <div className="mt-8 text-xs text-slate-600 flex items-center gap-1">
-          <Server className="w-3 h-3" />
-          {phase.worker}
-        </div>
-      )}
     </div>
   )
 }
@@ -136,49 +126,84 @@ export default function Pipeline() {
   )
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null)
   const [workers, setWorkers] = useState<any[]>([])
-  const [eventSource, setEventSource] = useState<EventSource | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const pollingRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Fetch active sessions on mount
+  // Fetch active sessions and start polling
   useEffect(() => {
-    const fetchActiveSessions = async () => {
-      try {
-        const sessions = await api.getActiveSessions?.() || []
-        if (sessions.length > 0) {
-          const session = sessions[0]
-          setActiveSession({
-            id: session.id,
-            name: session.config?.project_name || 'Unnamed Project',
-            status: session.status,
-            phase: session.phase,
-            progress: session.progress || 0,
-            slidesGenerated: session.slides_generated || 0,
-            totalSlides: session.total_slides || 10,
-            startedAt: session.created_at
-          })
-          
-          // Connect to SSE if session is running
-          if (session.status === 'running') {
-            connectToSSE(session.id)
-          }
-        }
-      } catch (err) {
-        console.log('No active sessions')
-      }
-    }
-    
     fetchActiveSessions()
-    
-    // Also fetch worker status
     fetchWorkerStatus()
     
+    // Start polling
+    pollingRef.current = setInterval(() => {
+      fetchActiveSessions()
+    }, 3000)
+    
     return () => {
-      if (eventSource) {
-        eventSource.close()
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
       }
     }
   }, [])
+
+  const fetchActiveSessions = async () => {
+    try {
+      const response = await fetch('/api/sessions/active')
+      if (!response.ok) return
+      
+      const sessions = await response.json()
+      
+      if (sessions && sessions.length > 0) {
+        // Find running or most recent session
+        const running = sessions.find((s: any) => s.status === 'running')
+        const session = running || sessions[sessions.length - 1]
+        
+        setActiveSession({
+          id: session.id,
+          name: session.config?.project_name || 'Unnamed Project',
+          status: session.status,
+          phase: session.phase || 'pending',
+          progress: session.progress || 0,
+          slidesGenerated: session.slides_generated || 0,
+          totalSlides: session.total_slides || 10,
+          startedAt: session.created_at
+        })
+        
+        // Update phases based on current phase
+        updatePhasesFromSession(session.phase, session.status)
+      } else {
+        setActiveSession(null)
+        setPhases(pipelinePhases.map(p => ({ ...p, status: 'pending' as const })))
+      }
+    } catch (err) {
+      console.error('Failed to fetch sessions:', err)
+    }
+  }
+
+  const updatePhasesFromSession = (currentPhase: string, sessionStatus: string) => {
+    const currentPhaseIndex = phaseOrder.indexOf(currentPhase)
+    
+    setPhases(pipelinePhases.map(p => {
+      const phaseIndex = phaseOrder.indexOf(p.id)
+      
+      if (sessionStatus === 'complete') {
+        return { ...p, status: 'complete' as const }
+      }
+      if (sessionStatus === 'error') {
+        if (phaseIndex <= currentPhaseIndex) {
+          return { ...p, status: phaseIndex === currentPhaseIndex ? 'error' : 'complete' as const }
+        }
+        return { ...p, status: 'pending' as const }
+      }
+      
+      if (phaseIndex < currentPhaseIndex) {
+        return { ...p, status: 'complete' as const }
+      } else if (phaseIndex === currentPhaseIndex) {
+        return { ...p, status: 'running' as const }
+      }
+      return { ...p, status: 'pending' as const }
+    }))
+  }
 
   const fetchWorkerStatus = async () => {
     try {
@@ -196,137 +221,10 @@ export default function Pipeline() {
     }
   }
 
-  const connectToSSE = useCallback((generationId: string) => {
-    if (eventSource) {
-      eventSource.close()
-    }
-
-    const es = new EventSource(`/api/live/stream/${generationId}`)
-    
-    es.onopen = () => {
-      setIsConnected(true)
-      setError(null)
-    }
-
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        handleSSEEvent(data)
-      } catch (e) {
-        console.error('SSE parse error:', e)
-      }
-    }
-
-    es.onerror = (err) => {
-      console.error('SSE error:', err)
-      setIsConnected(false)
-      setError('Connection lost. Reconnecting...')
-      
-      // Reconnect after 3 seconds
-      setTimeout(() => {
-        if (activeSession?.status === 'running') {
-          connectToSSE(generationId)
-        }
-      }, 3000)
-    }
-
-    setEventSource(es)
-  }, [eventSource, activeSession])
-
-  const handleSSEEvent = (data: any) => {
-    console.log('SSE Event:', data)
-    
-    switch (data.type) {
-      case 'phase_start':
-        updatePhaseStatus(data.phase, 'running')
-        break
-        
-      case 'phase_complete':
-        updatePhaseStatus(data.phase, 'complete', data.duration)
-        break
-        
-      case 'phase_error':
-        updatePhaseStatus(data.phase, 'error')
-        setError(data.error || 'An error occurred')
-        break
-        
-      case 'slide_generated':
-        setActiveSession(prev => prev ? {
-          ...prev,
-          slidesGenerated: (prev.slidesGenerated || 0) + 1
-        } : null)
-        break
-        
-      case 'progress':
-        setActiveSession(prev => prev ? {
-          ...prev,
-          progress: data.progress,
-          phase: data.phase
-        } : null)
-        break
-        
-      case 'complete':
-        setActiveSession(prev => prev ? {
-          ...prev,
-          status: 'complete',
-          progress: 100
-        } : null)
-        setPhases(prev => prev.map(p => ({ ...p, status: 'complete' as const })))
-        break
-        
-      case 'error':
-        setActiveSession(prev => prev ? {
-          ...prev,
-          status: 'error'
-        } : null)
-        setError(data.error || 'Generation failed')
-        break
-    }
-  }
-
-  const updatePhaseStatus = (phaseId: string, status: 'running' | 'complete' | 'error', duration?: number) => {
-    setPhases(prev => prev.map(p => {
-      if (p.id === phaseId) {
-        return { ...p, status, duration }
-      }
-      // Mark previous phases as complete
-      const currentIndex = phaseOrder.indexOf(phaseId)
-      const thisIndex = phaseOrder.indexOf(p.id)
-      if (thisIndex < currentIndex && p.status !== 'complete') {
-        return { ...p, status: 'complete' as const }
-      }
-      return p
-    }))
-  }
-
-  const handleStopGeneration = async () => {
-    if (eventSource) {
-      eventSource.close()
-      setEventSource(null)
-    }
-    setIsConnected(false)
-    setActiveSession(prev => prev ? { ...prev, status: 'stopped' } : null)
-  }
-
   const completedPhases = phases.filter(p => p.status === 'complete').length
-  const totalDuration = phases.reduce((sum, p) => sum + (p.duration || 0), 0)
 
   return (
     <div className="space-y-6">
-      {/* Connection Status */}
-      {activeSession && (
-        <div className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-lg text-sm",
-          isConnected ? "bg-green-500/10 text-green-400" : "bg-yellow-500/10 text-yellow-400"
-        )}>
-          <div className={cn(
-            "w-2 h-2 rounded-full",
-            isConnected ? "bg-green-500 animate-pulse" : "bg-yellow-500"
-          )} />
-          {isConnected ? "Live connected to generation stream" : "Connecting to stream..."}
-        </div>
-      )}
-
       {/* Error Display */}
       {error && (
         <motion.div
@@ -378,14 +276,6 @@ export default function Pipeline() {
                   {activeSession.status}
                 </span>
               </div>
-              {activeSession.status === 'running' && (
-                <button 
-                  onClick={handleStopGeneration}
-                  className="p-2 rounded-lg bg-dark-border hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
-                >
-                  <Pause className="w-5 h-5" />
-                </button>
-              )}
             </div>
           </div>
           
@@ -416,14 +306,14 @@ export default function Pipeline() {
               <p className="text-xs text-slate-500">Slides</p>
             </div>
             <div className="text-center p-3 bg-dark-border rounded-xl">
-              <p className="text-2xl font-bold text-white">{totalDuration.toFixed(1)}s</p>
-              <p className="text-xs text-slate-500">Elapsed</p>
+              <p className="text-2xl font-bold text-white">{activeSession.phase}</p>
+              <p className="text-xs text-slate-500">Current Phase</p>
             </div>
             <div className="text-center p-3 bg-dark-border rounded-xl">
               <p className="text-2xl font-bold text-white">
-                {activeSession.status === 'complete' ? '0s' : `~${Math.max(0, (8 - completedPhases) * 2.5).toFixed(0)}s`}
+                {activeSession.status === 'complete' ? '✓' : '...'}
               </p>
-              <p className="text-xs text-slate-500">ETA</p>
+              <p className="text-xs text-slate-500">Status</p>
             </div>
           </div>
         </motion.div>
@@ -520,9 +410,6 @@ export default function Pipeline() {
                       <span className="text-sm text-slate-300">{phase.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      {phase.duration !== undefined && phase.duration > 0 && (
-                        <span className="text-xs text-slate-500">{phase.duration.toFixed(1)}s</span>
-                      )}
                       {phase.status === 'complete' && (
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       )}
