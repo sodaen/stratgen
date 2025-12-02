@@ -69,14 +69,9 @@ def update_session(session_id: str, **kwargs):
         write_session(session_id, session)
 
 
-def map_deck_size(size: int) -> str:
-    """Mappt numerische Größe auf LiveGenerator Format"""
-    if size <= 7:
-        return "small"
-    elif size <= 15:
-        return "medium"
-    else:
-        return "large"
+def map_deck_size(size: int) -> int:
+    """Gibt deck_size direkt zurück (LiveGenerator akzeptiert jetzt int)"""
+    return max(5, min(150, size))
 
 
 async def run_generation(session_id: str):
