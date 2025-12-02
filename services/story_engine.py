@@ -548,11 +548,61 @@ def create_story_structure(
     # Hooks generieren
     hooks = generate_hooks(topic, "", audience, 3)
     
-    # Empfohlene Slide-Struktur
-    recommended_slides = [
-        {"type": phase.slide_type, "purpose": phase.purpose, "emotion": phase.emotion}
+    # Empfohlene Slide-Struktur - erweitert auf gewünschte deck_size
+    base_slides = [
+        {"type": phase.slide_type, "purpose": phase.purpose, "emotion": phase.emotion, "title": phase.name}
         for phase in arc.phases
     ]
+    
+    # deck_size parsen (kann string oder int sein)
+    if isinstance(deck_size, int):
+        target_count = deck_size
+    else:
+        size_map = {"short": 8, "medium": 15, "long": 25, "comprehensive": 40}
+        target_count = size_map.get(deck_size, 15)
+    
+    # Erweitere auf gewünschte Anzahl
+    recommended_slides = list(base_slides)  # Kopie
+    
+    if len(recommended_slides) < target_count:
+        # Zusätzliche Slide-Typen für Erweiterung
+        expansion_types = [
+            {"type": "data", "purpose": "Daten und Fakten präsentieren", "emotion": "analytical", "title": "Daten & Fakten"},
+            {"type": "case_study", "purpose": "Praxisbeispiel zeigen", "emotion": "credible", "title": "Fallstudie"},
+            {"type": "comparison", "purpose": "Alternativen vergleichen", "emotion": "rational", "title": "Vergleich"},
+            {"type": "deep_dive", "purpose": "Details vertiefen", "emotion": "informative", "title": "Deep Dive"},
+            {"type": "technical", "purpose": "Technische Details", "emotion": "precise", "title": "Technische Details"},
+            {"type": "benefits", "purpose": "Vorteile hervorheben", "emotion": "positive", "title": "Ihre Vorteile"},
+            {"type": "process", "purpose": "Prozess erklären", "emotion": "structured", "title": "Unser Prozess"},
+            {"type": "timeline", "purpose": "Zeitplan zeigen", "emotion": "organized", "title": "Timeline"},
+            {"type": "team", "purpose": "Team vorstellen", "emotion": "trustworthy", "title": "Unser Team"},
+            {"type": "testimonial", "purpose": "Referenzen zeigen", "emotion": "credible", "title": "Referenzen"},
+            {"type": "metrics", "purpose": "Erfolgskennzahlen", "emotion": "measurable", "title": "KPIs & Metriken"},
+            {"type": "risks", "purpose": "Risiken adressieren", "emotion": "honest", "title": "Risiken & Mitigation"},
+            {"type": "roadmap", "purpose": "Fahrplan zeigen", "emotion": "forward-looking", "title": "Roadmap"},
+            {"type": "budget", "purpose": "Kosten darstellen", "emotion": "transparent", "title": "Budget & Investition"},
+            {"type": "roi", "purpose": "Return on Investment", "emotion": "compelling", "title": "ROI / Business Case"},
+            {"type": "implementation", "purpose": "Umsetzung planen", "emotion": "actionable", "title": "Implementierung"},
+            {"type": "support", "purpose": "Support anbieten", "emotion": "reassuring", "title": "Support & Service"},
+            {"type": "faq", "purpose": "Fragen beantworten", "emotion": "helpful", "title": "FAQ"},
+            {"type": "appendix", "purpose": "Zusatzinfos", "emotion": "thorough", "title": "Anhang"},
+        ]
+        
+        # Füge Slides vor dem letzten (CTA/Next Steps) ein
+        insert_pos = max(1, len(recommended_slides) - 1)
+        expansion_idx = 0
+        
+        while len(recommended_slides) < target_count and expansion_idx < len(expansion_types) * 3:
+            slide = expansion_types[expansion_idx % len(expansion_types)].copy()
+            
+            # Bei Wiederholung: Nummerierung hinzufügen
+            cycle = expansion_idx // len(expansion_types)
+            if cycle > 0:
+                slide["title"] = f"{slide['title']} ({cycle + 1})"
+            
+            recommended_slides.insert(insert_pos, slide)
+            insert_pos += 1
+            expansion_idx += 1
     
     return {
         "ok": True,
