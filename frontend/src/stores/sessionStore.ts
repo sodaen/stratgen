@@ -15,13 +15,8 @@ export interface Session {
 }
 
 interface SessionStore {
-  // Current active session
   currentSessionId: string | null
-  
-  // All known sessions
   sessions: Record<string, Session>
-  
-  // Actions
   setCurrentSession: (id: string | null) => void
   updateSession: (id: string, data: Partial<Session>) => void
   addSession: (session: Session) => void
@@ -45,16 +40,14 @@ export const useSessionStore = create<SessionStore>()(
       })),
       
       addSession: (session) => set((state) => ({
-        sessions: {
-          ...state.sessions,
-          [session.id]: session
-        }
+        sessions: { ...state.sessions, [session.id]: session }
       })),
       
       removeSession: (id) => set((state) => {
-        const { [id]: _, ...rest } = state.sessions
+        const newSessions = { ...state.sessions }
+        delete newSessions[id]
         return { 
-          sessions: rest,
+          sessions: newSessions,
           currentSessionId: state.currentSessionId === id ? null : state.currentSessionId
         }
       }),
@@ -82,18 +75,16 @@ export const useSessionStore = create<SessionStore>()(
             }
           }
           
-          set({ sessions: sessionsMap })
+          set((state) => ({
+            sessions: { ...state.sessions, ...sessionsMap }
+          }))
         } catch (err) {
           console.error('Failed to load sessions:', err)
         }
       }
     }),
     {
-      name: 'stratgen-sessions',
-      partialize: (state) => ({ 
-        currentSessionId: state.currentSessionId,
-        sessions: state.sessions 
-      })
+      name: 'stratgen-sessions'
     }
   )
 )

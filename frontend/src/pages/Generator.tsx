@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { api } from '../services/api'
 import { cn } from '../utils/helpers'
+import { useSessionStore } from '../stores/sessionStore'
 
 interface UploadedFile {
   name: string
@@ -50,6 +51,7 @@ interface GeneratedSlide {
 
 export default function Generator() {
   const navigate = useNavigate()
+  const { addSession, setCurrentSession } = useSessionStore()
   
   const [config, setConfig] = useState<GenerationConfig>({
     company_name: '',
@@ -186,6 +188,21 @@ export default function Generator() {
       
       const session = await createResponse.json()
       setSessionId(session.id)
+      
+      // Add to global store
+      addSession({
+        id: session.id,
+        name: config.project_name || 'Quick Generation',
+        company: config.company_name,
+        status: 'created',
+        phase: 'pending',
+        progress: 0,
+        slidesGenerated: 0,
+        totalSlides: config.deck_size,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      setCurrentSession(session.id)
       setCurrentPhase('Starting generation...')
       
       // 2. Start generation

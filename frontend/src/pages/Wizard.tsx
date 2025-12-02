@@ -19,6 +19,7 @@ import {
   File
 } from 'lucide-react'
 import { cn } from '../utils/helpers'
+import { useSessionStore } from '../stores/sessionStore'
 
 const steps = [
   { id: 1, title: 'Basic Info', icon: Building2, description: 'Company & Project Details' },
@@ -54,6 +55,7 @@ interface UploadedFile {
 
 export default function Wizard() {
   const navigate = useNavigate()
+  const { addSession, setCurrentSession } = useSessionStore()
   const [currentStep, setCurrentStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -233,6 +235,21 @@ export default function Wizard() {
       
       const session = await createResponse.json()
       setSessionId(session.id)
+      
+      // Add to global store
+      addSession({
+        id: session.id,
+        name: config.project_name,
+        company: config.company_name,
+        status: 'created',
+        phase: 'pending',
+        progress: 0,
+        slidesGenerated: 0,
+        totalSlides: config.deck_size,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      setCurrentSession(session.id)
       setCurrentPhase('Starting generation...')
 
       // 2. Upload files if any

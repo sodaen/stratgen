@@ -1,236 +1,294 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
-  Presentation, 
-  Server, 
-  Zap, 
-  FolderOpen,
-  TrendingUp,
-  Clock,
+  Sparkles, 
+  TrendingUp, 
+  Clock, 
+  CheckCircle,
+  Play,
+  FileText,
+  BarChart3,
+  Zap,
   ArrowRight,
-  Sparkles
+  Loader2,
+  AlertCircle,
+  FolderOpen
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useAppStore } from '../stores/appStore'
-import { api } from '../services/api'
+import { useSessionStore } from '../stores/sessionStore'
 import { cn } from '../utils/helpers'
 
-interface StatCardProps {
-  icon: React.ElementType
-  label: string
-  value: string | number
-  trend?: string
-  color: string
-}
-
-function StatCard({ icon: Icon, label, value, trend, color }: StatCardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-dark-card rounded-2xl p-6 border border-dark-border card-hover"
-    >
-      <div className="flex items-start justify-between">
-        <div className={cn("p-3 rounded-xl", color)}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-        {trend && (
-          <span className="text-xs text-green-400 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            {trend}
-          </span>
-        )}
-      </div>
-      <div className="mt-4">
-        <p className="text-3xl font-bold text-white">{value}</p>
-        <p className="text-sm text-slate-500 mt-1">{label}</p>
-      </div>
-    </motion.div>
-  )
-}
-
-interface QuickActionProps {
-  icon: React.ElementType
-  label: string
-  description: string
-  onClick: () => void
-  gradient: string
-}
-
-function QuickAction({ icon: Icon, label, description, onClick, gradient }: QuickActionProps) {
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={cn(
-        "w-full p-4 rounded-xl text-left transition-all",
-        "bg-gradient-to-r", gradient,
-        "hover:shadow-lg hover:shadow-blue-500/20"
-      )}
-    >
-      <div className="flex items-center gap-3">
-        <Icon className="w-5 h-5 text-white" />
-        <div>
-          <p className="font-medium text-white">{label}</p>
-          <p className="text-xs text-white/70">{description}</p>
-        </div>
-        <ArrowRight className="w-4 h-4 text-white/50 ml-auto" />
-      </div>
-    </motion.button>
-  )
+interface DashboardStats {
+  totalProjects: number
+  completedToday: number
+  avgGenerationTime: string
+  slidesGenerated: number
 }
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { systemStatus } = useAppStore()
-  const [recentProjects, setRecentProjects] = useState<any[]>([])
-  const [stats, setStats] = useState({
-    projects: 0,
-    templates: 32,
-    slides: 2436,
-    avgTime: '7.3s'
+  const { sessions, currentSessionId, loadSessionsFromBackend, setCurrentSession } = useSessionStore()
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProjects: 0,
+    completedToday: 0,
+    avgGenerationTime: '~45s',
+    slidesGenerated: 0
   })
+  const [features, setFeatures] = useState<Record<string, boolean>>({})
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    setLoading(true)
+    try {
+      // Load sessions from backend
+      await loadSessionsFromBackend()
+      
+      // Load orchestrator status for features
+      const statusRes = await fetch('/api/orchestrator/status')
+      if (statusRes.ok) {
+        const data = await statusRes.json()
+        setFeatures(data.features || {})
+      }
+      
+      // Load analytics
+      const analyticsRes = await fetch('/api/analytics/usage')
+      if (analyticsRes.ok) {
+        const data = await analyticsRes.json()
+        setStats(prev => ({
+          ...prev,
+          totalProjects: data.total_generations || Object.keys(sessions).length,
+          slidesGenerated: data.total_slides || 0
+        }))
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Calculate stats from sessions
+  const sessionList = Object.values(sessions)
+  const completedSessions = sessionList.filter(s => s.status === 'complete')
+  const runningSessions = sessionList.filter(s => s.status === 'running')
+  const recentSessions = sessionList
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 5)
+
+  const totalSlides = sessionList.reduce((sum, s) => sum + (s.slidesGenerated || 0), 0)
+
+  const openSession = (sessionId: string) => {
+    setCurrentSession(sessionId)
+    navigate(`/editor?session=${sessionId}`)
+  }
+
+  const quickActions = [
+    { 
+      title: 'New Presentation', 
+      description: 'Start with the wizard',
+      icon: Sparkles, 
+      color: 'from-blue-500 to-cyan-500',
+      onClick: () => navigate('/wizard')
+    },
+    { 
+      title: 'Quick Generate', 
+      description: 'Fast generation mode',
+      icon: Zap, 
+      color: 'from-purple-500 to-pink-500',
+      onClick: () => navigate('/generator')
+    },
+    { 
+      title: 'View Pipeline', 
+      description: 'Monitor progress',
+      icon: BarChart3, 
+      color: 'from-green-500 to-emerald-500',
+      onClick: () => navigate('/pipeline')
+    },
+    { 
+      title: 'Manage Files', 
+      description: 'Knowledge & templates',
+      icon: FolderOpen, 
+      color: 'from-orange-500 to-amber-500',
+      onClick: () => navigate('/files')
+    },
+  ]
+
+  const statCards = [
+    { label: 'Total Projects', value: sessionList.length, icon: FileText, color: 'text-blue-400' },
+    { label: 'Completed', value: completedSessions.length, icon: CheckCircle, color: 'text-green-400' },
+    { label: 'Running', value: runningSessions.length, icon: Play, color: 'text-yellow-400' },
+    { label: 'Total Slides', value: totalSlides, icon: TrendingUp, color: 'text-purple-400' },
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'complete': return 'bg-green-500'
+      case 'running': return 'bg-blue-500'
+      case 'error': return 'bg-red-500'
+      default: return 'bg-slate-500'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'complete': return CheckCircle
+      case 'running': return Loader2
+      case 'error': return AlertCircle
+      default: return Clock
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={Presentation}
-          label="Projects"
-          value={stats.projects}
-          trend="+12 today"
-          color="bg-gradient-to-br from-blue-500 to-blue-600"
-        />
-        <StatCard
-          icon={Server}
-          label="Services Active"
-          value={`${systemStatus.servicesActive}/${systemStatus.servicesTotal}`}
-          color="bg-gradient-to-br from-green-500 to-green-600"
-        />
-        <StatCard
-          icon={Zap}
-          label="Avg. Generation"
-          value={stats.avgTime}
-          trend="-2.1s"
-          color="bg-gradient-to-br from-orange-500 to-orange-600"
-        />
-        <StatCard
-          icon={FolderOpen}
-          label="Templates"
-          value={stats.templates}
-          color="bg-gradient-to-br from-purple-500 to-purple-600"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quick Actions */}
-        <div className="lg:col-span-1 space-y-4">
-          <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
-          <div className="space-y-3">
-            <QuickAction
-              icon={Sparkles}
-              label="New Presentation"
-              description="Start from scratch"
-              onClick={() => navigate('/generator')}
-              gradient="from-blue-500 to-cyan-500"
-            />
-            <QuickAction
-              icon={FolderOpen}
-              label="From Template"
-              description="Use existing template"
-              onClick={() => navigate('/wizard')}
-              gradient="from-purple-500 to-pink-500"
-            />
-            <QuickAction
-              icon={Zap}
-              label="Quick Generate"
-              description="AI-powered fast mode"
-              onClick={() => navigate('/generator')}
-              gradient="from-orange-500 to-red-500"
-            />
-          </div>
-        </div>
-
-        {/* System Status */}
-        <div className="lg:col-span-1">
-          <h2 className="text-lg font-semibold text-white mb-4">System Status</h2>
-          <div className="bg-dark-card rounded-2xl border border-dark-border p-4 space-y-3">
-            <ServiceStatus name="API" status={systemStatus.api} />
-            <ServiceStatus name="Ollama LLM" status={systemStatus.ollama} />
-            <ServiceStatus name="Redis" status={systemStatus.redis} />
-            <ServiceStatus name="Celery Workers" status={systemStatus.celery} />
-            <div className="pt-3 border-t border-dark-border">
-              <button 
-                onClick={() => navigate('/health')}
-                className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
-              >
-                View Details <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Projects */}
-        <div className="lg:col-span-1">
-          <h2 className="text-lg font-semibold text-white mb-4">Recent Projects</h2>
-          <div className="bg-dark-card rounded-2xl border border-dark-border p-4 space-y-3">
-            {recentProjects.length === 0 ? (
-              <div className="text-center py-8">
-                <Presentation className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No projects yet</p>
-                <button 
-                  onClick={() => navigate('/generator')}
-                  className="mt-3 text-sm text-blue-400 hover:text-blue-300"
-                >
-                  Create your first presentation
-                </button>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((stat, index) => {
+          const Icon = stat.icon
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-dark-card rounded-2xl border border-dark-border p-6"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">{stat.label}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                </div>
+                <div className={cn("p-3 rounded-xl bg-dark-border", stat.color)}>
+                  <Icon className="w-6 h-6" />
+                </div>
               </div>
-            ) : (
-              recentProjects.map((project, index) => (
-                <ProjectItem key={index} project={project} />
-              ))
-            )}
-          </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {quickActions.map((action, index) => {
+          const Icon = action.icon
+          return (
+            <motion.button
+              key={action.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+              onClick={action.onClick}
+              className={cn(
+                "p-6 rounded-2xl bg-gradient-to-br text-left transition-all hover:scale-[1.02] hover:shadow-lg",
+                action.color
+              )}
+            >
+              <Icon className="w-8 h-8 text-white mb-3" />
+              <h3 className="text-lg font-semibold text-white">{action.title}</h3>
+              <p className="text-sm text-white/70 mt-1">{action.description}</p>
+            </motion.button>
+          )
+        })}
+      </div>
+
+      {/* Recent Projects */}
+      <div className="bg-dark-card rounded-2xl border border-dark-border p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white">Recent Projects</h2>
+          <button 
+            onClick={() => navigate('/files')}
+            className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          >
+            View all <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-      </div>
-    </div>
-  )
-}
 
-function ServiceStatus({ name, status }: { name: string; status: boolean }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-slate-400">{name}</span>
-      <div className="flex items-center gap-2">
-        <div className={cn(
-          "w-2 h-2 rounded-full",
-          status ? "bg-green-500" : "bg-red-500"
-        )} />
-        <span className={cn(
-          "text-xs",
-          status ? "text-green-400" : "text-red-400"
-        )}>
-          {status ? "Online" : "Offline"}
-        </span>
+        {recentSessions.length === 0 ? (
+          <div className="text-center py-12">
+            <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-500">No projects yet</p>
+            <button 
+              onClick={() => navigate('/wizard')}
+              className="mt-4 px-6 py-2 bg-blue-500 rounded-lg text-white text-sm hover:bg-blue-600 transition-colors"
+            >
+              Create your first presentation
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentSessions.map((session) => {
+              const StatusIcon = getStatusIcon(session.status)
+              return (
+                <motion.div
+                  key={session.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center justify-between p-4 bg-dark-border rounded-xl hover:bg-dark-bg transition-colors cursor-pointer"
+                  onClick={() => openSession(session.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={cn("w-2 h-2 rounded-full", getStatusColor(session.status))} />
+                    <div>
+                      <h3 className="font-medium text-white">{session.name || 'Unnamed Project'}</h3>
+                      <p className="text-sm text-slate-500">
+                        {session.company} • {session.slidesGenerated}/{session.totalSlides} slides
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-sm text-slate-400 capitalize">{session.status}</p>
+                      <p className="text-xs text-slate-600">
+                        {new Date(session.updatedAt).toLocaleDateString('de-DE')}
+                      </p>
+                    </div>
+                    <StatusIcon className={cn(
+                      "w-5 h-5",
+                      session.status === 'running' && "text-blue-400 animate-spin",
+                      session.status === 'complete' && "text-green-400",
+                      session.status === 'error' && "text-red-400"
+                    )} />
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
       </div>
-    </div>
-  )
-}
 
-function ProjectItem({ project }: { project: any }) {
-  return (
-    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-dark-border transition-colors cursor-pointer">
-      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
-        <Presentation className="w-5 h-5 text-blue-400" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">{project.name}</p>
-        <p className="text-xs text-slate-500 flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {project.time} • {project.slides} slides
-        </p>
+      {/* Features Status */}
+      <div className="bg-dark-card rounded-2xl border border-dark-border p-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Available Features</h2>
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+          {Object.entries(features).map(([name, enabled]) => (
+            <div 
+              key={name}
+              className={cn(
+                "p-3 rounded-xl text-center",
+                enabled ? "bg-green-500/10 border border-green-500/30" : "bg-dark-border"
+              )}
+            >
+              <div className={cn(
+                "w-2 h-2 rounded-full mx-auto mb-2",
+                enabled ? "bg-green-500" : "bg-slate-600"
+              )} />
+              <p className="text-xs text-slate-400 capitalize">
+                {name.replace(/_/g, ' ')}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
