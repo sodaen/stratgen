@@ -433,9 +433,11 @@ class LiveGenerator:
         # Versuche Story Engine zu nutzen
         try:
             from services.story_engine import create_story_structure
+            # Konvertiere deck_size für story_engine (erwartet string)
+            size_str = "short" if request.deck_size <= 10 else "medium" if request.deck_size <= 20 else "long"
             story = create_story_structure(
                 request.brief, request.topic,
-                deck_size=request.deck_size
+                deck_size=size_str
             )
             if story.get("ok") and len(story.get("recommended_slides", [])) >= 5:
                 return story.get("recommended_slides", [])[:request.deck_size]
