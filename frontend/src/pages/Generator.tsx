@@ -336,7 +336,7 @@ export default function Generator() {
                 <input
                   type="range"
                   min="5"
-                  max="50"
+                  max="150"
                   value={config.deck_size}
                   onChange={(e) => setConfig({...config, deck_size: parseInt(e.target.value)})}
                   className="w-full"
