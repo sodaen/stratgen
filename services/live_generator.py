@@ -519,21 +519,17 @@ class LiveGenerator:
         slide_plan: Dict[str, Any],
         index: int
     ) -> Dict[str, Any]:
-        """
-        Generiert einen einzelnen Slide mit Knowledge-Integration.
-        Nutzt Knowledge Base, Content Intelligence und professionelle Strukturen.
-        """
+        """Generiert einen einzelnen Slide mit Knowledge-Integration."""
         slide_type = slide_plan.get("type", "content")
         title = slide_plan.get("title", f"Slide {index + 1}")
         purpose = slide_plan.get("purpose", "")
         
-        # 1. Knowledge Base durchsuchen für relevante Fakten
+        # 1. Knowledge Base durchsuchen
         knowledge_context = ""
         facts = []
         try:
-            from services.knowledge_enhanced import research_for_slide, get_facts_for_topic
+            from services.knowledge_enhanced import research_for_slide
             
-            # Recherche für diesen Slide
             research = research_for_slide(
                 slide_type=slide_type,
                 slide_title=title,
@@ -543,161 +539,97 @@ class LiveGenerator:
             
             if research.get("ok"):
                 facts = research.get("facts", [])
-                sources = research.get("sources", [])
-                
                 if facts:
-                    knowledge_context = "\n\nRelevante Fakten aus der Knowledge Base:\n"
+                    knowledge_context = "\n\nRelevante Fakten:\n"
                     for fact in facts[:5]:
-                        if isinstance(fact, dict):
-                            knowledge_context += f"- {fact.get('text', fact.get('fact', str(fact)))}\n"
-                        else:
-                            knowledge_context += f"- {fact}\n"
-        except Exception as e:
-            pass  # Knowledge nicht verfügbar, weiter mit LLM
+                        fact_text = fact.get('text', str(fact)) if isinstance(fact, dict) else str(fact)
+                        knowledge_context += f"- {fact_text}\n"
+        except Exception:
+            pass
         
-        # 2. Bestimme optimale Slide-Struktur basierend auf Typ
-        layout_hint, content_structure = self._get_slide_structure(slide_type)
+        # 2. Layout bestimmen
+        layout_map = {
+            "title": "Title Slide",
+            "executive_summary": "Two Content", 
+            "problem": "Title and Content",
+            "solution": "Title and Content",
+            "benefits": "Two Content",
+            "roi": "Title and Content",
+            "roadmap": "Title and Content",
+            "next_steps": "Title and Content",
+        }
+        layout_hint = layout_map.get(slide_type, "Title and Content")
         
-        # 3. LLM für professionellen Content mit Knowledge-Kontext
+        # 3. LLM für Content
         try:
             from services.llm import generate as llm_generate
             
-            prompt = f"""Du bist ein erfahrener Strategieberater. Generiere professionellen Slide-Content.
+            customer = request.customer_name or 'Unternehmen'
+            brief_short = request.brief[:400] if request.brief else ''
+            
+            prompt = f"""Generiere professionellen Slide-Content.
 
 SLIDE-TYP: {slide_type}
 TITEL: {title}
-ZWECK: {purpose or 'Informieren und überzeugen'}
-
-KONTEXT:
-- Thema: {request.topic}
-- Kunde: {request.customer_name or 'Unternehmen'}
-- Branche: {request.industry}
-- Briefing: {request.brief[:500]}
+THEMA: {request.topic}
+KUNDE: {customer}
+BRANCHE: {request.industry}
+BRIEFING: {brief_short}
 {knowledge_context}
 
-ANFORDERUNGEN:
-1. Professioneller, überzeugender Inhalt
-2. Konkrete, messbare Aussagen wo möglich
-3. Branchenspezifische Terminologie
-4. {content_structure}
+Generiere 4-6 prägnante, professionelle Bullet Points.
+Jeder Punkt: 15-25 Wörter, konkret und überzeugend.
 
-Antworte NUR mit validem JSON:
-{{
-    "title": "{title}",
-    "bullets": ["Punkt 1 (15-25 Wörter, konkret und überzeugend)", "Punkt 2", "..."],
-    "key_message": "Die zentrale Botschaft dieses Slides in einem Satz",
-    "speaker_notes": "Detaillierte Notizen für den Präsentator (2-3 Sätze)"
-}}"""
+Antworte NUR mit JSON:
+{{"bullets": ["Punkt 1", "Punkt 2", "Punkt 3", "Punkt 4"]}}"""
             
-            result = llm_generate(prompt, max_tokens=600, temperature=0.7)
+            result = llm_generate(prompt, max_tokens=500, temperature=0.7)
             
             if result.get("ok"):
                 response = result.get("response", "")
-                json_match = re.search(r'\{{.*?\}}', response, re.DOTALL)
-                if json_match:
+                # Finde JSON im Response
+                json_start = response.find('{')
+                json_end = response.rfind('}') + 1
+                if json_start >= 0 and json_end > json_start:
                     try:
-                        data = json.loads(json_match.group())
+                        data = json.loads(response[json_start:json_end])
                         bullets = data.get("bullets", [])
-                        
-                        # Validiere und erweitere Bullets
-                        if len(bullets) < 3:
-                            bullets = self._expand_bullets(bullets, slide_type, request)
-                        
-                        return {{
-                            "type": slide_type,
-                            "title": data.get("title", title),
-                            "bullets": bullets[:7],  # Max 7 Bullets
-                            "key_message": data.get("key_message", ""),
-                            "notes": data.get("speaker_notes", f"Slide {{index + 1}}: {{title}}"),
-                            "layout_hint": layout_hint,
-                            "facts_used": len(facts),
-                            "sources": [f.get("source", "") for f in facts[:3]] if facts else []
-                        }}
+                        if bullets and len(bullets) >= 2:
+                            return {
+                                "type": slide_type,
+                                "title": title,
+                                "bullets": bullets[:6],
+                                "notes": f"Slide {index + 1}: {title}",
+                                "layout_hint": layout_hint
+                            }
                     except json.JSONDecodeError:
                         pass
-        except Exception as e:
+        except Exception:
             pass
         
-        # 4. Fallback mit Knowledge-Fakten
-        fallback_bullets = []
+        # 4. Fallback
+        customer = request.customer_name or 'das Unternehmen'
+        fallback = [
+            f"Strategische Analyse für {customer}",
+            f"Branchenspezifische Lösung für {request.industry}",
+            "Umsetzbare Empfehlungen basierend auf Best Practices",
+            "Messbare Ergebnisse und klarer ROI"
+        ]
+        
+        # Nutze Knowledge-Fakten wenn vorhanden
         if facts:
+            fallback = []
             for fact in facts[:4]:
-                if isinstance(fact, dict):
-                    fallback_bullets.append(fact.get('text', fact.get('fact', str(fact))))
-                else:
-                    fallback_bullets.append(str(fact))
+                fact_text = fact.get('text', str(fact)) if isinstance(fact, dict) else str(fact)
+                fallback.append(fact_text)
         
-        if not fallback_bullets:
-            fallback_bullets = [
-                f"Strategische Analyse für {{request.customer_name or 'das Unternehmen'}}",
-                f"Branchenspezifische Lösung für {{request.industry}}",
-                f"Umsetzbare Empfehlungen basierend auf Best Practices",
-            ]
-        
-        return {{
+        return {
             "type": slide_type,
             "title": title,
-            "bullets": fallback_bullets,
-            "notes": f"Slide {{index + 1}} von {{request.topic}}",
+            "bullets": fallback,
+            "notes": f"Slide {index + 1} von {request.topic}",
             "layout_hint": layout_hint
-        }}
-    
-    def _get_slide_structure(self, slide_type: str) -> tuple:
-        """Bestimmt Layout und Content-Struktur basierend auf Slide-Typ."""
-        structures = {{
-            "title": ("Title Slide", "Generiere einen packenden Untertitel"),
-            "executive_summary": ("Two Content", "5-7 Key Takeaways als Bullets"),
-            "problem": ("Title and Content", "3-4 konkrete Herausforderungen mit Zahlen"),
-            "opportunity": ("Title and Content", "3-4 Chancen mit Marktdaten"),
-            "solution": ("Title and Content", "4-5 Lösungskomponenten"),
-            "approach": ("Title and Content", "Schrittweiser Ansatz (3-5 Phasen)"),
-            "benefits": ("Two Content", "Vorteile links, Nutzen rechts"),
-            "roi": ("Title and Content", "ROI-Kennzahlen mit konkreten Werten"),
-            "roadmap": ("Title and Content", "Timeline mit Meilensteinen"),
-            "timeline": ("Title and Content", "Chronologische Phasen"),
-            "team": ("Title and Content", "Teamstruktur und Expertise"),
-            "case_study": ("Title and Content", "Situation → Lösung → Ergebnis"),
-            "comparison": ("Comparison", "Vorher/Nachher oder Option A/B"),
-            "data": ("Title and Content", "Daten und Statistiken mit Quellen"),
-            "next_steps": ("Title and Content", "Konkrete Aktionen mit Verantwortlichen"),
-            "contact": ("Title and Content", "Kontaktdaten und Call-to-Action"),
-        }}
-        return structures.get(slide_type, ("Title and Content", "3-5 relevante Punkte"))
-    
-    def _expand_bullets(self, bullets: List[str], slide_type: str, request) -> List[str]:
-        """Erweitert unzureichende Bullets."""
-        expanded = list(bullets)
-        
-        defaults = {{
-            "problem": [
-                f"Aktuelle Herausforderungen im Bereich {{request.industry}}",
-                "Steigende Komplexität und Wettbewerbsdruck",
-                "Notwendigkeit für strategische Neuausrichtung"
-            ],
-            "solution": [
-                "Ganzheitlicher Lösungsansatz",
-                "Bewährte Methodik und Best Practices", 
-                "Messbare Ergebnisse und ROI"
-            ],
-            "benefits": [
-                "Effizienzsteigerung und Kosteneinsparung",
-                "Wettbewerbsvorteile durch Innovation",
-                "Nachhaltige Transformation"
-            ]
-        }}
-        
-        while len(expanded) < 3:
-            default_list = defaults.get(slide_type, [
-                f"Strategischer Mehrwert für {{request.customer_name or 'Ihr Unternehmen'}}",
-                "Professionelle Umsetzung",
-                "Langfristiger Erfolg"
-            ])
-            if len(expanded) < len(default_list):
-                expanded.append(default_list[len(expanded)])
-            else:
-                break
-        
-        return expanded
+        }
 
 
     async def _add_visualizations(self, session: GenerationSession):
