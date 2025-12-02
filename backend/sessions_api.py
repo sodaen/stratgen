@@ -1,5 +1,6 @@
 """
 Sessions API - Session Management für Frontend
+Verwendet Disk-Storage für Konsistenz über mehrere Gunicorn-Worker
 """
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks
 from pydantic import BaseModel
@@ -9,11 +10,9 @@ from datetime import datetime
 from pathlib import Path
 import json
 import asyncio
+import fcntl
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
-
-# In-memory session storage
-active_sessions: Dict[str, Dict[str, Any]] = {}
 
 BASE_DIR = Path(__file__).parent.parent
 SESSIONS_DIR = BASE_DIR / "data" / "sessions"
@@ -32,33 +31,42 @@ class SessionConfig(BaseModel):
     style: Optional[str] = "corporate"
 
 
-class SessionStatus(BaseModel):
-    id: str
-    status: str
-    phase: str
-    progress: float
-    slides_generated: int
-    total_slides: int
-    created_at: str
-    updated_at: str
-    errors: List[str] = []
-    config: Optional[Dict[str, Any]] = None
-
-
 class SessionCreate(BaseModel):
     config: SessionConfig
 
 
+def read_session(session_id: str) -> Optional[Dict]:
+    """Liest Session von Disk"""
+    session_dir = SESSIONS_DIR / session_id
+    config_file = session_dir / "config.json"
+    if config_file.exists():
+        try:
+            with open(config_file, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return None
+
+
+def write_session(session_id: str, data: Dict):
+    """Schreibt Session auf Disk mit File-Locking"""
+    session_dir = SESSIONS_DIR / session_id
+    session_dir.mkdir(parents=True, exist_ok=True)
+    config_file = session_dir / "config.json"
+    
+    with open(config_file, 'w') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        json.dump(data, f, indent=2, default=str)
+        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+
 def update_session(session_id: str, **kwargs):
-    """Update session and save to disk"""
-    if session_id in active_sessions:
-        active_sessions[session_id].update(kwargs)
-        active_sessions[session_id]["updated_at"] = datetime.now().isoformat()
-        
-        session_dir = SESSIONS_DIR / session_id
-        if session_dir.exists():
-            with open(session_dir / "config.json", "w") as f:
-                json.dump(active_sessions[session_id], f, indent=2, default=str)
+    """Update session auf Disk"""
+    session = read_session(session_id)
+    if session:
+        session.update(kwargs)
+        session["updated_at"] = datetime.now().isoformat()
+        write_session(session_id, session)
 
 
 def map_deck_size(size: int) -> str:
@@ -72,9 +80,9 @@ def map_deck_size(size: int) -> str:
 
 
 async def run_generation(session_id: str):
-    """Führt die eigentliche Generierung aus"""
+    """Führt die Generierung aus"""
     try:
-        session = active_sessions.get(session_id)
+        session = read_session(session_id)
         if not session:
             return
         
@@ -85,7 +93,7 @@ async def run_generation(session_id: str):
         
         generator = LiveGenerator()
         
-        # Erstelle Request mit korrekten Feldern
+        # Erstelle Request
         request = LiveGenerationRequest(
             topic=config.get("project_name", "Presentation"),
             brief=config.get("brief", ""),
@@ -101,12 +109,12 @@ async def run_generation(session_id: str):
         # Erstelle Generator Session
         gen_id = generator.create_session(request)
         
-        # Speichere Generator ID
+        # Update Status
         update_session(session_id, generation_id=gen_id, status="running", phase="analyze")
         
         slides = []
         
-        # Führe Generation aus und sammle Events
+        # Führe Generation aus
         async for event in generator.generate_async(gen_id):
             event_type = event.get("type", "")
             
@@ -118,13 +126,13 @@ async def run_generation(session_id: str):
                 progress = event.get("progress", event.get("data", {}).get("progress", 0))
                 update_session(session_id, progress=progress)
                 
-            elif event_type == "slide_generated" or event_type == "slide":
+            elif event_type in ("slide_generated", "slide"):
                 slide = event.get("slide", event.get("data", {}).get("slide", {}))
                 if slide:
                     slides.append(slide)
                     update_session(session_id, slides_generated=len(slides))
                     
-            elif event_type == "complete" or event_type == "completed":
+            elif event_type in ("complete", "completed"):
                 final_slides = event.get("slides", event.get("data", {}).get("slides", slides))
                 if final_slides:
                     slides = final_slides
@@ -152,20 +160,14 @@ async def run_generation(session_id: str):
             
     except Exception as e:
         import traceback
-        error_msg = str(e)
-        print(f"[Session {session_id}] Generation error: {error_msg}")
+        print(f"[Session {session_id}] Generation error: {e}")
         print(traceback.format_exc())
-        update_session(
-            session_id,
-            status="error",
-            phase="error",
-            errors=[error_msg]
-        )
+        update_session(session_id, status="error", phase="error", errors=[str(e)])
 
 
-@router.post("/create", response_model=SessionStatus)
+@router.post("/create")
 async def create_session(data: SessionCreate):
-    """Erstellt eine neue Generation Session"""
+    """Erstellt eine neue Session"""
     session_id = str(uuid.uuid4())[:8]
     
     session = {
@@ -183,45 +185,47 @@ async def create_session(data: SessionCreate):
         "result": None
     }
     
+    # Create session directory
     session_dir = SESSIONS_DIR / session_id
     session_dir.mkdir(exist_ok=True)
     (session_dir / "uploads").mkdir(exist_ok=True)
     
-    with open(session_dir / "config.json", "w") as f:
-        json.dump(session, f, indent=2)
+    write_session(session_id, session)
     
-    active_sessions[session_id] = session
-    
-    return SessionStatus(**session)
+    return session
 
 
 @router.get("/active")
 async def get_active_sessions():
-    """Gibt alle aktiven Sessions zurück"""
-    return list(active_sessions.values())
+    """Gibt alle Sessions zurück (von Disk)"""
+    sessions = []
+    
+    if SESSIONS_DIR.exists():
+        for session_dir in SESSIONS_DIR.iterdir():
+            if session_dir.is_dir():
+                session = read_session(session_dir.name)
+                if session:
+                    sessions.append(session)
+    
+    # Sortiere nach created_at (neueste zuerst)
+    sessions.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    
+    # Limitiere auf die letzten 10
+    return sessions[:10]
 
 
 @router.get("/{session_id}/status")
 async def get_session_status(session_id: str):
-    """Gibt den Status einer Session zurück"""
-    if session_id not in active_sessions:
-        session_dir = SESSIONS_DIR / session_id
-        if session_dir.exists():
-            config_file = session_dir / "config.json"
-            if config_file.exists():
-                with open(config_file) as f:
-                    session = json.load(f)
-                    active_sessions[session_id] = session
-                    return session
-        
+    """Gibt den Status einer Session zurück (von Disk)"""
+    session = read_session(session_id)
+    if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    
-    return active_sessions[session_id]
+    return session
 
 
 @router.get("/{session_id}/slides")
 async def get_session_slides(session_id: str):
-    """Gibt die generierten Slides zurück"""
+    """Gibt die Slides zurück"""
     session_dir = SESSIONS_DIR / session_id
     slides_file = session_dir / "slides.json"
     
@@ -229,18 +233,18 @@ async def get_session_slides(session_id: str):
         with open(slides_file) as f:
             return {"slides": json.load(f)}
     
-    if session_id in active_sessions:
-        result = active_sessions[session_id].get("result", {})
-        if result:
-            return {"slides": result.get("slides", [])}
+    session = read_session(session_id)
+    if session and session.get("result"):
+        return {"slides": session["result"].get("slides", [])}
     
     return {"slides": []}
 
 
 @router.post("/{session_id}/upload")
 async def upload_to_session(session_id: str, file: UploadFile = File(...)):
-    """Lädt eine Datei zu einer Session hoch"""
-    if session_id not in active_sessions:
+    """Lädt Datei hoch"""
+    session = read_session(session_id)
+    if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
     session_dir = SESSIONS_DIR / session_id / "uploads"
@@ -253,31 +257,28 @@ async def upload_to_session(session_id: str, file: UploadFile = File(...)):
         content = await file.read()
         f.write(content)
     
-    active_sessions[session_id]["files"].append({
-        "name": safe_name,
-        "size": len(content),
-        "type": target.suffix
-    })
-    active_sessions[session_id]["updated_at"] = datetime.now().isoformat()
+    # Update session
+    files = session.get("files", [])
+    files.append({"name": safe_name, "size": len(content), "type": target.suffix})
+    update_session(session_id, files=files)
     
-    return {"success": True, "filename": safe_name, "session_id": session_id}
+    return {"success": True, "filename": safe_name}
 
 
 @router.post("/{session_id}/start")
 async def start_session(session_id: str, background_tasks: BackgroundTasks):
-    """Startet die Generierung für eine Session"""
-    if session_id not in active_sessions:
+    """Startet die Generierung"""
+    session = read_session(session_id)
+    if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    session = active_sessions[session_id]
-    
-    if session["status"] == "running":
+    if session.get("status") == "running":
         raise HTTPException(status_code=400, detail="Session already running")
     
-    session["status"] = "starting"
-    session["phase"] = "initializing"
-    session["updated_at"] = datetime.now().isoformat()
+    # Update Status
+    update_session(session_id, status="starting", phase="initializing")
     
+    # Start im Background
     background_tasks.add_task(run_generation, session_id)
     
     return {"success": True, "session_id": session_id, "status": "starting"}
@@ -285,7 +286,7 @@ async def start_session(session_id: str, background_tasks: BackgroundTasks):
 
 @router.put("/{session_id}/slides")
 async def update_session_slides(session_id: str, data: Dict[str, Any]):
-    """Aktualisiert die Slides einer Session"""
+    """Aktualisiert Slides"""
     session_dir = SESSIONS_DIR / session_id
     session_dir.mkdir(parents=True, exist_ok=True)
     
@@ -294,21 +295,12 @@ async def update_session_slides(session_id: str, data: Dict[str, Any]):
     with open(session_dir / "slides.json", "w") as f:
         json.dump(slides, f, indent=2, default=str)
     
-    if session_id in active_sessions:
-        if active_sessions[session_id].get("result"):
-            active_sessions[session_id]["result"]["slides"] = slides
-        else:
-            active_sessions[session_id]["result"] = {"slides": slides}
-    
     return {"success": True, "slides_count": len(slides)}
 
 
 @router.delete("/{session_id}")
 async def delete_session(session_id: str):
-    """Löscht eine Session"""
-    if session_id in active_sessions:
-        del active_sessions[session_id]
-    
+    """Löscht Session"""
     session_dir = SESSIONS_DIR / session_id
     if session_dir.exists():
         import shutil
