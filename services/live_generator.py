@@ -433,14 +433,17 @@ class LiveGenerator:
         # Versuche Story Engine zu nutzen
         try:
             from services.story_engine import create_story_structure
-            # Konvertiere deck_size für story_engine (erwartet string)
+            # Story Engine nur nutzen wenn sie genug Slides liefert
             size_str = "short" if request.deck_size <= 10 else "medium" if request.deck_size <= 20 else "long"
             story = create_story_structure(
                 request.brief, request.topic,
                 deck_size=size_str
             )
-            if story.get("ok") and len(story.get("recommended_slides", [])) >= 5:
-                return story.get("recommended_slides", [])[:request.deck_size]
+            # Nur verwenden wenn mindestens 80% der gewünschten Slides geliefert werden
+            story_slides = story.get("recommended_slides", [])
+            if story.get("ok") and len(story_slides) >= request.deck_size * 0.8:
+                return story_slides[:request.deck_size]
+            # Sonst: Fallback verwenden (wird unten generiert)
         except ImportError:
             pass
         
