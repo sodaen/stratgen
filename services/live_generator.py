@@ -102,7 +102,7 @@ class LiveGenerationRequest:
     brief: str
     customer_name: str = ""
     industry: str = ""
-    deck_size: str = "medium"
+    deck_size: int = 10
     style_profile: str = "default"
     enable_charts: bool = True
     enable_images: bool = False
@@ -437,28 +437,77 @@ class LiveGenerator:
                 request.brief, request.topic,
                 deck_size=request.deck_size
             )
-            if story.get("ok"):
-                return story.get("recommended_slides", [])
+            if story.get("ok") and len(story.get("recommended_slides", [])) >= 5:
+                return story.get("recommended_slides", [])[:request.deck_size]
         except ImportError:
             pass
         
-        # Fallback Struktur
-        size_map = {"short": 5, "medium": 8, "long": 15}
-        slide_count = size_map.get(request.deck_size, 8)
+        # Fallback Struktur - dynamisch generiert
+        slide_count = request.deck_size if isinstance(request.deck_size, int) else 10
+        slide_count = max(5, min(150, slide_count))
         
-        base_structure = [
+        # Basis-Struktur mit Pflicht-Slides
+        structure = [
             {"type": "title", "title": request.topic},
             {"type": "executive_summary", "title": "Executive Summary"},
-            {"type": "problem", "title": "Herausforderung"},
-            {"type": "solution", "title": "Unser Ansatz"},
-            {"type": "benefits", "title": "Ihr Nutzen"},
-            {"type": "roadmap", "title": "Roadmap"},
-            {"type": "roi", "title": "Business Case"},
-            {"type": "next_steps", "title": "Nächste Schritte"},
-            {"type": "contact", "title": "Kontakt"},
+            {"type": "context", "title": "Ausgangssituation"},
         ]
         
-        return base_structure[:slide_count]
+        # Slide-Typen für dynamische Erweiterung
+        content_types = [
+            ("problem", "Herausforderung"),
+            ("opportunity", "Chance"),
+            ("analysis", "Analyse"),
+            ("data", "Daten & Fakten"),
+            ("solution", "Lösung"),
+            ("approach", "Unser Ansatz"),
+            ("methodology", "Methodik"),
+            ("benefits", "Vorteile"),
+            ("features", "Features"),
+            ("comparison", "Vergleich"),
+            ("case_study", "Fallstudie"),
+            ("testimonial", "Referenz"),
+            ("team", "Team"),
+            ("process", "Prozess"),
+            ("timeline", "Timeline"),
+            ("milestones", "Meilensteine"),
+            ("risks", "Risiken"),
+            ("mitigation", "Risikominimierung"),
+            ("resources", "Ressourcen"),
+            ("budget", "Budget"),
+            ("roi", "ROI / Business Case"),
+            ("metrics", "Erfolgskennzahlen"),
+            ("roadmap", "Roadmap"),
+            ("implementation", "Implementierung"),
+            ("support", "Support & Service"),
+            ("faq", "FAQ"),
+            ("deep_dive", "Deep Dive"),
+            ("technical", "Technische Details"),
+            ("integration", "Integration"),
+            ("security", "Sicherheit"),
+        ]
+        
+        # Füge Content-Slides hinzu bis slide_count erreicht
+        content_needed = slide_count - 5  # 3 intro + 2 closing
+        type_index = 0
+        
+        while len(structure) < slide_count - 2 and type_index < len(content_types):
+            slide_type, title = content_types[type_index % len(content_types)]
+            
+            # Bei vielen Slides: Nummerierung hinzufügen
+            if content_needed > len(content_types):
+                cycle = type_index // len(content_types) + 1
+                if cycle > 1:
+                    title = f"{title} (Teil {cycle})"
+            
+            structure.append({"type": slide_type, "title": title})
+            type_index += 1
+        
+        # Abschluss-Slides
+        structure.append({"type": "next_steps", "title": "Nächste Schritte"})
+        structure.append({"type": "contact", "title": "Kontakt & Fragen"})
+        
+        return structure[:slide_count]
     
     async def _generate_slide(
         self,
