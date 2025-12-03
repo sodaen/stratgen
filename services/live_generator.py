@@ -533,7 +533,7 @@ class LiveGenerator:
             research = research_for_slide(
                 slide_type=slide_type,
                 slide_title=title,
-                briefing=request.brief,
+                brief=request.brief,
                 context={"industry": request.industry, "customer": request.customer_name}
             )
             
