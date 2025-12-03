@@ -522,28 +522,31 @@ class LiveGenerator:
         """Generiert einen einzelnen Slide mit Knowledge-Integration."""
         slide_type = slide_plan.get("type", "content")
         title = slide_plan.get("title", f"Slide {index + 1}")
-        purpose = slide_plan.get("purpose", "")
         
-        # 1. Knowledge Base durchsuchen
-        knowledge_context = ""
-        facts = []
+        # 1. Direkte Knowledge-Suche mit relevanten Queries
+        knowledge_snippets = []
         try:
-            from services.knowledge_enhanced import research_for_slide
+            from services.knowledge_enhanced import search_knowledge_base
             
-            research = research_for_slide(
-                slide_type=slide_type,
-                slide_title=title,
-                brief=request.brief,
-                context={"industry": request.industry, "customer": request.customer_name}
-            )
+            # Erstelle gezielte Suchqueries basierend auf Slide-Typ und Topic
+            queries = self._build_search_queries(slide_type, title, request.topic, request.industry)
             
-            if research.get("ok"):
-                facts = research.get("facts", [])
-                if facts:
-                    knowledge_context = "\n\nRelevante Fakten:\n"
-                    for fact in facts[:5]:
-                        fact_text = fact.get('text', str(fact)) if isinstance(fact, dict) else str(fact)
-                        knowledge_context += f"- {fact_text}\n"
+            seen_titles = set()
+            for query in queries[:3]:  # Max 3 Queries
+                results = search_knowledge_base(query, k=2)
+                for r in results:
+                    if r.score >= 0.7 and r.title not in seen_titles:
+                        seen_titles.add(r.title)
+                        knowledge_snippets.append({
+                            "title": r.title,
+                            "content": r.snippet[:300],
+                            "score": r.score
+                        })
+            
+            # Sortiere nach Score
+            knowledge_snippets.sort(key=lambda x: x["score"], reverse=True)
+            knowledge_snippets = knowledge_snippets[:4]  # Top 4
+            
         except Exception:
             pass
         
@@ -560,14 +563,21 @@ class LiveGenerator:
         }
         layout_hint = layout_map.get(slide_type, "Title and Content")
         
-        # 3. LLM für Content
+        # 3. Baue Knowledge-Kontext für LLM
+        knowledge_context = ""
+        if knowledge_snippets:
+            knowledge_context = "\n\nRELEVANTES WISSEN AUS DER KNOWLEDGE BASE:\n"
+            for ks in knowledge_snippets:
+                knowledge_context += f"[{ks['title']}]: {ks['content']}\n\n"
+        
+        # 4. LLM für Content
         try:
             from services.llm import generate as llm_generate
             
             customer = request.customer_name or 'Unternehmen'
-            brief_short = request.brief[:400] if request.brief else ''
+            brief_short = request.brief[:300] if request.brief else ''
             
-            prompt = f"""Generiere professionellen Slide-Content.
+            prompt = f"""Du bist ein erfahrener Strategieberater. Erstelle professionellen Slide-Content.
 
 SLIDE-TYP: {slide_type}
 TITEL: {title}
@@ -577,17 +587,20 @@ BRANCHE: {request.industry}
 BRIEFING: {brief_short}
 {knowledge_context}
 
-Generiere 4-6 prägnante, professionelle Bullet Points.
-Jeder Punkt: 15-25 Wörter, konkret und überzeugend.
+WICHTIG:
+- Nutze das Wissen aus der Knowledge Base wo relevant
+- 4-6 prägnante Bullet Points
+- Jeder Punkt: 15-25 Wörter, konkret, professionell
+- Branchenspezifische Terminologie verwenden
+- Konkrete Zahlen und Fakten wo möglich
 
 Antworte NUR mit JSON:
 {{"bullets": ["Punkt 1", "Punkt 2", "Punkt 3", "Punkt 4"]}}"""
             
-            result = llm_generate(prompt, max_tokens=500, temperature=0.7)
+            result = llm_generate(prompt, max_tokens=600, temperature=0.7)
             
             if result.get("ok"):
                 response = result.get("response", "")
-                # Finde JSON im Response
                 json_start = response.find('{')
                 json_end = response.rfind('}') + 1
                 if json_start >= 0 and json_end > json_start:
@@ -600,36 +613,86 @@ Antworte NUR mit JSON:
                                 "title": title,
                                 "bullets": bullets[:6],
                                 "notes": f"Slide {index + 1}: {title}",
-                                "layout_hint": layout_hint
+                                "layout_hint": layout_hint,
+                                "knowledge_used": len(knowledge_snippets) > 0
                             }
                     except json.JSONDecodeError:
                         pass
         except Exception:
             pass
         
-        # 4. Fallback
+        # 5. Fallback - nutze Knowledge-Snippets direkt
+        if knowledge_snippets:
+            bullets = []
+            for ks in knowledge_snippets[:4]:
+                # Extrahiere erste sinnvolle Zeile
+                lines = ks["content"].split("\n")
+                for line in lines:
+                    line = line.strip().strip("-").strip()
+                    if len(line) > 20 and len(line) < 150:
+                        bullets.append(line)
+                        break
+            if len(bullets) >= 2:
+                return {
+                    "type": slide_type,
+                    "title": title,
+                    "bullets": bullets,
+                    "notes": f"Basierend auf Knowledge Base",
+                    "layout_hint": layout_hint,
+                    "knowledge_used": True
+                }
+        
+        # 6. Letzter Fallback
         customer = request.customer_name or 'das Unternehmen'
-        fallback = [
-            f"Strategische Analyse für {customer}",
-            f"Branchenspezifische Lösung für {request.industry}",
-            "Umsetzbare Empfehlungen basierend auf Best Practices",
-            "Messbare Ergebnisse und klarer ROI"
-        ]
-        
-        # Nutze Knowledge-Fakten wenn vorhanden
-        if facts:
-            fallback = []
-            for fact in facts[:4]:
-                fact_text = fact.get('text', str(fact)) if isinstance(fact, dict) else str(fact)
-                fallback.append(fact_text)
-        
         return {
             "type": slide_type,
             "title": title,
-            "bullets": fallback,
+            "bullets": [
+                f"Strategische Analyse für {customer}",
+                f"Branchenspezifische Lösung für {request.industry}",
+                "Umsetzbare Empfehlungen basierend auf Best Practices",
+                "Messbare Ergebnisse und klarer ROI"
+            ],
             "notes": f"Slide {index + 1} von {request.topic}",
-            "layout_hint": layout_hint
+            "layout_hint": layout_hint,
+            "knowledge_used": False
         }
+    
+    def _build_search_queries(self, slide_type: str, title: str, topic: str, industry: str) -> list:
+        """Baut optimierte Suchqueries für die Knowledge Base."""
+        queries = []
+        
+        # Typ-spezifische Keywords
+        type_keywords = {
+            "problem": ["Challenge", "Problem", "Pain Points", "Herausforderung"],
+            "solution": ["Solution", "Lösung", "Approach", "Strategy"],
+            "opportunity": ["Opportunity", "Chance", "Market", "Growth"],
+            "benefits": ["Benefits", "Vorteile", "Value", "ROI"],
+            "roi": ["ROI", "Business Case", "KPI", "Metrics"],
+            "roadmap": ["Roadmap", "Timeline", "Implementation", "Phases"],
+            "approach": ["Methodology", "Framework", "Process", "Approach"],
+            "competitive": ["Competitive", "Comparison", "Benchmark", "Analysis"],
+            "data": ["Data", "Statistics", "Metrics", "KPI"],
+            "case_study": ["Case Study", "Reference", "Success Story"],
+            "executive_summary": ["Strategy", "Overview", "Summary"],
+            "context": ["Market", "Context", "Background", "Situation"],
+        }
+        
+        # 1. Topic + Type Keywords
+        keywords = type_keywords.get(slide_type, ["Strategy", "Business"])
+        for kw in keywords[:2]:
+            queries.append(f"{topic} {kw}")
+        
+        # 2. Industry-spezifisch
+        if industry:
+            queries.append(f"{industry} {slide_type}")
+            queries.append(f"{industry} Strategy")
+        
+        # 3. Allgemeine Business-Queries
+        queries.append(f"GTM {slide_type}")
+        queries.append(f"Marketing {slide_type}")
+        
+        return queries[:5]  # Max 5 Queries
 
 
     async def _add_visualizations(self, session: GenerationSession):
