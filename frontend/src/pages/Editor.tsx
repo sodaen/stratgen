@@ -363,7 +363,7 @@ export default function Editor() {
     // Save to backend if we have a session
     if (sessionId) {
       try {
-        await fetch(`/api/sessions/${sessionId}/slides`, {
+        await fetch(`/api/sessions/${sessionId}/slides`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ slides })
