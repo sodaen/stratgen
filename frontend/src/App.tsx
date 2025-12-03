@@ -1,3 +1,4 @@
+import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useThemeStore } from './stores/themeStore'
 import Layout from './components/layout/Layout'
@@ -11,6 +12,13 @@ import Files from './pages/Files'
 import Settings from './pages/Settings'
 
 function App() {
+  const { loadSessionsFromBackend } = useSessionStore()
+  
+  // Load sessions on app start
+  React.useEffect(() => {
+    loadSessionsFromBackend()
+  }, [])
+
   const { isDark } = useThemeStore()
 
   return (
