@@ -202,7 +202,7 @@ export default function Editor() {
           }
           
           // Try to get generated slides
-          const response = await fetch(`/api/sessions/\${sessionId}/slides`)
+          const response = await fetch(`/api/sessions/${sessionId}/slides`)
           if (response.ok) {
             const data = await response.json()
             if (data.slides && data.slides.length > 0) {
