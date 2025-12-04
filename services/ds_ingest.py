@@ -5,12 +5,16 @@ import qdrant_client
 
 def _encode_vectors(emb, texts):
     """
-    Normalisiert Zugriff auf den Embedder:
-    - Wenn 'emb' callable ist: emb(texts)
-    - Sonst: emb.encode(texts)
+    Normalisiert Zugriff auf den Embedder.
     Gibt immer eine Python-Liste zurück.
     """
-    out = emb(texts) if callable(emb) else emb.encode(texts)
+    # SentenceTransformer hat .encode() Methode
+    if hasattr(emb, 'encode'):
+        out = emb.encode(texts, show_progress_bar=False)
+    elif callable(emb):
+        out = emb(texts)
+    else:
+        raise ValueError("Embedder hat weder encode() noch ist callable")
     try:
         return out.tolist()
     except AttributeError:
