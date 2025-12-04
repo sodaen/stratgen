@@ -175,3 +175,32 @@ Antworte präzise und hilfreich auf Deutsch. Beziehe dich auf den Kontext wenn r
         
     except Exception as e:
         return {"ok": False, "error": str(e)}
+
+
+# === Chat Feedback ===
+@router.post("/chat/feedback")
+async def save_chat_feedback(request: dict):
+    """Speichert Feedback zu einer Chat-Antwort."""
+    try:
+        from services.chat_learner import save_chat_feedback
+        
+        result = save_chat_feedback(
+            query=request.get("query", ""),
+            answer=request.get("answer", ""),
+            sources=request.get("sources", []),
+            rating=request.get("rating", "neutral"),
+            user_correction=request.get("correction")
+        )
+        return result
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.get("/chat/feedback/stats")
+async def get_feedback_stats():
+    """Gibt Feedback-Statistiken zurück."""
+    try:
+        from services.chat_learner import get_feedback_stats
+        return {"ok": True, **get_feedback_stats()}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}

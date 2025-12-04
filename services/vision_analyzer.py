@@ -59,7 +59,7 @@ Be concise and structured."""
                 "images": [image_b64],
                 "stream": False
             },
-            timeout=60.0
+            timeout=120.0
         )
         
         if response.status_code == 200:
