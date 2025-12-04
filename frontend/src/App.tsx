@@ -11,6 +11,7 @@ import Pipeline from './pages/Pipeline'
 import Health from './pages/Health'
 import Files from './pages/Files'
 import Settings from './pages/Settings'
+import Knowledge from './pages/Knowledge'
 
 function App() {
   const { loadSessionsFromBackend } = useSessionStore()
@@ -35,6 +36,7 @@ function App() {
             <Route path="/health" element={<Health />} />
             <Route path="/files" element={<Files />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/knowledge" element={<Knowledge />} />
           </Routes>
         </Layout>
       </div>

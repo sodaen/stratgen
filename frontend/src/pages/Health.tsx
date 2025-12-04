@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { api } from '../services/api'
 import { cn } from '../utils/helpers'
+import RAGStatus from '../components/RAGStatus'
 
 interface ServiceCardProps {
   name: string
@@ -196,6 +197,11 @@ export default function Health() {
             onRestart={() => handleRestart('celery')}
           />
         </div>
+      </div>
+
+      {/* RAG Knowledge System */}
+      <div className="mb-8">
+        <RAGStatus />
       </div>
 
       {/* Features Grid */}
