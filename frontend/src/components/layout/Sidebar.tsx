@@ -20,6 +20,7 @@ import { cn } from '../../utils/helpers'
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/knowledge', icon: BookOpen, label: 'Knowledge' },
   { path: '/generator', icon: Sparkles, label: 'Generator' },
   { path: '/wizard', icon: Wand2, label: 'Wizard' },
   { path: '/editor', icon: Edit3, label: 'Live Editor' },
