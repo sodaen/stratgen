@@ -28,6 +28,14 @@ from enum import Enum
 import threading
 import queue
 
+# Template Learner für Design-Guidance
+try:
+    from services.template_learner import get_design_guidance
+    HAS_TEMPLATE_GUIDANCE = True
+except ImportError:
+    HAS_TEMPLATE_GUIDANCE = False
+    def get_design_guidance(slide_type=None): return {}
+
 # ============================================
 # CONFIGURATION
 # ============================================
@@ -416,7 +424,6 @@ class LiveGenerator:
         try:
             from services.briefing_analyzer import analyze
 from services.template_learner import get_design_guidance
-            result = analyze(request.brief, request.topic, request.industry, request.customer_name)
             return result
         except ImportError:
             pass
