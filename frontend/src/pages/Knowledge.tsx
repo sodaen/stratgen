@@ -2,6 +2,7 @@ import React from 'react'
 import { BookOpen, Database, MessageSquare, Brain } from 'lucide-react'
 import RAGStatus from '../components/RAGStatus'
 import KnowledgeChat from '../components/KnowledgeChat'
+import AdminDashboard from '../components/AdminDashboard'
 
 export default function Knowledge() {
   return (
@@ -17,6 +18,11 @@ export default function Knowledge() {
             RAG-System, Knowledge Base und AI-Assistent
           </p>
         </div>
+      </div>
+
+      {/* Admin Dashboard */}
+      <div className="mb-6">
+        <AdminDashboard />
       </div>
 
       {/* Main Grid */}

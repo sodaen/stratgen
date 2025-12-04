@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251204-144808",
+  "created_utc": "20251204-145353",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "af2c9f0",
+    "commit": "300c5b9",
     "branch": "staging"
   },
   "files": [
@@ -2600,9 +2600,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9321628,
-      "mtime": 1764859632,
-      "sha256": "23e7d829a22bd2449291f25dfada4247f1ff1ccc3f4b9f0470064613a48be161"
+      "size": 9322095,
+      "mtime": 1764859992,
+      "sha256": "8279d4c5ea5c218ded3f10c705b6a6d29cbef63630529cac39e747d614c8b279"
     },
     {
       "path": "COMMANDS.md",
@@ -10153,6 +10153,12 @@
       "sha256": "3fe5f76778af94df8312a1ad6e4e01dd7d7de2aaf865befd4cc263900075d4e8"
     },
     {
+      "path": "backend/__pycache__/admin_metrics_api.cpython-312.pyc",
+      "size": 11896,
+      "mtime": 1764859958,
+      "sha256": "7c30b582f20aa714eb3bf08538bd13289fe903671d63a7294559226e14cf928f"
+    },
+    {
       "path": "backend/__pycache__/agent_autotune_api.cpython-312.pyc",
       "size": 5327,
       "mtime": 1764396902,
@@ -10601,6 +10607,12 @@
       "size": 1253,
       "mtime": 1764335534,
       "sha256": "cef92d76226f34d014a543af476ee04d6a40fa26c0b57d1f93b0350a952e1e98"
+    },
+    {
+      "path": "backend/admin_metrics_api.py",
+      "size": 9036,
+      "mtime": 1764859956,
+      "sha256": "8ca5778ac9a49f5751ee45a73f9fa6243269cdd96cb82a007035ad2d30d8e5d5"
     },
     {
       "path": "backend/agent_api.py.disabled",
@@ -11888,9 +11900,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3266062,
-      "mtime": 1764859344,
-      "sha256": "7fc2e62372b5797d051b4a3741fa6c703f7293fa4466da57d1ac3a91615f726c"
+      "size": 3266267,
+      "mtime": 1764859703,
+      "sha256": "89689838b8378bb6518571d7c564699cb9725fa2d85e0cdb41c73b8cf3f6ef89"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -20575,6 +20587,12 @@
       "sha256": "7fc2e62372b5797d051b4a3741fa6c703f7293fa4466da57d1ac3a91615f726c"
     },
     {
+      "path": "changelogs/snapshots/20251204-144808.json",
+      "size": 3266267,
+      "mtime": 1764859703,
+      "sha256": "89689838b8378bb6518571d7c564699cb9725fa2d85e0cdb41c73b8cf3f6ef89"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -21641,6 +21659,12 @@
       "size": 23651,
       "mtime": 1762004810,
       "sha256": "c62fa7176bbe8135728a59a6aea558a8cd11988e07afeb419316e7062c59ddcb"
+    },
+    {
+      "path": "data/metrics/system_metrics.json",
+      "size": 521,
+      "mtime": 1764860034,
+      "sha256": "e31d042fd1902cc63767ac90f5fd356316a9ded3f44918707d0ee2f3e90cb36b"
     },
     {
       "path": "data/missions/mission-1762111185.json",
@@ -85795,6 +85819,12 @@
       "sha256": "6ab79fc5842698bd64a4f45f34f7fd46536eb50cbad04cf55cbb1a5cd9f90894"
     },
     {
+      "path": "frontend/src/components/AdminDashboard.tsx",
+      "size": 9177,
+      "mtime": 1764859956,
+      "sha256": "c8319353746f64003dac5e557ce1bf701be4c5a523ebf533beef691c61caf65f"
+    },
+    {
       "path": "frontend/src/components/KnowledgeChat.tsx",
       "size": 6986,
       "mtime": 1764859441,
@@ -85892,9 +85922,9 @@
     },
     {
       "path": "frontend/src/pages/Knowledge.tsx",
-      "size": 1176,
-      "mtime": 1764853219,
-      "sha256": "da2322d76e4d7e968922c4c80479b614e3684258c65181af1222987c963d5bcb"
+      "size": 1334,
+      "mtime": 1764859956,
+      "sha256": "d6eafe134d175f146a38063227fe00d89ca9b5e92f1a89947a35712aae944da4"
     },
     {
       "path": "frontend/src/pages/Pipeline.tsx",
