@@ -526,7 +526,7 @@ class LiveGenerator:
         # 1. Direkte Knowledge-Suche mit relevanten Queries
         knowledge_snippets = []
         try:
-            from services.knowledge_enhanced import search_knowledge_base
+            from services.unified_knowledge import search_for_slide, search
             
             # Erstelle gezielte Suchqueries basierend auf Slide-Typ und Topic
             queries = self._build_search_queries(slide_type, title, request.topic, request.industry)
