@@ -46,7 +46,7 @@ export default function KnowledgeChat() {
 
     try {
       // Suche in der Knowledge Base
-      const searchRes = await fetch(`/api/health/rag/search?q=${encodeURIComponent(input)}&limit=5`)
+      const searchRes = await fetch(`/rag/search?q=${encodeURIComponent(input)}&limit=5`)
       const searchData = await searchRes.json()
 
       // Baue Kontext aus Suchergebnissen
