@@ -55,11 +55,53 @@ def build_facts(project: Dict[str,Any], k: int = 6) -> Dict[str,Any]:
     return {"k": int(k or 6), "hits": paths, "bullets": bullets, "sources": paths}
 
 # ---- Stubs to satisfy optional imports elsewhere ----
-COLL = "knowledge"
-def get_qdrant(): return None
-def get_embedder(): return None
-def check_qdrant() -> Dict[str,Any]: return {"ok": False, "reason": "stub"}
-def check_ollama() -> Dict[str,Any]: return {"ok": False, "reason": "stub"}
+COLL = "stratgen_docs"
+
+# Singleton für Qdrant Client
+_qdrant_client = None
+def get_qdrant():
+    global _qdrant_client
+    if _qdrant_client is None:
+        try:
+            from qdrant_client import QdrantClient
+            _qdrant_client = QdrantClient(host="localhost", port=6333)
+        except Exception as e:
+            print(f"Qdrant connection failed: {e}")
+            return None
+    return _qdrant_client
+
+# Singleton für Embedder
+_embedder = None
+def get_embedder():
+    global _embedder
+    if _embedder is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            _embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        except Exception as e:
+            print(f"Embedder init failed: {e}")
+            return None
+    return _embedder
+
+def check_qdrant() -> Dict[str,Any]:
+    try:
+        qdr = get_qdrant()
+        if qdr is None:
+            return {"ok": False, "reason": "client is None"}
+        collections = qdr.get_collections()
+        return {"ok": True, "collections": [c.name for c in collections.collections]}
+    except Exception as e:
+        return {"ok": False, "reason": str(e)}
+
+def check_ollama() -> Dict[str,Any]:
+    try:
+        import httpx
+        r = httpx.get("http://localhost:11434/api/tags", timeout=5)
+        if r.status_code == 200:
+            return {"ok": True, "models": r.json().get("models", [])}
+        return {"ok": False, "reason": f"status {r.status_code}"}
+    except Exception as e:
+        return {"ok": False, "reason": str(e)}
 def generate_bullets_for(text: str, k: int = 5) -> List[str]:
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
     return lines[:max(1, int(k or 5))]
