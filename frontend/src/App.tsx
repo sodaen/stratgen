@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useThemeStore } from './stores/themeStore'
+import { useSessionStore } from './stores/sessionStore'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Generator from './pages/Generator'
