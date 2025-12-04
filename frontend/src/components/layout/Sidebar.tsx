@@ -11,7 +11,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Power
+  Power,
+  BookOpen
 } from 'lucide-react'
 import Logo from '../common/Logo'
 import ThemeToggle from '../common/ThemeToggle'
