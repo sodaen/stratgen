@@ -21,7 +21,7 @@ export default function RAGStatus() {
   const fetchStats = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/rag/status')
+      const res = await fetch('/api/rag/status')
       const data = await res.json()
       if (data.ok) {
         setStats(data)
