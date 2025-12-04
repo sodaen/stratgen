@@ -284,6 +284,15 @@ def _install_preview_overrides(_app):
             "sources": []
         }
 
+
+# RAG API Router
+try:
+    from backend.rag_api import router as _rag_router
+    app.include_router(_rag_router)
+    log.info("RAG API router loaded")
+except Exception as e:
+    log.warning(f"RAG API router failed: {e}")
+
 # nach allen include_router()-Aufrufen ausführen
 try:
     _install_preview_overrides(app)
