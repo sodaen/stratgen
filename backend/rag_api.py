@@ -63,3 +63,115 @@ async def ingest_file(file_path: str):
         return result
     except Exception as e:
         return {"ok": False, "error": str(e)}
+
+
+# === Template Learning ===
+@router.get("/templates/stats")
+async def get_template_stats():
+    """Statistiken über gelernte Templates."""
+    try:
+        from services.template_learner import get_stats
+        return {"ok": True, **get_stats()}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.post("/templates/scan")
+async def scan_templates(limit: int = 10):
+    """Scannt /raw Präsentationen und lernt Design-Patterns."""
+    try:
+        from services.template_learner import scan_raw_presentations
+        result = scan_raw_presentations(limit)
+        return result
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.get("/templates/guidance")
+async def get_guidance(slide_type: str = None):
+    """Gibt Design-Empfehlungen für einen Slide-Typ."""
+    try:
+        from services.template_learner import get_design_guidance
+        return {"ok": True, **get_design_guidance(slide_type)}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+# === Knowledge Chat ===
+@router.post("/chat")
+async def knowledge_chat(request: dict):
+    """
+    Chat-Endpoint für Knowledge Bot.
+    Kombiniert RAG-Suche mit LLM-Generierung.
+    """
+    try:
+        query = request.get("query", "")
+        
+        if not query:
+            return {"ok": False, "error": "Query required"}
+        
+        # 1. RAG-Suche
+        from services.unified_knowledge import search
+        results = search(query, limit=5)
+        
+        context_texts = []
+        sources = []
+        for r in results:
+            if r.text_content and r.score >= 0.4:
+                context_texts.append(r.text_content[:400])
+                sources.append({
+                    "text": r.text_content[:200],
+                    "source": r.source,
+                    "score": r.score
+                })
+        
+        context = "\n\n".join(context_texts) if context_texts else ""
+        
+        # 2. LLM-Generierung
+        import httpx
+        
+        prompt = f"""Du bist ein hilfreicher Marketing-Strategie-Assistent.
+Beantworte die Frage basierend auf dem folgenden Kontext aus der Knowledge Base.
+
+KONTEXT:
+{context if context else 'Kein spezifischer Kontext gefunden.'}
+
+FRAGE: {query}
+
+Antworte präzise und hilfreich auf Deutsch. Beziehe dich auf den Kontext wenn relevant."""
+
+        try:
+            llm_response = httpx.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "mistral:latest",
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"num_predict": 500}
+                },
+                timeout=60.0
+            )
+            
+            if llm_response.status_code == 200:
+                answer = llm_response.json().get("response", "")
+            else:
+                # Fallback ohne LLM
+                if sources:
+                    answer = "Hier sind relevante Informationen:\n\n" + "\n\n".join([s["text"] for s in sources[:3]])
+                else:
+                    answer = "Ich konnte leider keine relevanten Informationen finden."
+        except Exception as e:
+            if sources:
+                answer = "Hier sind relevante Informationen:\n\n" + "\n\n".join([s["text"] for s in sources[:3]])
+            else:
+                answer = f"LLM nicht erreichbar: {e}"
+        
+        return {
+            "ok": True,
+            "answer": answer,
+            "sources": sources[:3],
+            "context_used": len(context_texts) > 0
+        }
+        
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
