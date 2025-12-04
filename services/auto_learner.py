@@ -247,21 +247,61 @@ def index_knowledge_file(file_path: str) -> Dict[str, Any]:
     """Indiziert eine Knowledge-Datei."""
     try:
         # Importiere Knowledge-Service
-        from services.knowledge import ingest_file, scan_dir
+        from services.ds_ingest import ingest_entry
         
-        # Versuche Datei zu indizieren
-        result = ingest_file(file_path)
+        # Lese Datei-Inhalt
+        text = ""
+        ext = Path(file_path).suffix.lower()
+        
+        if ext in ('.txt', '.md'):
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
+        elif ext == '.pdf':
+            try:
+                import fitz
+                doc = fitz.open(file_path)
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
+            except: pass
+        elif ext == '.docx':
+            try:
+                from docx import Document
+                doc = Document(file_path)
+                text = "\n".join([p.text for p in doc.paragraphs])
+            except: pass
+        elif ext == '.pptx':
+            try:
+                from pptx import Presentation
+                prs = Presentation(file_path)
+                texts = []
+                for slide in prs.slides:
+                    for shape in slide.shapes:
+                        if hasattr(shape, "text"):
+                            texts.append(shape.text)
+                text = "\n".join(texts)
+            except: pass
+        
+        if not text.strip():
+            logger.warning(f"Keine Textinhalte in {file_path}")
+            return {"ok": True, "type": "knowledge", "fallback": True}
+        
+        # In Qdrant indexieren
+        entry = {
+            "source": str(file_path),
+            "type": "knowledge",
+            "content": text[:50000]  # Max 50k chars
+        }
+        result = ingest_entry("knowledge", entry)
         
         if result.get("ok"):
-            logger.info(f"✓ Knowledge indiziert: {Path(file_path).name}")
+            logger.info(f"✓ Knowledge in Qdrant: {Path(file_path).name} ({result.get('chunks', 0)} chunks)")
             return {"ok": True, "type": "knowledge", "chunks": result.get("chunks", 0)}
         else:
-            logger.warning(f"⚠ Knowledge-Indizierung fehlgeschlagen: {result.get('error')}")
+            logger.warning(f"⚠ Qdrant-Indizierung fehlgeschlagen: {result.get('error')}")
             return {"ok": False, "error": result.get("error")}
             
-    except ImportError:
-        # Fallback: Nur als gelernt markieren
-        logger.warning("knowledge.ingest_file nicht verfügbar - markiere als bekannt")
+    except ImportError as e:
+        logger.warning(f"ds_ingest nicht verfügbar: {e}")
         return {"ok": True, "type": "knowledge", "fallback": True}
     except Exception as e:
         logger.error(f"Fehler bei Knowledge-Indizierung: {e}")
