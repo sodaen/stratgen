@@ -859,3 +859,99 @@ def _openai_embed(texts: list[str], model: str, api_key: str | None = None) -> l
     r.raise_for_status()
     data = r.json()
     return [item['embedding'] for item in data.get('data', [])]
+
+# -------- Einzelne Datei indizieren --------
+def ingest_file(file_path: str) -> Dict[str, Any]:
+    """
+    Indiziert eine einzelne Datei in die Knowledge Base.
+    Unterstützt: .txt, .md, .pdf, .docx, .pptx
+    """
+    import os
+    from pathlib import Path
+    
+    ensure_tables()
+    fpath = str(file_path)
+    ext = Path(fpath).suffix.lower()
+    
+    if not os.path.exists(fpath):
+        return {"ok": False, "error": f"Datei nicht gefunden: {fpath}"}
+    
+    # Text extrahieren je nach Dateityp
+    text = ""
+    try:
+        if ext == ".txt":
+            text = _read_txt(fpath)
+        elif ext == ".md":
+            with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
+        elif ext == ".pdf":
+            try:
+                import fitz  # PyMuPDF
+                doc = fitz.open(fpath)
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
+            except ImportError:
+                return {"ok": False, "error": "PyMuPDF nicht installiert für PDF-Verarbeitung"}
+        elif ext == ".docx":
+            try:
+                from docx import Document
+                doc = Document(fpath)
+                text = "\n".join([p.text for p in doc.paragraphs])
+            except ImportError:
+                return {"ok": False, "error": "python-docx nicht installiert"}
+        elif ext == ".pptx":
+            try:
+                from pptx import Presentation
+                prs = Presentation(fpath)
+                texts = []
+                for slide in prs.slides:
+                    for shape in slide.shapes:
+                        if hasattr(shape, "text"):
+                            texts.append(shape.text)
+                text = "\n".join(texts)
+            except ImportError:
+                return {"ok": False, "error": "python-pptx nicht installiert"}
+        else:
+            return {"ok": False, "error": f"Nicht unterstütztes Format: {ext}"}
+        
+        if not text.strip():
+            return {"ok": False, "error": "Keine Textinhalte gefunden"}
+        
+        # In DB speichern
+        con = _connect()
+        cur = con.cursor()
+        
+        b = text.encode('utf-8')
+        h = _file_hash(b)
+        st = os.stat(fpath)
+        size = st.st_size
+        mtime = int(st.st_mtime)
+        
+        # Prüfe ob schon vorhanden
+        row = cur.execute("SELECT id, hash FROM knowledge_docs WHERE path=?", (fpath,)).fetchone()
+        if row and row["hash"] == h:
+            con.close()
+            return {"ok": True, "status": "unchanged", "chunks": 0}
+        
+        doc_id = _upsert_doc(cur, fpath, ext[1:], size, mtime, h)
+        
+        # Alte Chunks löschen
+        cur.execute("DELETE FROM knowledge_chunks WHERE doc_id=?", (doc_id,))
+        
+        # Neue Chunks erstellen
+        chunks = _chunk(text)
+        now = int(time.time())
+        
+        for idx, chunk in enumerate(chunks):
+            cur.execute("""
+                INSERT INTO knowledge_chunks(doc_id, idx, content, created_at, embedding)
+                VALUES(?, ?, ?, ?, NULL)
+            """, (doc_id, idx, chunk, now))
+        
+        con.commit()
+        con.close()
+        
+        return {"ok": True, "status": "indexed", "chunks": len(chunks), "path": fpath}
+        
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
