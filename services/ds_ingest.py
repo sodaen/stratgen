@@ -48,8 +48,85 @@ def _ensure_collection(qdr, emb, coll):
     )
 
 def _read_file(p: str) -> str:
+    """Liest verschiedene Dateiformate und extrahiert Text."""
     path = Path(p)
-    return path.read_text(encoding="utf-8", errors="ignore")
+    ext = path.suffix.lower()
+    
+    # Text-Dateien
+    if ext in ('.txt', '.md', '.csv', '.json', '.xml', '.html'):
+        return path.read_text(encoding="utf-8", errors="ignore")
+    
+    # PDF
+    if ext == '.pdf':
+        try:
+            import fitz  # PyMuPDF
+            doc = fitz.open(str(path))
+            text = "\n".join([page.get_text() for page in doc])
+            doc.close()
+            return text
+        except ImportError:
+            raise ValueError("PyMuPDF nicht installiert - pip install pymupdf")
+        except Exception as e:
+            raise ValueError(f"PDF-Fehler: {e}")
+    
+    # Word DOCX
+    if ext == '.docx':
+        try:
+            from docx import Document
+            doc = Document(str(path))
+            return "\n".join([p.text for p in doc.paragraphs])
+        except ImportError:
+            raise ValueError("python-docx nicht installiert")
+        except Exception as e:
+            raise ValueError(f"DOCX-Fehler: {e}")
+    
+    # Word DOC (alt)
+    if ext == '.doc':
+        try:
+            import subprocess
+            result = subprocess.run(['antiword', str(path)], capture_output=True, text=True)
+            if result.returncode == 0:
+                return result.stdout
+            raise ValueError("antiword fehlgeschlagen")
+        except FileNotFoundError:
+            raise ValueError("antiword nicht installiert - sudo apt install antiword")
+    
+    # PowerPoint PPTX
+    if ext == '.pptx':
+        try:
+            from pptx import Presentation
+            prs = Presentation(str(path))
+            texts = []
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        texts.append(shape.text)
+            return "\n".join(texts)
+        except ImportError:
+            raise ValueError("python-pptx nicht installiert")
+        except Exception as e:
+            raise ValueError(f"PPTX-Fehler: {e}")
+    
+    # Excel XLSX
+    if ext in ('.xlsx', '.xls'):
+        try:
+            import pandas as pd
+            df = pd.read_excel(str(path), sheet_name=None)
+            texts = []
+            for sheet_name, sheet_df in df.items():
+                texts.append(f"=== {sheet_name} ===")
+                texts.append(sheet_df.to_string())
+            return "\n".join(texts)
+        except ImportError:
+            raise ValueError("pandas/openpyxl nicht installiert")
+        except Exception as e:
+            raise ValueError(f"Excel-Fehler: {e}")
+    
+    # Fallback: versuche als Text
+    try:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except:
+        raise ValueError(f"Nicht unterstütztes Format: {ext}")
 
 def _fetch_url(url: str, timeout: float = 10.0) -> str:
     with httpx.Client(timeout=timeout, follow_redirects=True) as c:
