@@ -415,6 +415,7 @@ class LiveGenerator:
         # Versuche Briefing Analyzer zu nutzen
         try:
             from services.briefing_analyzer import analyze
+from services.template_learner import get_design_guidance
             result = analyze(request.brief, request.topic, request.industry, request.customer_name)
             return result
         except ImportError:
