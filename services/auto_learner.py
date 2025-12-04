@@ -287,11 +287,11 @@ def index_knowledge_file(file_path: str) -> Dict[str, Any]:
         
         # In Qdrant indexieren
         entry = {
-            "source": str(file_path),
-            "type": "knowledge",
-            "content": text[:50000]  # Max 50k chars
+            "path": str(file_path),
+            "type": "file",
+            "source": str(file_path)
         }
-        result = ingest_entry("knowledge", entry)
+        result = ingest_entry("stratgen_docs", entry)
         
         if result.get("ok"):
             logger.info(f"✓ Knowledge in Qdrant: {Path(file_path).name} ({result.get('chunks', 0)} chunks)")
