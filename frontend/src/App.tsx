@@ -13,6 +13,7 @@ import Files from './pages/Files'
 import Settings from './pages/Settings'
 import AdminDashboard from './pages/AdminDashboard'
 import Knowledge from './pages/Knowledge'
+import KnowledgeDashboard from './components/KnowledgeDashboard'
 
 function App() {
   const { loadSessionsFromBackend } = useSessionStore()
@@ -39,6 +40,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/knowledge" element={<Knowledge />} />
+            <Route path="/knowledge-analytics" element={<KnowledgeDashboard />} />
           </Routes>
         </Layout>
       </div>
