@@ -31,6 +31,7 @@ const navItems = [
   { path: '/files', icon: FolderOpen, label: 'File Manager' },
   { divider: true },
   { path: '/settings', icon: Settings, label: 'Settings' },
+  { path: '/admin', icon: BarChart3, label: 'Admin Dashboard' },
 ]
 
 export default function Sidebar() {
