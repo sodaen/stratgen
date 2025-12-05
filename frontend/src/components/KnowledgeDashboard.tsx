@@ -9,6 +9,8 @@ import {
   Zap, Target, Activity, BookOpen, Star, AlertTriangle,
   CheckCircle, XCircle, BarChart2, PieChartIcon, Filter
 } from 'lucide-react'
+import ChunkInspector from './ChunkInspector'
+import KnowledgeControls from './KnowledgeControls'
 
 // Types
 interface DashboardData {
@@ -38,6 +40,13 @@ export default function KnowledgeDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
   const [timeRange, setTimeRange] = useState(24)
+  const [inspectorOpen, setInspectorOpen] = useState(false)
+  const [inspectorQuery, setInspectorQuery] = useState('')
+
+  const openInspector = (query: string = '') => {
+    setInspectorQuery(query)
+    setInspectorOpen(true)
+  }
 
   const fetchData = async () => {
     try {
@@ -760,6 +769,31 @@ export default function KnowledgeDashboard() {
 
       {/* Content */}
       {renderContent()}
+
+      {/* Admin Controls - nur im Overview Tab */}
+      {activeTab === 'overview' && (
+        <div className="mt-6">
+          <KnowledgeControls onRefresh={fetchData} />
+        </div>
+      )}
+
+      {/* Quick Actions Bar */}
+      <div className="fixed bottom-6 right-6 flex gap-3">
+        <button
+          onClick={() => openInspector()}
+          className="px-4 py-3 bg-primary text-white rounded-xl shadow-lg hover:bg-primary/80 transition-all flex items-center gap-2"
+        >
+          <Search className="w-5 h-5" />
+          Chunk Inspector
+        </button>
+      </div>
+
+      {/* Chunk Inspector Modal */}
+      <ChunkInspector
+        isOpen={inspectorOpen}
+        onClose={() => setInspectorOpen(false)}
+        initialQuery={inspectorQuery}
+      />
     </div>
   )
 }
