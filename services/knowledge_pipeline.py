@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Konfiguration
 CHUNK_CONFIG = {
-    "knowledge": {"size": 600, "overlap": 100, "min_length": 100},
+    "knowledge": {"size": 600, "overlap": 100, "min_length": 50},
     "template": {"size": 800, "overlap": 150, "min_length": 50},
     "external": {"size": 400, "overlap": 50, "min_length": 80},
     "generated": {"size": 500, "overlap": 100, "min_length": 100}
