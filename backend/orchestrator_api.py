@@ -182,10 +182,21 @@ def api_list_features():
         "roi": "Business Case und ROI-Berechnung",
         "dna": "Lernt aus Templates die optimale Struktur",
         "semantic": "Findet ähnliche Slides aus Templates",
-        "voice": "Extrahiert und wendet Schreibstil an",
+        "voice": "Brand Voice - Extrahiert und wendet Marken-Schreibstil an",
         "arguments": "Baut Argumentationsketten und findet Einwände",
         "content_intel": "Prüft Komplexität und verlinkt Belege",
-        "knowledge": "Sucht relevante Fakten aus Knowledge Base"
+        "knowledge": "RAG - Sucht relevante Fakten aus Knowledge Base (17.968 Chunks)",
+        # Neue Features v3.18
+        "wikipedia": "Wikipedia Integration - Definitionen und Fakten",
+        "news_rss": "News RSS - Aktuelle Nachrichten und Trends",
+        "google_trends": "Google Trends - Suchtrend-Daten",
+        "world_bank": "World Bank - Wirtschafts- und Marktdaten",
+        "unsplash": "Unsplash - Kostenlose hochwertige Bilder",
+        "qr_code": "QR Code Generator - Links für Slides",
+        "pptx_designer": "PPTX Designer v2 - Professionelle Layouts mit Quellenangaben",
+        "source_tracker": "Source Tracker - Automatische Quellenerfassung",
+        "template_learner": "Template Learner - Lernt aus 32 Master-Präsentationen",
+        "vision_analyzer": "Vision (Moondream) - Analysiert Slide-Designs visuell"
     }
     
     return {
