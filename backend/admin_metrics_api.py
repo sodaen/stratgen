@@ -703,3 +703,46 @@ async def get_errors(hours: int = 24):
         "by_type": {r["error_type"]: r["count"] for r in by_type},
         "recent": [dict(r) for r in rows[:20]]
     }
+
+
+# === SOURCES ANALYTICS ===
+
+@router.get("/metrics/sources")
+async def get_sources_metrics():
+    """Quellen-Nutzungs-Statistiken."""
+    from pathlib import Path
+    from collections import Counter
+    import json
+    
+    stats = {
+        "by_type": Counter(),
+        "top_sources": [],
+        "total_uses": 0
+    }
+    
+    # Durchsuche Export-Logs nach Quellen
+    exports_dir = DATA_ROOT / "exports"
+    if exports_dir.exists():
+        for json_file in exports_dir.glob("*.json"):
+            try:
+                data = json.loads(json_file.read_text())
+                for slide in data.get("slides", []):
+                    for source in slide.get("sources", []):
+                        stats["total_uses"] += 1
+                        # Bestimme Typ
+                        if "wikipedia" in source.lower():
+                            stats["by_type"]["wikipedia"] += 1
+                        elif "news" in source.lower() or "artikel" in source.lower():
+                            stats["by_type"]["news"] += 1
+                        elif "trend" in source.lower():
+                            stats["by_type"]["trends"] += 1
+                        else:
+                            stats["by_type"]["rag"] += 1
+            except:
+                pass
+    
+    return {
+        "ok": True,
+        "by_type": dict(stats["by_type"]),
+        "total_uses": stats["total_uses"]
+    }

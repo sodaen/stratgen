@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251205-102108",
+  "created_utc": "20251205-102631",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "8476149",
+    "commit": "d906a7f",
     "branch": "staging"
   },
   "files": [
@@ -2600,9 +2600,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9391916,
-      "mtime": 1764930012,
-      "sha256": "7d8b580e367f7d323dc0057e6ab0aaedf22482fc1dd049d4bec16034f44d05b0"
+      "size": 9392272,
+      "mtime": 1764930372,
+      "sha256": "166d33700553a439b1e4bd907fe462952e87f77859ba54092690bd0a4d2e5acd"
     },
     {
       "path": "COMMANDS.md",
@@ -10616,9 +10616,9 @@
     },
     {
       "path": "backend/admin_metrics_api.py",
-      "size": 22484,
-      "mtime": 1764893296,
-      "sha256": "bd11e994cb7669771d5c2eeffdf7d9b090ef48ee620b8ee837099ff9d39c0b84"
+      "size": 23889,
+      "mtime": 1764930381,
+      "sha256": "a0a91f8f8c9cf6f8c32ce14ae16cc5f25fe92becc007af6861bc57da2e36c068"
     },
     {
       "path": "backend/agent_api.py.disabled",
@@ -10853,6 +10853,12 @@
       "size": 3200,
       "mtime": 1762591136,
       "sha256": "3742822b551f1aae2babca6f8233385268d478bb5c6e39a3da3a98d7da5012c4"
+    },
+    {
+      "path": "backend/generator_v2_api.py",
+      "size": 3818,
+      "mtime": 1764930381,
+      "sha256": "5c6e79c59e2f76f5fb4e21c5f1cbb34ca079310e4871a16c4725cbe7b31158a5"
     },
     {
       "path": "backend/graph_api.py",
@@ -11912,9 +11918,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3311702,
-      "mtime": 1764929725,
-      "sha256": "cbfda3122d9f4f8b6b17756af97636513bd571bf70f5da893701c3a271589bb6"
+      "size": 3311907,
+      "mtime": 1764930085,
+      "sha256": "a02a1d612d2abec0686d33a736e27424c958d1c1dc15c49dc324b0409981d059"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -21799,6 +21805,12 @@
       "sha256": "cbfda3122d9f4f8b6b17756af97636513bd571bf70f5da893701c3a271589bb6"
     },
     {
+      "path": "changelogs/snapshots/20251205-102108.json",
+      "size": 3311907,
+      "mtime": 1764930085,
+      "sha256": "a02a1d612d2abec0686d33a736e27424c958d1c1dc15c49dc324b0409981d059"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -22875,8 +22887,8 @@
     {
       "path": "data/metrics/admin_metrics.db",
       "size": 90112,
-      "mtime": 1764930064,
-      "sha256": "3ebf104935dd3070dca5d6351ebc005ba4b6205dceab360691c0372f4c4802e9"
+      "mtime": 1764930364,
+      "sha256": "a0fbf6844a72d35459c0a0ee57c5d83f62209812760064ca5b64a9fe2d00f581"
     },
     {
       "path": "data/metrics/system_metrics.json",
@@ -89401,6 +89413,12 @@
       "sha256": "7ecfa4d73110e06ebc536199c5c5138a15f31579dc9c15320326cf2e3aee6bff"
     },
     {
+      "path": "services/__pycache__/content_generator_v2.cpython-312.pyc",
+      "size": 17768,
+      "mtime": 1764930394,
+      "sha256": "b134a1804be8a05cb589db253bab09428ae3644fb126e7d072dbc30546263b00"
+    },
+    {
       "path": "services/__pycache__/content_intelligence.cpython-312.pyc",
       "size": 18811,
       "mtime": 1764598219,
@@ -89423,6 +89441,12 @@
       "size": 20523,
       "mtime": 1764850103,
       "sha256": "88cf0d2cc5e372dafdef4ccaa5fb52246f8330c03e67227dddfc478352435bf4"
+    },
+    {
+      "path": "services/__pycache__/export_service_v2.cpython-312.pyc",
+      "size": 6319,
+      "mtime": 1764930395,
+      "sha256": "4df4d47c02babd6e7d6b5441efbffe6af4cb10b1176e8ce8b4dc91e4d2d34c79"
     },
     {
       "path": "services/__pycache__/feature_orchestrator.cpython-312.pyc",
@@ -89555,6 +89579,12 @@
       "size": 20450,
       "mtime": 1764598219,
       "sha256": "e06cc022c5e0de54663806212099120823ed0e6f72951e83791f7b6dec809a30"
+    },
+    {
+      "path": "services/__pycache__/source_tracker.cpython-312.pyc",
+      "size": 8662,
+      "mtime": 1764930395,
+      "sha256": "4e6e1d783e14c6b4ed1d19569a17580a7fad1fb6d7a981b1f98156e895af1937"
     },
     {
       "path": "services/__pycache__/story_engine.cpython-312.pyc",
@@ -89773,6 +89803,12 @@
       "sha256": "c3ae89ec27861bc037cd9cb413490fc0ba1735dbd5a40b4efd3c74a99ecedacf"
     },
     {
+      "path": "services/content_generator_v2.py",
+      "size": 15296,
+      "mtime": 1764930381,
+      "sha256": "959a9b14d2d3c34f8db31eda36739c936312baf76303c36b63b620caa512fdaa"
+    },
+    {
       "path": "services/content_intelligence.py",
       "size": 17915,
       "mtime": 1764593742,
@@ -89849,6 +89885,12 @@
       "size": 2842,
       "mtime": 1761417539,
       "sha256": "02967f088a43b573f2af7e0e7cf2da36f7ead700cc30b58efd225484baf72b5a"
+    },
+    {
+      "path": "services/export_service_v2.py",
+      "size": 4916,
+      "mtime": 1764930381,
+      "sha256": "03869639c478f35f55caa674649d03fed1873bdac345a55be0cb4ed85dd7d4e1"
     },
     {
       "path": "services/export_tools.py",
