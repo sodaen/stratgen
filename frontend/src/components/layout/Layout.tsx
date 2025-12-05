@@ -40,7 +40,7 @@ export default function Layout({ children }: LayoutProps) {
           ollama: agentStatus?.ollama?.ok ?? false,
           redis: workersStatus?.celery_available ?? false,
           celery: (workersStatus?.worker_count ?? 0) > 0,
-          servicesActive: Object.values(agentStatus?.services || {}).filter(Boolean).length,
+          servicesActive: Object.values(agentStatus?.features || {}).filter(Boolean).length,
           servicesTotal: 20,
         })
       } catch (error) {
