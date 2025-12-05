@@ -112,7 +112,24 @@ async def knowledge_chat(request: dict):
         
         # 1. RAG-Suche
         from services.unified_knowledge import search
+        import time as _time
+        _search_start = _time.time()
         results = search(query, limit=5)
+        _search_ms = (_time.time() - _search_start) * 1000
+        
+        # Log search metrics
+        try:
+            from backend.admin_metrics_api import _get_db_connection
+            scores = [r.score for r in results]
+            conn = _get_db_connection()
+            conn.execute(
+                "INSERT INTO search_events (query, results_count, top_score, avg_score, latency_ms) VALUES (?, ?, ?, ?, ?)",
+                (query[:200], len(results), max(scores) if scores else 0, sum(scores)/len(scores) if scores else 0, _search_ms)
+            )
+            conn.commit()
+            conn.close()
+        except:
+            pass
         
         context_texts = []
         sources = []

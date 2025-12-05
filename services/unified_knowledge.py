@@ -5,6 +5,7 @@ Kombiniert Text-RAG (Qdrant) mit Vision-Analyse (Moondream).
 
 import os
 import logging
+import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
@@ -13,6 +14,27 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 # Verzeichnis-Konfiguration
+
+def _log_search_metrics(query: str, results: list, latency_ms: float):
+    """Loggt Search-Metriken für Analytics."""
+    try:
+        import httpx
+        scores = [r.score for r in results if hasattr(r, 'score')]
+        httpx.post(
+            "http://localhost:8011/admin/metrics/search/log",
+            json={
+                "query": query[:200],
+                "results_count": len(results),
+                "top_score": max(scores) if scores else 0,
+                "avg_score": sum(scores) / len(scores) if scores else 0,
+                "latency_ms": latency_ms
+            },
+            timeout=2.0
+        )
+    except:
+        pass  # Logging sollte nie die Hauptfunktion blockieren
+
+
 DATA_ROOT = Path(os.getenv("STRATGEN_DATA", "/home/sodaen/stratgen/data"))
 RAW_DIR = DATA_ROOT / "raw"           # Master-Präsentationen
 KNOWLEDGE_DIR = DATA_ROOT / "knowledge"  # Dokumente, PDFs
