@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Power,
   BookOpen
-} from 'lucide-react'
+, BarChart3 } from 'lucide-react'
 import Logo from '../common/Logo'
 import ThemeToggle from '../common/ThemeToggle'
 import { useAppStore } from '../../stores/appStore'
