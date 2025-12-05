@@ -25,7 +25,12 @@ def get_wikipedia_summary(topic: str, lang: str = "de") -> Dict[str, Any]:
         from urllib.parse import quote
         encoded_topic = quote(topic.replace(" ", "_"))
         url = f"https://{lang}.wikipedia.org/api/rest_v1/page/summary/{encoded_topic}"
-        response = httpx.get(url, timeout=10, follow_redirects=True)
+        response = httpx.get(
+            url, 
+            timeout=10, 
+            follow_redirects=True,
+            headers={"User-Agent": "StratGen/1.0 (https://stratgen.local; contact@stratgen.local)"}
+        )
         
         if response.status_code == 200:
             data = response.json()
