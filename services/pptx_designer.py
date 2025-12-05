@@ -91,7 +91,7 @@ class PPTXDesigner:
         self.palette = self.PALETTES.get(palette, self.PALETTES["corporate"])
         self.prs = None
     
-    def _hex_to_rgb(self, hex_color: str) -> RgbColor:
+    def _hex_to_rgb(self, hex_color: str) -> RGBColor:
         """Konvertiert Hex zu RGB."""
         hex_color = hex_color.lstrip('#')
         return RGBColor(
