@@ -306,6 +306,8 @@ try:
     from backend import knowledge_analytics_api
     app.include_router(knowledge_analytics_api.router)
     log.info("knowledge_analytics_api router registered")
+except Exception as e:
+    log.warning(f"knowledge_analytics_api failed: {e}")
 
 # nach allen include_router()-Aufrufen ausführen
 try:
