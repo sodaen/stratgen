@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Power,
   BookOpen
-, BarChart3 } from 'lucide-react'
+, BarChart3, Database } from 'lucide-react'
 import Logo from '../common/Logo'
 import ThemeToggle from '../common/ThemeToggle'
 import { useAppStore } from '../../stores/appStore'
@@ -32,6 +32,7 @@ const navItems = [
   { divider: true },
   { path: '/settings', icon: Settings, label: 'Settings' },
   { path: '/admin', icon: BarChart3, label: 'Admin Dashboard' },
+  { path: '/knowledge-analytics', icon: Database, label: 'Knowledge Metrics' },
 ]
 
 export default function Sidebar() {
@@ -123,7 +124,7 @@ export default function Sidebar() {
         {/* Version */}
         {!sidebarCollapsed && (
           <div className="text-center">
-            <span className="text-xs text-slate-600">v3.18</span>
+            <span className="text-xs text-slate-600">v3.25</span>
           </div>
         )}
       </div>
