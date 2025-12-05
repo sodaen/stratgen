@@ -23,7 +23,7 @@ class ApiService {
   }
 
   async getAgentStatus() {
-    return this.request<any>('/agent/v3/status')
+    return this.request<any>('/orchestrator/status')
   }
 
   async getWorkersStatus() {
