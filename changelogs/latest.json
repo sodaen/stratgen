@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251205-002108",
+  "created_utc": "20251205-002708",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "2c71310",
+    "commit": "7ed05c4",
     "branch": "staging"
   },
   "files": [
@@ -2600,9 +2600,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9356256,
-      "mtime": 1764894041,
-      "sha256": "a7b53a4c08873d0b1e377e2bf5767145183d70fe82daaa027c13d7cf440f7b68"
+      "size": 9356668,
+      "mtime": 1764894401,
+      "sha256": "d8c57e8450a97f714ca69a839ee7e419354db82c0022e377d14898e5db380f6a"
     },
     {
       "path": "COMMANDS.md",
@@ -11900,9 +11900,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3289204,
-      "mtime": 1764893724,
-      "sha256": "de6e7db34b3c115bf6bae7de416bc1d49af6db631d336a21a1ac70b87678c291"
+      "size": 3289409,
+      "mtime": 1764894084,
+      "sha256": "2584736cffe622ccca76035a282022036bf46f3bd8ebfcb771e94bd7e43d12f5"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -21179,6 +21179,12 @@
       "size": 3289204,
       "mtime": 1764893724,
       "sha256": "de6e7db34b3c115bf6bae7de416bc1d49af6db631d336a21a1ac70b87678c291"
+    },
+    {
+      "path": "changelogs/snapshots/20251205-002108.json",
+      "size": 3289409,
+      "mtime": 1764894084,
+      "sha256": "2584736cffe622ccca76035a282022036bf46f3bd8ebfcb771e94bd7e43d12f5"
     },
     {
       "path": "config/datasources.yml",
@@ -88789,6 +88795,12 @@
       "sha256": "5013278ae1f49333eb730cd3a3bdff6dd1a93650c8e0ebb2a6ba7a22f0e4a0b0"
     },
     {
+      "path": "services/__pycache__/data_services.cpython-312.pyc",
+      "size": 12880,
+      "mtime": 1764894295,
+      "sha256": "ae9de1a0250416260e6b865fd49a792904316ee6052a0341f5f223862dacd6bd"
+    },
+    {
       "path": "services/__pycache__/datasource_store.cpython-312.pyc",
       "size": 3367,
       "mtime": 1764396904,
@@ -89147,6 +89159,12 @@
       "size": 4968,
       "mtime": 1762115223,
       "sha256": "12b734e6bef7f97a7964450b02465f250ac58cd0859aff0e3d3f50bdaedb3523"
+    },
+    {
+      "path": "services/data_services.py",
+      "size": 10813,
+      "mtime": 1764894293,
+      "sha256": "74118b804842fd37bb003d1bbf7e142f5af5e1bcece29dd1bab95c1344eb0efa"
     },
     {
       "path": "services/data_sources.py",
