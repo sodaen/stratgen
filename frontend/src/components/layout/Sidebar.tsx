@@ -123,7 +123,7 @@ export default function Sidebar() {
         {/* Version */}
         {!sidebarCollapsed && (
           <div className="text-center">
-            <span className="text-xs text-slate-600">v3.8</span>
+            <span className="text-xs text-slate-600">v3.18</span>
           </div>
         )}
       </div>
