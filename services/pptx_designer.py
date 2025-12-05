@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from pptx import Presentation
 from pptx.util import Inches, Pt
-from pptx.dml.color import RgbColor
+from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import nsmap
@@ -94,7 +94,7 @@ class PPTXDesigner:
     def _hex_to_rgb(self, hex_color: str) -> RgbColor:
         """Konvertiert Hex zu RGB."""
         hex_color = hex_color.lstrip('#')
-        return RgbColor(
+        return RGBColor(
             int(hex_color[0:2], 16),
             int(hex_color[2:4], 16),
             int(hex_color[4:6], 16)
