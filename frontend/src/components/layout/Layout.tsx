@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
           redis: workersStatus?.celery_available ?? false,
           celery: (workersStatus?.worker_count ?? 0) > 0,
           servicesActive: Object.values(agentStatus?.services || {}).filter(Boolean).length,
-          servicesTotal: 14,
+          servicesTotal: 20,
         })
       } catch (error) {
         setSystemStatus({
@@ -50,7 +50,7 @@ export default function Layout({ children }: LayoutProps) {
           redis: false,
           celery: false,
           servicesActive: 0,
-          servicesTotal: 14,
+          servicesTotal: 20,
         })
       } finally {
         setLoading(false)
