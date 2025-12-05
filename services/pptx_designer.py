@@ -378,7 +378,7 @@ class PPTXDesigner:
         )
         tf = quote_mark.text_frame
         p = tf.paragraphs[0]
-        p.text = """
+        p.text = "\""
         p.font.size = Pt(120)
         p.font.color.rgb = self._hex_to_rgb(self.palette["accent"])
         
