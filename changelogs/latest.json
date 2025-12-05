@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251205-000508",
+  "created_utc": "20251205-001008",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "97619cf",
+    "commit": "7d88b2a",
     "branch": "staging"
   },
   "files": [
@@ -2600,9 +2600,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9354960,
-      "mtime": 1764893080,
-      "sha256": "a5454d9bad00e8513da98d03fa1af0a758062d977c5389e8cb31bb20fffa4f11"
+      "size": 9355453,
+      "mtime": 1764893380,
+      "sha256": "59a7d4a89f55925c892dcb139ad3432e32e6e10c7adee12a045aeebc6ee3b84f"
     },
     {
       "path": "COMMANDS.md",
@@ -10154,9 +10154,9 @@
     },
     {
       "path": "backend/__pycache__/admin_metrics_api.cpython-312.pyc",
-      "size": 11896,
-      "mtime": 1764859958,
-      "sha256": "7c30b582f20aa714eb3bf08538bd13289fe903671d63a7294559226e14cf928f"
+      "size": 29650,
+      "mtime": 1764893333,
+      "sha256": "dfa88ff561a64d49f2f071da641e42f6023fc1ad2f1f4bfabd97c56befa505c7"
     },
     {
       "path": "backend/__pycache__/agent_autotune_api.cpython-312.pyc",
@@ -10610,9 +10610,9 @@
     },
     {
       "path": "backend/admin_metrics_api.py",
-      "size": 9036,
-      "mtime": 1764859956,
-      "sha256": "8ca5778ac9a49f5751ee45a73f9fa6243269cdd96cb82a007035ad2d30d8e5d5"
+      "size": 22484,
+      "mtime": 1764893296,
+      "sha256": "bd11e994cb7669771d5c2eeffdf7d9b090ef48ee620b8ee837099ff9d39c0b84"
     },
     {
       "path": "backend/agent_api.py.disabled",
@@ -11900,9 +11900,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3286928,
-      "mtime": 1764892764,
-      "sha256": "7b46efd6f62abed4caaf7b625711d195321696d9696212c5688ebf452bf0d859"
+      "size": 3287133,
+      "mtime": 1764893124,
+      "sha256": "35e54d26a63b2018c6159becaad6d46e95153f4015bc7d78e3a1e8f6143a9956"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -21163,6 +21163,12 @@
       "sha256": "7b46efd6f62abed4caaf7b625711d195321696d9696212c5688ebf452bf0d859"
     },
     {
+      "path": "changelogs/snapshots/20251205-000508.json",
+      "size": 3287133,
+      "mtime": 1764893124,
+      "sha256": "35e54d26a63b2018c6159becaad6d46e95153f4015bc7d78e3a1e8f6143a9956"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -22235,6 +22241,12 @@
       "size": 23651,
       "mtime": 1762004810,
       "sha256": "c62fa7176bbe8135728a59a6aea558a8cd11988e07afeb419316e7062c59ddcb"
+    },
+    {
+      "path": "data/metrics/admin_metrics.db",
+      "size": 36864,
+      "mtime": 1764893333,
+      "sha256": "4187c18fe11614fa48f39cc4aa349c4f2f69b31f8767e0c4c49f78cc0defe3e1"
     },
     {
       "path": "data/metrics/system_metrics.json",
@@ -27224,206 +27236,242 @@
     },
     {
       "path": "frontend/node_modules/.vite/deps/_metadata.json",
-      "size": 2542,
-      "mtime": 1764599085,
-      "sha256": "0e95bbba8132fc3e195d8491f087bc3ddb7a86edd4a9629e4f1680c2df2896db"
+      "size": 2828,
+      "mtime": 1764893324,
+      "sha256": "870fb913d6e2fdfa3a06df69f7f800fe2279b11fd8fa1686746c14da4c1aab1f"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/chunk-63ILDAJJ.js",
+      "size": 33797,
+      "mtime": 1764893324,
+      "sha256": "a03c27d2444fdfb00f332bf3ebc521ed58b881991bc91f8c014841e0171afcf0"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/chunk-63ILDAJJ.js.map",
+      "size": 54859,
+      "mtime": 1764893324,
+      "sha256": "9bc40b5aee8622d10b72d859ee239fd7a75a15e19005700c8f07ae45fa53c78a"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-GKJBSOWT.js",
       "size": 928027,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "7b61ea583c1c544dfa973b676789ec37c9e82f2e26df8ebaa445b496ad163c91"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-GKJBSOWT.js.map",
       "size": 1492548,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "705430c9d0d247622a005ddba0505d92d3bf3eeea9faef32e52ad434af6f590c"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-QJTFJ6OV.js",
       "size": 77784,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "67b5d2991d066c32b5522de756fb27ade1de2bdc71e2f98d6a753c002e7fecc9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-QJTFJ6OV.js.map",
       "size": 125603,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "f5d0c19a14f5d1dff300a368f32020726a9ad0260d1ffba7429f98b1dff8799b"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/chunk-U7P2NEEE.js",
+      "size": 626,
+      "mtime": 1764893324,
+      "sha256": "43389e3772ba47861f225b161fca8dfde50b6caa258aaf5a0a0c5d2160ca7fb6"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/chunk-U7P2NEEE.js.map",
+      "size": 1046,
+      "mtime": 1764893324,
+      "sha256": "cec8e0eac9dbcfaecffd5c795334cf9c6368d6901e2932d3f27130a240515870"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-V4OQ3NZ2.js",
       "size": 1776,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "f201d18504f601026e7092d6242b56629a972947f87604b08da2159ad74639c5"
     },
     {
       "path": "frontend/node_modules/.vite/deps/chunk-V4OQ3NZ2.js.map",
       "size": 93,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/clsx.js",
-      "size": 657,
-      "mtime": 1764599085,
-      "sha256": "fae190ac24cd6fbb8db451119cba3affa6a89b9e9fbb608de50e010aee0ae8fc"
+      "size": 171,
+      "mtime": 1764893324,
+      "sha256": "97089889a9b691f9aae1ad87c8cf359e7a478dce539a470491e948e651bae518"
     },
     {
       "path": "frontend/node_modules/.vite/deps/clsx.js.map",
-      "size": 1048,
-      "mtime": 1764599085,
-      "sha256": "cd1268f9e43ccc2fbad1876d2d3a8570ad0807a52462e4e439d9bc82a22a2e84"
+      "size": 93,
+      "mtime": 1764893324,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/framer-motion.js",
       "size": 321488,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "c85a66b40657b6d4b5303860727d33544fd57535cafcc30c04b55e26e94ebdf8"
     },
     {
       "path": "frontend/node_modules/.vite/deps/framer-motion.js.map",
       "size": 717802,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "9ef4d7920518b65be2a236d3f9722f88fafaf4ae763209669c984d2544a13233"
     },
     {
       "path": "frontend/node_modules/.vite/deps/lucide-react.js",
       "size": 960185,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "e117ba074dc0ca06bfebc8af3a7739c770ebe5f0327ebdad182c246ab1d03981"
     },
     {
       "path": "frontend/node_modules/.vite/deps/lucide-react.js.map",
       "size": 2316613,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "456a1b9397fb4fbfd18e29611641c4b48e7003c3354ec8444ab3a9c060d1fc8d"
     },
     {
       "path": "frontend/node_modules/.vite/deps/package.json",
       "size": 23,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "3ca9d4afd21425087cf31893b8f9f63c81b0b8408db5e343ca76e5f8aa26ab9a"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dom.js",
       "size": 193,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "fea3f8b297ad4a8ea912a17ec3ca1171eb4d1e03d853987a9cd8fceb3d8b6572"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dom.js.map",
       "size": 93,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dom_client.js",
       "size": 1016,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "72825aab7ee3672930ed2dd12dd150a6641e4db4705759841a7d94000750db2f"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dom_client.js.map",
       "size": 1213,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "87a72a755115c22ca831a58d5ce011a816f41322c730a421c53ac1814db598b5"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dropzone.js",
-      "size": 125791,
-      "mtime": 1764599085,
-      "sha256": "01fcc672bfa9019250e41322a9d858f3773a1ac5ac6c891f790cbf70e5b8c002"
+      "size": 92181,
+      "mtime": 1764893324,
+      "sha256": "0e12a88c3b01f54b87c4a910c24a6d4e18ab0945c2ac364f40576edf8cf5bcef"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-dropzone.js.map",
-      "size": 242238,
-      "mtime": 1764599085,
-      "sha256": "f1e9eeb58259d0232d49da7dd017dd4adee22d07ad857568c5e06f8b41e90229"
+      "size": 187458,
+      "mtime": 1764893324,
+      "sha256": "1c88107d590273529bf8d4c69726acb5a3812354a2156b6a65e7a32e9d2c3ec1"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-router-dom.js",
       "size": 209307,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "8fe8f8b44d62c1ff215d1856b26b318c619fa7ee5fcbedc11413e8aa0fadea48"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react-router-dom.js.map",
       "size": 579603,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "b65d77263df36163cd930094fd6a536aebc3695e690bd79b74224c0d19743fe5"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react.js",
       "size": 151,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "86b345b1377ace9e6a7577954f29d6f6e5ab2a778505beb5e2318a920910795f"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react.js.map",
       "size": 93,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js",
       "size": 36967,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "a3a5c53a4ee8e18fb0124eda871ad91db42bf2eebf190a07b4568b2bac69cfa0"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js.map",
       "size": 61084,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "e87f9b85831c866a248f9bfb4a88f296c67c074b2b395b98e25aaf03cceb6f8b"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react_jsx-runtime.js",
       "size": 37306,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "525b94e6656824786959e8ee5258edabd13e896d3ec097c10e1d110d2a0e8e82"
     },
     {
       "path": "frontend/node_modules/.vite/deps/react_jsx-runtime.js.map",
       "size": 61911,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "a4f9e1af56cfc0cf64e8f3cad84c8069c6c0a22b87efd95866d679afa0a708b6"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/recharts.js",
+      "size": 1223990,
+      "mtime": 1764893324,
+      "sha256": "25fc5079a404c13ba4fde22f6ed590382df7f3f7028d6db2f540dc5789c16224"
+    },
+    {
+      "path": "frontend/node_modules/.vite/deps/recharts.js.map",
+      "size": 2333155,
+      "mtime": 1764893324,
+      "sha256": "2e418d7aee4c3920496607eafa218ee316804c853c87eeaaf7cde87e48ed8307"
     },
     {
       "path": "frontend/node_modules/.vite/deps/tailwind-merge.js",
       "size": 72609,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "796de6850bfb0f1f5df2e263b6a19e15b09492c57233a48e884d1103a2909eef"
     },
     {
       "path": "frontend/node_modules/.vite/deps/tailwind-merge.js.map",
       "size": 130650,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "5d2a1c3f4b3281fb54541866478672a6fd34cc066ff9c1b02067213a38689ebe"
     },
     {
       "path": "frontend/node_modules/.vite/deps/zustand.js",
       "size": 11641,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "7984622b38696b56fb226cfaf48fba67196a495388c127f86396703c5bdb11a9"
     },
     {
       "path": "frontend/node_modules/.vite/deps/zustand.js.map",
       "size": 17052,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "7bf23e2063da8eb7edc87100b4f9e5c9e4c00c164ed8bed208a2fa3ff27d61ca"
     },
     {
       "path": "frontend/node_modules/.vite/deps/zustand_middleware.js",
       "size": 18993,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "4ae07e8810eae07bc9ee14748ca649a05e8faa2b621bb3c8e69eb0a6846428ae"
     },
     {
       "path": "frontend/node_modules/.vite/deps/zustand_middleware.js.map",
       "size": 31689,
-      "mtime": 1764599085,
+      "mtime": 1764893324,
       "sha256": "76158eb4b11663f39b900b48f690623d422c97b91279f6216cb2f5bbc8c4385b"
     },
     {
@@ -86390,9 +86438,9 @@
     },
     {
       "path": "frontend/src/App.tsx",
-      "size": 1594,
-      "mtime": 1764853219,
-      "sha256": "6ab79fc5842698bd64a4f45f34f7fd46536eb50cbad04cf55cbb1a5cd9f90894"
+      "size": 1711,
+      "mtime": 1764893324,
+      "sha256": "7cf66e533b3c3c1197fdec7a5c3595f6218332120a043732382829c04f62aae1"
     },
     {
       "path": "frontend/src/components/AdminDashboard.tsx",
@@ -86444,9 +86492,9 @@
     },
     {
       "path": "frontend/src/components/layout/Sidebar.tsx",
-      "size": 4435,
-      "mtime": 1764856691,
-      "sha256": "2402a44ac5f3477de6d2aa5a8122183f1a054d70d95a62e6a96fda114542d6cf"
+      "size": 4500,
+      "mtime": 1764893324,
+      "sha256": "fa1518fc6c7e4481a5f159e69bf1e1a25ec89bdc19338a2e035c8c0c3e401db9"
     },
     {
       "path": "frontend/src/index.css",
@@ -86459,6 +86507,12 @@
       "size": 324,
       "mtime": 1764596303,
       "sha256": "e664850672adad34ab029e8c7533bc5696cd47408f9cc68bc4c27ff7389ee01d"
+    },
+    {
+      "path": "frontend/src/pages/AdminDashboard.tsx",
+      "size": 21205,
+      "mtime": 1764893313,
+      "sha256": "b09259b98902912bb9f85a0770799003f2254a8aedb5040cce217ce9466e55f6"
     },
     {
       "path": "frontend/src/pages/Dashboard.tsx",
