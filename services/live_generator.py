@@ -283,6 +283,28 @@ class GenerationSession:
 # LIVE GENERATOR
 # ============================================
 
+
+def _log_generation_metrics(session_id: str, slides_count: int, duration_ms: float, 
+                            quality_score: float = None, briefing_score: float = None):
+    """Loggt Generation-Metriken für Analytics."""
+    try:
+        import httpx
+        httpx.post(
+            "http://localhost:8011/admin/metrics/generation/log",
+            json={
+                "session_id": session_id,
+                "event_type": "generation",
+                "slides_count": slides_count,
+                "duration_ms": int(duration_ms),
+                "quality_score": quality_score,
+                "briefing_score": briefing_score
+            },
+            timeout=2.0
+        )
+    except:
+        pass
+
+
 class LiveGenerator:
     """
     Der Haupt-Generator für Live-Slide-Generierung.
