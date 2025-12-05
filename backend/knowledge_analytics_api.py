@@ -157,7 +157,7 @@ class MetricsHistory:
     
     def get_feedback(self, hours: int = 168) -> List[dict]:
         cutoff = int(time.time()) - (hours * 3600)
-        return [f for f in self.data["feedback"] if f.get("epoch", 0) > cutoff]
+        return [f for f in self.data.get("feedback", []) if f.get("epoch", 0) > cutoff]
 
 
 # Singleton
@@ -615,93 +615,108 @@ async def dashboard_quality():
 @router.get("/dashboard/learning")
 async def dashboard_learning(hours: int = 168):
     """Dashboard 6: Self-Learning."""
-    from qdrant_client import QdrantClient
-    
-    client = QdrantClient(host="localhost", port=6333)
-    
-    # Generated Outputs Collection
     try:
-        gen_info = client.get_collection("generated_outputs")
-        generated_count = gen_info.points_count
-    except:
-        generated_count = 0
-    
-    # Feedback Scores
-    feedback = history.get_feedback(hours=hours)
-    
-    if feedback:
-        scores = [f["score"] for f in feedback]
-        feedback_stats = {
-            "total": len(feedback),
-            "avg_score": round(statistics.mean(scores), 2),
-            "positive": sum(1 for s in scores if s >= 4),
-            "negative": sum(1 for s in scores if s <= 2),
-            "neutral": sum(1 for s in scores if 2 < s < 4)
-        }
+        from qdrant_client import QdrantClient
         
-        # Distribution
-        score_dist = Counter(scores)
-        feedback_distribution = [
-            {"score": k, "count": v}
-            for k, v in sorted(score_dist.items())
-        ]
-    else:
-        feedback_stats = {"total": 0, "avg_score": 0, "positive": 0, "negative": 0, "neutral": 0}
-        feedback_distribution = []
-    
-    # Learning Trend (täglich)
-    daily_feedback = defaultdict(list)
-    for f in feedback:
-        day = f["ts"][:10]
-        daily_feedback[day].append(f["score"])
-    
-    learning_trend = [
-        {
-            "date": day,
-            "avg_score": round(statistics.mean(scores), 2),
-            "count": len(scores)
-        }
-        for day, scores in sorted(daily_feedback.items())
-    ]
-    
-    # Best Performing Templates (from design_templates)
-    try:
-        templates = client.scroll(
-            collection_name="design_templates",
-            limit=200,
-            with_payload=True,
-            with_vectors=False
-        )[0]
+        client = QdrantClient(host="localhost", port=6333)
         
-        template_scores = defaultdict(list)
-        for t in templates:
-            if t.payload:
-                source = t.payload.get("source_file", "unknown")
-                score = t.payload.get("quality_score", 0.5)
-                template_scores[source].append(score)
+        # Generated Outputs Collection
+        try:
+            gen_info = client.get_collection("generated_outputs")
+            generated_count = gen_info.points_count
+        except:
+            generated_count = 0
         
-        best_templates = sorted([
-            {
-                "template": source,
-                "avg_score": round(statistics.mean(scores), 3),
-                "chunks": len(scores)
+        # Feedback Scores
+        feedback = history.get_feedback(hours=hours)
+        
+        if feedback:
+            scores = [f["score"] for f in feedback]
+            feedback_stats = {
+                "total": len(feedback),
+                "avg_score": round(statistics.mean(scores), 2) if scores else 0,
+                "positive": sum(1 for s in scores if s >= 4),
+                "negative": sum(1 for s in scores if s <= 2),
+                "neutral": sum(1 for s in scores if 2 < s < 4)
             }
-            for source, scores in template_scores.items()
-        ], key=lambda x: x["avg_score"], reverse=True)[:10]
-    except:
+            
+            # Distribution
+            score_dist = Counter(scores)
+            feedback_distribution = [
+                {"score": k, "count": v}
+                for k, v in sorted(score_dist.items())
+            ]
+        else:
+            feedback_stats = {"total": 0, "avg_score": 0, "positive": 0, "negative": 0, "neutral": 0}
+            feedback_distribution = []
+        
+        # Learning Trend (täglich)
+        daily_feedback = defaultdict(list)
+        for f in feedback:
+            day = f["ts"][:10]
+            daily_feedback[day].append(f["score"])
+        
+        learning_trend = [
+            {
+                "date": day,
+                "avg_score": round(statistics.mean(day_scores), 2) if day_scores else 0,
+                "count": len(day_scores)
+            }
+            for day, day_scores in sorted(daily_feedback.items())
+        ]
+        
+        # Best Performing Templates (from design_templates)
         best_templates = []
-    
-    return {
-        "ok": True,
-        "generated_outputs": {
-            "total": generated_count,
-            "indexed_for_learning": generated_count
-        },
-        "feedback_stats": feedback_stats,
-        "feedback_distribution": feedback_distribution,
-        "learning_trend": learning_trend,
-        "best_templates": best_templates
-    }
+        try:
+            templates = client.scroll(
+                collection_name="design_templates",
+                limit=200,
+                with_payload=True,
+                with_vectors=False
+            )[0]
+            
+            template_scores = defaultdict(list)
+            for t in templates:
+                if t.payload:
+                    source = t.payload.get("source_file", t.payload.get("source", "unknown"))
+                    score = t.payload.get("quality_score", 0.5)
+                    template_scores[source].append(score)
+            
+            best_templates = sorted([
+                {
+                    "template": source,
+                    "avg_score": round(statistics.mean(tscores), 3) if tscores else 0,
+                    "chunks": len(tscores)
+                }
+                for source, tscores in template_scores.items()
+            ], key=lambda x: x["avg_score"], reverse=True)[:10]
+        except Exception as e:
+            print(f"Template fetch error: {e}")
+            best_templates = []
+        
+        return {
+            "ok": True,
+            "generated_outputs": {
+                "total": generated_count,
+                "indexed_for_learning": generated_count
+            },
+            "feedback_stats": feedback_stats,
+            "feedback_distribution": feedback_distribution,
+            "learning_trend": learning_trend,
+            "best_templates": best_templates
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {
+            "ok": False,
+            "error": str(e),
+            "generated_outputs": {"total": 0, "indexed_for_learning": 0},
+            "feedback_stats": {"total": 0, "avg_score": 0, "positive": 0, "negative": 0, "neutral": 0},
+            "feedback_distribution": [],
+            "learning_trend": [],
+            "best_templates": []
+        }
 
 
 # ============================================================
