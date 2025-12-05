@@ -5,6 +5,7 @@ Kostenlose externe Datenquellen für reichhaltigere Präsentationen.
 
 import httpx
 import logging
+from urllib.parse import quote
 from typing import Dict, Any, List, Optional
 from functools import lru_cache
 import json
@@ -286,8 +287,8 @@ def get_news_rss(topic: str, source: str = "google") -> List[Dict]:
         import feedparser
         
         feeds = {
-            "google": f"https://news.google.com/rss/search?q={topic}&hl=de&gl=DE&ceid=DE:de",
-            "bing": f"https://www.bing.com/news/search?q={topic}&format=rss",
+            "google": f"https://news.google.com/rss/search?q={quote(topic)}&hl=de&gl=DE&ceid=DE:de",
+            "bing": f"https://www.bing.com/news/search?q={quote(topic)}&format=rss",
         }
         
         url = feeds.get(source, feeds["google"])
