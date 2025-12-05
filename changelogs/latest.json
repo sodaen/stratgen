@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251205-225508",
+  "created_utc": "20251205-230008",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "db8cd57",
+    "commit": "759b93d",
     "branch": "staging"
   },
   "files": [
@@ -4316,9 +4316,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9438341,
-      "mtime": 1764975291,
-      "sha256": "30d0a8f37f403dd95a8338f2709b8846778a4d157ec12bc190aa5d5ae9e4a826"
+      "size": 9438732,
+      "mtime": 1764975591,
+      "sha256": "dd4a3d31301e4a26642962d99f4c2c518100c00a2154b7849e7fb8180167728c"
     },
     {
       "path": "COMMANDS.md",
@@ -12452,9 +12452,9 @@
     },
     {
       "path": "backend/api.py",
-      "size": 26130,
-      "mtime": 1764956609,
-      "sha256": "d9ae169b448d3525cf9b839b3771909c002afb7f8921e88998945ada0df9f2b6"
+      "size": 26323,
+      "mtime": 1764975498,
+      "sha256": "698b4afb14b2be8fd5c3df04673747caf2f3e79a348d2c2851c806a426064620"
     },
     {
       "path": "backend/assets_api.py",
@@ -12647,6 +12647,12 @@
       "size": 15333,
       "mtime": 1764973039,
       "sha256": "bb9abbd28833c5057a55e09bc39e3a61d332fc7801510b5477afb7022846483b"
+    },
+    {
+      "path": "backend/knowledge_analytics_api.py",
+      "size": 10525,
+      "mtime": 1764975498,
+      "sha256": "26919d1acb028f992bbb6aec0702ce31f2e0ca0e5260182beaba71fe9a316011"
     },
     {
       "path": "backend/knowledge_answer_api.py",
@@ -13664,9 +13670,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3420812,
-      "mtime": 1764975027,
-      "sha256": "76389a478efee24753bb35ec426fdf6a8fdaec0893649220ffa3e022136236fd"
+      "size": 3421017,
+      "mtime": 1764975327,
+      "sha256": "6620b091baf90cef5c3770821e961e9cbebc8b2dcf7b15f8dc949432a8413690"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -24323,6 +24329,12 @@
       "size": 3420812,
       "mtime": 1764975027,
       "sha256": "76389a478efee24753bb35ec426fdf6a8fdaec0893649220ffa3e022136236fd"
+    },
+    {
+      "path": "changelogs/snapshots/20251205-225508.json",
+      "size": 3421017,
+      "mtime": 1764975327,
+      "sha256": "6620b091baf90cef5c3770821e961e9cbebc8b2dcf7b15f8dc949432a8413690"
     },
     {
       "path": "config/datasources.yml",

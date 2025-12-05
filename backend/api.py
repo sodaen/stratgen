@@ -301,6 +301,12 @@ try:
 except Exception as e:
     log.warning(f"knowledge_admin_api failed: {e}")
 
+# Knowledge Analytics API
+try:
+    from backend import knowledge_analytics_api
+    app.include_router(knowledge_analytics_api.router)
+    log.info("knowledge_analytics_api router registered")
+
 # nach allen include_router()-Aufrufen ausführen
 try:
     _install_preview_overrides(app)
