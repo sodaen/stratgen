@@ -96,7 +96,7 @@ class UnifiedKnowledge:
             try:
                 vec = self._embedder.encode(query).tolist()
                 hits = self._qdrant.search(
-                    collection_name="stratgen_docs",
+                    collection_name="knowledge_base",
                     query_vector=vec,
                     limit=limit
                 )
@@ -222,7 +222,7 @@ class UnifiedKnowledge:
         # Text-Indexierung
         try:
             entry = {"path": str(path), "type": "file", "source": str(path)}
-            ingest_result = ingest_entry("stratgen_docs", entry)
+            ingest_result = ingest_entry("knowledge_base", entry)
             result["text_chunks"] = ingest_result.get("count", 0)
             result["ok"] = ingest_result.get("ok", False)
         except Exception as e:
@@ -258,7 +258,7 @@ class UnifiedKnowledge:
         # Qdrant Stats
         if self._qdrant:
             try:
-                for coll in ["stratgen_docs", "strategies"]:
+                for coll in ["knowledge_base", "strategies"]:
                     info = self._qdrant.get_collection(coll)
                     stats["collections"][coll] = {
                         "points": info.points_count,

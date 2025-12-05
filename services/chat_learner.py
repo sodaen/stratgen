@@ -84,7 +84,7 @@ def _index_positive_feedback(query: str, answer: str):
             "type": "file",
             "source": "chat_feedback"
         }
-        result = ingest_entry("stratgen_docs", entry)
+        result = ingest_entry("knowledge_base", entry)
         
         # Lösche temp file
         temp_file.unlink(missing_ok=True)

@@ -218,7 +218,7 @@ try:
 except Exception:
     # Fallback: späte Bindung in Wrappern
     get_qdrant = None
-    COLL = "stratgen_docs"
+    COLL = "knowledge_base"
 
 # --- Text-Normalisierung & Hash ------------------------------------------------
 def _dq_normalize_text(txt: str) -> str:
