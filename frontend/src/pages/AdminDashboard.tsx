@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
   Activity, Cpu, HardDrive, Database, Server, Clock,
-  TrendingUp, TrendingDown, Zap, Brain, Users, FileText,
-  AlertTriangle, CheckCircle, XCircle, RefreshCw, BarChart3,
-  Layers, MessageSquare, BookOpen, GitBranch
+  TrendingUp, Zap, Brain, FileText, RefreshCw, BarChart3,
+  Layers, MessageSquare, BookOpen, GitBranch, CheckCircle,
+  XCircle, Globe, Newspaper, Image, QrCode, Eye
 } from 'lucide-react'
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar,
+  AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, RadarChart, Radar, PolarGrid,
-  PolarAngleAxis, PolarRadiusAxis
+  PieChart, Pie, Cell
 } from 'recharts'
 
 interface DashboardData {
@@ -20,6 +19,7 @@ interface DashboardData {
   generation: any
   learning: any
   history: any[]
+  sources?: any
 }
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
@@ -29,14 +29,26 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
+  const [dataServices, setDataServices] = useState<any>(null)
+  const [sourcesMetrics, setSourcesMetrics] = useState<any>(null)
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/metrics/dashboard')
-      const json = await res.json()
-      if (json.ok) {
-        setData(json)
+      const [dashboardRes, dataServicesRes, sourcesRes] = await Promise.all([
+        fetch('/api/admin/metrics/dashboard').then(r => r.json()).catch(() => null),
+        fetch('/api/generator/v2/sources/status').then(r => r.json()).catch(() => null),
+        fetch('/api/admin/metrics/sources').then(r => r.json()).catch(() => null)
+      ])
+      
+      if (dashboardRes?.ok) {
+        setData(dashboardRes)
         setLastUpdate(new Date())
+      }
+      if (dataServicesRes?.ok) {
+        setDataServices(dataServicesRes.services)
+      }
+      if (sourcesRes?.ok) {
+        setSourcesMetrics(sourcesRes)
       }
     } catch (e) {
       console.error('Failed to fetch metrics:', e)
@@ -47,16 +59,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchData()
     if (autoRefresh) {
-      const interval = setInterval(fetchData, 30000) // 30s refresh
+      const interval = setInterval(fetchData, 30000)
       return () => clearInterval(interval)
     }
   }, [fetchData, autoRefresh])
 
-  // Format helpers
-  const formatBytes = (gb: number) => `${gb.toFixed(1)} GB`
-  const formatPercent = (p: number) => `${p.toFixed(1)}%`
-  const formatMs = (ms: number) => `${ms.toFixed(0)}ms`
-  const formatNumber = (n: number) => n?.toLocaleString() || '0'
+  const formatBytes = (gb: number) => `${gb?.toFixed(1) || 0} GB`
 
   // Gauge component
   const Gauge = ({ value, max = 100, color, label }: any) => {
@@ -80,36 +88,37 @@ export default function AdminDashboard() {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-white">{value.toFixed(0)}%</span>
+          <span className="text-lg font-bold text-white">{value?.toFixed(0) || 0}%</span>
           <span className="text-xs text-gray-400">{label}</span>
         </div>
       </div>
     )
   }
 
-  // Service status badge
-  const ServiceBadge = ({ name, status, details }: any) => {
-    const isOnline = status === 'online'
+  // Service badge
+  const ServiceBadge = ({ name, status, icon: Icon, details }: any) => {
+    const isOnline = status === 'online' || status === true
     return (
       <div className={`flex items-center gap-3 p-3 rounded-lg border ${
         isOnline ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'
       }`}>
         <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
+        <Icon className="w-4 h-4 text-gray-400" />
         <div className="flex-1">
-          <div className="font-medium text-white">{name}</div>
-          <div className="text-xs text-gray-400">{details}</div>
+          <div className="font-medium text-white text-sm">{name}</div>
+          {details && <div className="text-xs text-gray-400">{details}</div>}
         </div>
         {isOnline ? (
-          <CheckCircle className="w-5 h-5 text-green-500" />
+          <CheckCircle className="w-4 h-4 text-green-500" />
         ) : (
-          <XCircle className="w-5 h-5 text-red-500" />
+          <XCircle className="w-4 h-4 text-red-500" />
         )}
       </div>
     )
   }
 
   // Stat card
-  const StatCard = ({ icon: Icon, label, value, subValue, trend, color = 'blue' }: any) => (
+  const StatCard = ({ icon: Icon, label, value, subValue, color = 'blue' }: any) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -119,12 +128,6 @@ export default function AdminDashboard() {
         <div className={`p-2 rounded-lg bg-${color}-500/10`}>
           <Icon className={`w-5 h-5 text-${color}-500`} />
         </div>
-        {trend !== undefined && (
-          <div className={`flex items-center gap-1 text-xs ${trend >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {Math.abs(trend)}%
-          </div>
-        )}
       </div>
       <div className="mt-3">
         <div className="text-2xl font-bold text-white">{value}</div>
@@ -134,7 +137,7 @@ export default function AdminDashboard() {
     </motion.div>
   )
 
-  // Custom tooltip for charts
+  // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null
     return (
@@ -164,23 +167,27 @@ export default function AdminDashboard() {
   const learn = data?.learning || {}
   const history = data?.history || []
 
-  // Prepare chart data
+  // Chart data
   const historyData = history.map((h: any) => ({
     time: new Date(h.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
     cpu: h.cpu,
     memory: h.memory,
-    api_ms: h.api_ms > 0 ? h.api_ms : null
   }))
 
-  const knowledgeDistribution = Object.entries(know?.corpus?.collections || {}).map(([name, info]: any) => ({
-    name: name.replace('stratgen_', ''),
-    value: info.points
-  }))
+  // Sources distribution
+  const sourcesData = sourcesMetrics?.by_type ? Object.entries(sourcesMetrics.by_type).map(([name, value]: any) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    value
+  })) : []
 
-  const feedbackData = learn?.feedback ? [
-    { name: 'Positiv', value: learn.feedback.positive, color: '#10B981' },
-    { name: 'Neutral', value: learn.feedback.neutral, color: '#F59E0B' },
-    { name: 'Negativ', value: learn.feedback.negative, color: '#EF4444' }
+  // Data services for display
+  const dataServicesList = dataServices ? [
+    { name: 'Wikipedia', key: 'wikipedia', icon: BookOpen },
+    { name: 'News RSS', key: 'news_rss', icon: Newspaper },
+    { name: 'Google Trends', key: 'google_trends', icon: TrendingUp },
+    { name: 'World Bank', key: 'world_bank', icon: Globe },
+    { name: 'Unsplash', key: 'unsplash', icon: Image },
+    { name: 'QR Code', key: 'qr_code', icon: QrCode },
   ] : []
 
   return (
@@ -193,7 +200,7 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            System-Metriken, Quality Scores & Analytics
+            System-Metriken, Quellen-Analytics & Telemetrie
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -204,7 +211,7 @@ export default function AdminDashboard() {
               onChange={(e) => setAutoRefresh(e.target.checked)}
               className="rounded bg-dark-bg border-dark-border"
             />
-            Auto-Refresh
+            Auto-Refresh (30s)
           </label>
           <button
             onClick={fetchData}
@@ -215,7 +222,7 @@ export default function AdminDashboard() {
           </button>
           {lastUpdate && (
             <span className="text-xs text-gray-500">
-              Aktualisiert: {lastUpdate.toLocaleTimeString()}
+              {lastUpdate.toLocaleTimeString()}
             </span>
           )}
         </div>
@@ -230,8 +237,8 @@ export default function AdminDashboard() {
         >
           <Gauge value={sys?.cpu?.percent || 0} color="#3B82F6" label="CPU" />
           <div className="text-sm text-gray-400">
-            <div>{sys?.cpu?.cores} Cores</div>
-            <div>Load: {sys?.cpu?.load_1m?.toFixed(2)}</div>
+            <div>{sys?.cpu?.cores || 0} Cores</div>
+            <div>Load: {sys?.cpu?.load_1m?.toFixed(2) || 0}</div>
           </div>
         </motion.div>
 
@@ -277,50 +284,51 @@ export default function AdminDashboard() {
         >
           <Gauge value={(sys?.process?.memory_mb || 0) / 10} max={100} color="#8B5CF6" label="Process" />
           <div className="text-sm text-gray-400">
-            <div>{sys?.process?.memory_mb} MB</div>
-            <div>{sys?.process?.threads} Threads</div>
+            <div>{sys?.process?.memory_mb || 0} MB</div>
+            <div>{sys?.process?.threads || 0} Threads</div>
           </div>
         </motion.div>
       </div>
 
-      {/* Services Status */}
-      <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <Server className="w-5 h-5 text-blue-500" />
-          Service Status
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <ServiceBadge
-            name="API Server"
-            status={svc.api?.status}
-            details={svc.api?.response_ms ? `${svc.api.response_ms}ms` : 'Offline'}
-          />
-          <ServiceBadge
-            name="Ollama LLM"
-            status={svc.ollama?.status}
-            details={svc.ollama?.model_count ? `${svc.ollama.model_count} Models` : 'Offline'}
-          />
-          <ServiceBadge
-            name="Qdrant"
-            status={svc.qdrant?.status}
-            details={svc.qdrant?.total_points ? `${formatNumber(svc.qdrant.total_points)} Points` : 'Offline'}
-          />
-          <ServiceBadge
-            name="Redis"
-            status={svc.redis?.status}
-            details={svc.redis?.used_memory_mb ? `${svc.redis.used_memory_mb} MB` : 'Offline'}
-          />
-          <ServiceBadge
-            name="Celery"
-            status={svc.celery?.status}
-            details={svc.celery?.workers ? `${svc.celery.workers} Workers` : 'No workers'}
-          />
+      {/* Core Services + Data Services */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Core Services */}
+        <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Server className="w-5 h-5 text-blue-500" />
+            Core Services
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            <ServiceBadge name="API Server" status={svc.api?.status} icon={Server} details={svc.api?.response_ms ? `${svc.api.response_ms}ms` : ''} />
+            <ServiceBadge name="Ollama LLM" status={svc.ollama?.status} icon={Brain} details={svc.ollama?.model_count ? `${svc.ollama.model_count} Models` : ''} />
+            <ServiceBadge name="Qdrant" status={svc.qdrant?.status} icon={Database} details={svc.qdrant?.total_points ? `${svc.qdrant.total_points.toLocaleString()} Pts` : ''} />
+            <ServiceBadge name="Redis" status={svc.redis?.status} icon={Zap} details={svc.redis?.used_memory_mb ? `${svc.redis.used_memory_mb} MB` : ''} />
+          </div>
+        </div>
+
+        {/* Data Services */}
+        <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-green-500" />
+            Data Services (v3.18)
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {dataServicesList.map(ds => (
+              <ServiceBadge 
+                key={ds.key}
+                name={ds.name} 
+                status={dataServices?.[ds.key]?.available} 
+                icon={ds.icon}
+                details={dataServices?.[ds.key]?.note || ''}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* System History Chart */}
+        {/* System History */}
         <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Activity className="w-5 h-5 text-green-500" />
@@ -340,26 +348,26 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Knowledge Distribution */}
+        {/* Sources Distribution */}
         <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Database className="w-5 h-5 text-purple-500" />
-            Knowledge Verteilung
+            <BookOpen className="w-5 h-5 text-purple-500" />
+            Quellen-Nutzung
           </h2>
           <div className="h-64 flex items-center justify-center">
-            {knowledgeDistribution.length > 0 ? (
+            {sourcesData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={knowledgeDistribution}
+                    data={sourcesData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
+                    innerRadius={50}
+                    outerRadius={80}
                     dataKey="value"
-                    label={({ name, value }) => `${name}: ${formatNumber(value)}`}
+                    label={({ name, value }) => `${name}: ${value}`}
                   >
-                    {knowledgeDistribution.map((_, i) => (
+                    {sourcesData.map((_, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
@@ -367,54 +375,32 @@ export default function AdminDashboard() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-gray-500">Keine Daten</p>
+              <div className="text-center text-gray-500">
+                <BookOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>Noch keine Quellen-Daten</p>
+                <p className="text-xs">Generiere Präsentationen um Daten zu sammeln</p>
+              </div>
             )}
           </div>
+          {sourcesMetrics?.total_uses > 0 && (
+            <div className="mt-4 text-center text-sm text-gray-400">
+              Gesamt: {sourcesMetrics.total_uses} Quellen-Verwendungen
+            </div>
+          )}
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <StatCard
-          icon={Layers}
-          label="Knowledge Chunks"
-          value={formatNumber(know?.corpus?.total_chunks || 0)}
-          color="purple"
-        />
-        <StatCard
-          icon={FileText}
-          label="Sessions"
-          value={formatNumber(gen?.output?.total_sessions || 0)}
-          color="blue"
-        />
-        <StatCard
-          icon={GitBranch}
-          label="Slides generiert"
-          value={formatNumber(gen?.output?.total_slides || 0)}
-          color="green"
-        />
-        <StatCard
-          icon={BookOpen}
-          label="Templates"
-          value={formatNumber(learn?.templates?.learned || 0)}
-          color="yellow"
-        />
-        <StatCard
-          icon={MessageSquare}
-          label="Feedbacks"
-          value={formatNumber(learn?.feedback?.total || 0)}
-          subValue={`${learn?.feedback?.satisfaction_rate || 0}% positiv`}
-          color="pink"
-        />
-        <StatCard
-          icon={Zap}
-          label="Exports"
-          value={formatNumber(gen?.output?.exports || 0)}
-          color="orange"
-        />
+        <StatCard icon={Layers} label="Knowledge Chunks" value={(know?.corpus?.total_chunks || 0).toLocaleString()} color="purple" />
+        <StatCard icon={FileText} label="Sessions" value={(gen?.output?.total_sessions || 0).toLocaleString()} color="blue" />
+        <StatCard icon={GitBranch} label="Slides generiert" value={(gen?.output?.total_slides || 0).toLocaleString()} color="green" />
+        <StatCard icon={BookOpen} label="Templates" value={(learn?.templates?.learned || 0).toLocaleString()} color="yellow" />
+        <StatCard icon={MessageSquare} label="Feedbacks" value={(learn?.feedback?.total || 0).toLocaleString()} subValue={`${learn?.feedback?.satisfaction_rate || 0}% positiv`} color="pink" />
+        <StatCard icon={Zap} label="Exports" value={(gen?.output?.exports || 0).toLocaleString()} color="orange" />
       </div>
 
-      {/* Quality & Feedback Row */}
+      {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* RAG Quality */}
         <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
@@ -431,55 +417,16 @@ export default function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Hit-Rate (&gt;0.6)</span>
-              <span className="text-white font-bold">
-                {know?.retrieval?.hit_rate || 0}%
-              </span>
+              <span className="text-white font-bold">{know?.retrieval?.hit_rate || 0}%</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Ø Latenz</span>
-              <span className="text-white font-bold">
-                {know?.retrieval?.avg_latency_ms?.toFixed(0) || 0}ms
-              </span>
+              <span className="text-white font-bold">{know?.retrieval?.avg_latency_ms?.toFixed(0) || 0}ms</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Suchen (24h)</span>
-              <span className="text-white font-bold">
-                {know?.retrieval?.searches_24h || 0}
-              </span>
+              <span className="text-white font-bold">{know?.retrieval?.searches_24h || 0}</span>
             </div>
-          </div>
-        </div>
-
-        {/* Feedback Distribution */}
-        <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-pink-500" />
-            Feedback Verteilung
-          </h2>
-          <div className="h-48">
-            {feedbackData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={feedbackData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
-                    dataKey="value"
-                  >
-                    {feedbackData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                Noch keine Feedbacks
-              </div>
-            )}
           </div>
         </div>
 
@@ -492,15 +439,11 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Ø Slides/Session</span>
-              <span className="text-white font-bold text-xl">
-                {gen?.output?.avg_slides_per_session || 0}
-              </span>
+              <span className="text-white font-bold text-xl">{gen?.output?.avg_slides_per_session || 0}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Ø Quality Score</span>
-              <span className="text-white font-bold">
-                {gen?.quality?.avg_quality_score || 'N/A'}
-              </span>
+              <span className="text-white font-bold">{gen?.quality?.avg_quality_score || 'N/A'}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Ø Duration</span>
@@ -510,9 +453,33 @@ export default function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Generierungen (7d)</span>
-              <span className="text-white font-bold">
-                {gen?.quality?.generations_7d || 0}
-              </span>
+              <span className="text-white font-bold">{gen?.quality?.generations_7d || 0}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Vision & Design */}
+        <div className="bg-dark-card rounded-xl p-6 border border-dark-border">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Eye className="w-5 h-5 text-pink-500" />
+            Vision & Design
+          </h2>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Templates gelernt</span>
+              <span className="text-white font-bold text-xl">{learn?.templates?.learned || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Vision Model</span>
+              <span className="text-green-400 font-bold">Moondream ✓</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">PPTX Designer</span>
+              <span className="text-green-400 font-bold">v2 ✓</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Farbpaletten</span>
+              <span className="text-white font-bold">4</span>
             </div>
           </div>
         </div>
@@ -543,6 +510,13 @@ export default function AdminDashboard() {
                   </td>
                 </tr>
               ))}
+              {(!gen?.output?.recent_sessions || gen.output.recent_sessions.length === 0) && (
+                <tr>
+                  <td colSpan={3} className="py-4 text-center text-gray-500">
+                    Noch keine Sessions
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
