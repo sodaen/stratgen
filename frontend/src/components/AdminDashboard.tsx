@@ -208,13 +208,13 @@ export default function AdminDashboard() {
             />
             <ProgressBar 
               label="RAM" 
-              value={sys?.memory?.percent} 
-              color={sys?.memory?.percent > 80 ? 'bg-red-500' : 'bg-green-500'}
+              value={sys?.memory?.percent ?? 0} 
+              color={(sys?.memory?.percent ?? 0) > 80 ? 'bg-red-500' : 'bg-green-500'}
             />
             <ProgressBar 
               label="Disk" 
-              value={sys?.disk?.percent} 
-              color={sys?.disk?.percent > 90 ? 'bg-red-500' : 'bg-yellow-500'}
+              value={sys?.disk?.percent ?? 0} 
+              color={(sys?.disk?.percent ?? 0) > 90 ? 'bg-red-500' : 'bg-yellow-500'}
             />
           </div>
         </div>
