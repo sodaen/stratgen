@@ -291,7 +291,7 @@ def index_knowledge_file(file_path: str) -> Dict[str, Any]:
             "type": "file",
             "source": str(file_path)
         }
-        result = ingest_entry("stratgen_docs", entry)
+        result = ingest_entry("knowledge_base", entry)
         
         if result.get("ok"):
             logger.info(f"✓ Knowledge in Qdrant: {Path(file_path).name} ({result.get('chunks', 0)} chunks)")
