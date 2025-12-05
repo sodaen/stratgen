@@ -289,6 +289,14 @@ def _install_preview_overrides(_app):
 try:
     from backend.rag_api import router as _rag_router
     app.include_router(_rag_router)
+
+# Knowledge Admin API
+try:
+    from backend import knowledge_admin_api
+    app.include_router(knowledge_admin_api.router)
+    log.info("knowledge_admin_api router registered")
+except Exception as e:
+    log.warning(f"knowledge_admin_api failed: {e}")
     log.info("RAG API router loaded")
 except Exception as e:
     log.warning(f"RAG API router failed: {e}")
