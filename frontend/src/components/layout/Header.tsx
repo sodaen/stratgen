@@ -3,12 +3,12 @@ import NotificationDropdown from '../NotificationDropdown'
 
 interface HeaderProps {
   title?: string
+  subtitle?: string
 }
 
 export default function Header({ title }: HeaderProps) {
   return (
     <header className="h-16 bg-dark-bg border-b border-dark-border flex items-center justify-between px-6">
-      {/* Left: Title or Search */}
       <div className="flex items-center gap-4">
         {title ? (
           <h1 className="text-xl font-semibold text-white">{title}</h1>
@@ -24,12 +24,8 @@ export default function Header({ title }: HeaderProps) {
         )}
       </div>
       
-      {/* Right: Actions */}
       <div className="flex items-center gap-3">
-        {/* Notifications */}
         <NotificationDropdown />
-        
-        {/* User */}
         <button className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
           <User className="w-4 h-4 text-white" />
         </button>

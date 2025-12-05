@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bell, X, Check, CheckCheck, Trash2, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react'
-import { useNotificationStore, Notification } from '../stores/notificationStore'
+import { useNotificationStore, Notification as AppNotification } from '../stores/notificationStore'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const typeIcons = {
@@ -36,7 +36,7 @@ function formatTime(timestamp: number): string {
   return `vor ${days} Tagen`
 }
 
-function NotificationItem({ notification, onClose }: { notification: Notification; onClose: () => void }) {
+function NotificationItem({ notification }: { notification: AppNotification; onClose: () => void }) {
   const { markAsRead, removeNotification } = useNotificationStore()
   const Icon = typeIcons[notification.type]
   
