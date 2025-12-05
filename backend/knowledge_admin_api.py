@@ -415,3 +415,89 @@ async def list_source_files(folder: str):
         "path": str(path),
         "files": sorted(files, key=lambda x: x["name"])
     }
+
+
+# === RE-RANKING ENDPOINTS ===
+
+@router.get("/search/rerank")
+async def search_with_reranking(
+    query: str,
+    collection: str = "knowledge_base",
+    limit: int = 5,
+    use_llm: bool = True
+):
+    """Suche mit Re-Ranking für bessere Ergebnisse."""
+    try:
+        from services.reranker import search_with_rerank
+        result = search_with_rerank(
+            query=query,
+            collection=collection,
+            limit=limit,
+            use_llm=use_llm
+        )
+        return {"ok": True, **result}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.get("/benchmark")
+async def run_benchmark():
+    """Führt Benchmark mit Test-Queries durch."""
+    from services.reranker import search_with_rerank
+    
+    test_queries = [
+        "Marketing Strategie",
+        "B2B SaaS Go-to-Market",
+        "Content Marketing Best Practices",
+        "Zielgruppen Analyse",
+        "Social Media Strategie",
+        "Competitive Intelligence",
+        "Customer Journey Mapping",
+        "Brand Positioning",
+        "Lead Generation Taktiken",
+        "ROI Marketing Kampagnen"
+    ]
+    
+    results = {
+        "without_rerank": {"scores": [], "latencies": []},
+        "with_rerank": {"scores": [], "latencies": []}
+    }
+    
+    for query in test_queries:
+        # Ohne Re-Ranking
+        r1 = search_with_rerank(query, use_llm=False)
+        results["without_rerank"]["scores"].append(r1["scores"]["original_avg"])
+        results["without_rerank"]["latencies"].append(r1["latency"]["total_ms"])
+        
+        # Mit Re-Ranking  
+        r2 = search_with_rerank(query, use_llm=True)
+        results["with_rerank"]["scores"].append(r2["scores"]["final_avg"])
+        results["with_rerank"]["latencies"].append(r2["latency"]["total_ms"])
+    
+    # Durchschnitte berechnen
+    avg_score_without = sum(results["without_rerank"]["scores"]) / len(test_queries)
+    avg_score_with = sum(results["with_rerank"]["scores"]) / len(test_queries)
+    avg_latency_without = sum(results["without_rerank"]["latencies"]) / len(test_queries)
+    avg_latency_with = sum(results["with_rerank"]["latencies"]) / len(test_queries)
+    
+    return {
+        "ok": True,
+        "queries_tested": len(test_queries),
+        "without_rerank": {
+            "avg_score": round(avg_score_without, 3),
+            "avg_latency_ms": round(avg_latency_without)
+        },
+        "with_rerank": {
+            "avg_score": round(avg_score_with, 3),
+            "avg_latency_ms": round(avg_latency_with)
+        },
+        "improvement": {
+            "score": round(avg_score_with - avg_score_without, 3),
+            "score_percent": round((avg_score_with - avg_score_without) / avg_score_without * 100, 1)
+        },
+        "details": {
+            "queries": test_queries,
+            "scores_without": results["without_rerank"]["scores"],
+            "scores_with": results["with_rerank"]["scores"]
+        }
+    }

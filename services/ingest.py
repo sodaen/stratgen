@@ -13,7 +13,7 @@ from sentence_transformers import SentenceTransformer
 
 # ---- Konfiguration ----
 DATA_DIR = Path(os.getenv("DATA_DIR", "data/raw")).resolve()
-COLL     = os.getenv("QDRANT_COLLECTION", "strategies")
+COLL     = os.getenv("QDRANT_COLLECTION", "knowledge_base")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://127.0.0.1:6333").rstrip("/")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")  # 384-Dim
 
