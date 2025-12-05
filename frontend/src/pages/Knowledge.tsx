@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { BookOpen, Database, MessageSquare, Brain } from 'lucide-react'
 import RAGStatus from '../components/RAGStatus'
 import KnowledgeChat from '../components/KnowledgeChat'

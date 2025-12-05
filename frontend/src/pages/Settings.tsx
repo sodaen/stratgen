@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+
 import { 
   Sun, Moon, Save, RefreshCw, Server, Cpu, Database,
   Palette, Sliders, Bell, HardDrive, Check, RotateCcw,
