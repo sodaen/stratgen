@@ -55,7 +55,7 @@ def build_facts(project: Dict[str,Any], k: int = 6) -> Dict[str,Any]:
     return {"k": int(k or 6), "hits": paths, "bullets": bullets, "sources": paths}
 
 # ---- Stubs to satisfy optional imports elsewhere ----
-COLL = "stratgen_docs"
+COLL = "knowledge_base"
 
 # Singleton für Qdrant Client
 _qdrant_client = None
