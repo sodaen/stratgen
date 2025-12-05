@@ -258,7 +258,7 @@ class UnifiedKnowledge:
         # Qdrant Stats
         if self._qdrant:
             try:
-                for coll in ["knowledge_base", "strategies"]:
+                for coll in ["knowledge_base"]:
                     info = self._qdrant.get_collection(coll)
                     stats["collections"][coll] = {
                         "points": info.points_count,
