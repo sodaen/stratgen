@@ -625,7 +625,42 @@ def orchestrate_quality_check(
 
 def check_status() -> Dict[str, Any]:
     """Gibt den Status des Orchestrators zurück."""
+    
+    # Prüfe neue Data Services
+    def check_data_service(name: str) -> bool:
+        try:
+            from services.data_services import check_data_services
+            status = check_data_services()
+            return status.get(name, {}).get("available", False)
+        except:
+            return False
+    
+    def check_pptx_designer() -> bool:
+        try:
+            from services.pptx_designer_v2 import PPTXDesignerV2
+            return True
+        except:
+            return False
+    
+    def check_template_learner() -> bool:
+        try:
+            from services.template_learner import get_stats
+            stats = get_stats()
+            return stats.get("templates_learned", 0) > 0
+        except:
+            return False
+    
+    def check_vision() -> bool:
+        try:
+            import httpx
+            r = httpx.get("http://localhost:11434/api/tags", timeout=2)
+            models = r.json().get("models", [])
+            return any("moondream" in m.get("name", "") for m in models)
+        except:
+            return False
+    
     features = {
+        # Core Features
         "briefing_analyzer": HAS_BRIEFING_ANALYZER,
         "story_engine": HAS_STORY_ENGINE,
         "persona_engine": HAS_PERSONA_ENGINE,
@@ -636,7 +671,18 @@ def check_status() -> Dict[str, Any]:
         "voice": HAS_VOICE,
         "arguments": HAS_ARGUMENTS,
         "content_intel": HAS_CONTENT_INTEL,
-        "knowledge": check_knowledge_available()
+        "knowledge": check_knowledge_available(),
+        # Data Services (v3.18)
+        "wikipedia": check_data_service("wikipedia"),
+        "news_rss": check_data_service("news_rss"),
+        "google_trends": check_data_service("google_trends"),
+        "world_bank": check_data_service("world_bank"),
+        "unsplash": check_data_service("unsplash"),
+        "qr_code": check_data_service("qr_code"),
+        # Design & Export (v3.18)
+        "pptx_designer": check_pptx_designer(),
+        "template_learner": check_template_learner(),
+        "vision_analyzer": check_vision(),
     }
     
     available = sum(1 for v in features.values() if v)
