@@ -554,12 +554,9 @@ def create_story_structure(
         for phase in arc.phases
     ]
     
-    # deck_size parsen (kann string oder int sein)
-    if isinstance(deck_size, int):
-        target_count = deck_size
-    else:
-        size_map = {"short": 8, "medium": 15, "long": 25, "comprehensive": 40}
-        target_count = size_map.get(deck_size, 15)
+    # deck_size ist int (Anzahl Slides vom Frontend-Schieberegler)
+    target_count = int(deck_size) if isinstance(deck_size, (int, float)) else 15
+    target_count = max(5, min(150, target_count))
     
     # Erweitere auf gewünschte Anzahl
     recommended_slides = list(base_slides)  # Kopie
