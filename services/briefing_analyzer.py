@@ -97,7 +97,7 @@ class BriefingAnalysis:
     recommendations: List[str] = field(default_factory=list)
     
     # Deck-Empfehlung
-    recommended_deck_size: str = "medium"
+    recommended_deck_size: int = 15
     recommended_slide_types: List[str] = field(default_factory=list)
 
 
@@ -410,7 +410,7 @@ def analyze_briefing(
     elif word_count > 200:
         recommended_deck_size = "long"
     else:
-        recommended_deck_size = "medium"
+        recommended_deck_size = 15
     
     # Slide-Types Empfehlung basierend auf Intent
     slide_type_map = {
