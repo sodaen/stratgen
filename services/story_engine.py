@@ -198,14 +198,14 @@ def detect_best_framework(
         scores[StoryFramework.AIDA] = 0.85
     
     # Before-After-Bridge für kurze Decks
-    if deck_size == "short" or "kurz" in text:
+    if isinstance(deck_size, int) and deck_size <= 10:
         scores[StoryFramework.BEFORE_AFTER_BRIDGE] = 0.9
     
     # Default basierend auf Deck-Size
     if not scores:
-        if deck_size == "short":
+        if isinstance(deck_size, int) and deck_size <= 10:
             scores[StoryFramework.BEFORE_AFTER_BRIDGE] = 0.7
-        elif deck_size == "long":
+        elif isinstance(deck_size, int) and deck_size >= 30:
             scores[StoryFramework.HEROS_JOURNEY] = 0.7
         else:
             scores[StoryFramework.PROBLEM_SOLUTION] = 0.7
