@@ -1562,3 +1562,10 @@ def get_available_models():
             pass
     
     return result
+
+
+# Alias für Frontend-Kompatibilität
+@router.get("/status")
+def agent_status_alias():
+    """Alias für /agent/v3/status - Frontend-Kompatibilität."""
+    return agent_v3_status()
