@@ -161,7 +161,7 @@ def detect_best_framework(
     brief: str,
     audience: str = "",
     goal: str = "",
-    deck_size: str = "medium"
+    deck_size: int = 15
 ) -> Tuple[StoryFramework, float, str]:
     """
     Erkennt das beste Storytelling-Framework.
@@ -382,7 +382,7 @@ def build_narrative_arc(
     framework: StoryFramework = None,
     audience: str = "",
     goal: str = "",
-    deck_size: str = "medium"
+    deck_size: int = 15
 ) -> NarrativeArc:
     """
     Baut den narrativen Bogen der Präsentation.
@@ -522,7 +522,7 @@ def create_story_structure(
     topic: str,
     audience: str = "",
     goal: str = "",
-    deck_size: str = "medium",
+    deck_size: int = 15,
     framework: str = None
 ) -> Dict[str, Any]:
     """
