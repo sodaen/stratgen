@@ -52,7 +52,20 @@ class SelfLearningSystem:
         Wird aufgerufen wenn ein Export abgeschlossen ist.
         Analysiert und indexiert bei guter Qualität.
         """
-        from services.rag_pipeline import get_embedding
+        # Lokale Embedding-Funktion
+def get_embedding(text: str) -> list:
+    import httpx
+    try:
+        response = httpx.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text", "prompt": text},
+            timeout=30.0
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding", [])
+    except Exception as e:
+        print(f"Embedding error: {e}")
+    return []
         from qdrant_client import QdrantClient
         from qdrant_client.models import PointStruct
         
@@ -403,7 +416,20 @@ class SelfLearningSystem:
     
     def add_to_session(self, session_id: str, text: str, metadata: Dict = None) -> str:
         """Fügt Content zur Session-Collection hinzu."""
-        from services.rag_pipeline import get_embedding
+        # Lokale Embedding-Funktion
+def get_embedding(text: str) -> list:
+    import httpx
+    try:
+        response = httpx.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text", "prompt": text},
+            timeout=30.0
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding", [])
+    except Exception as e:
+        print(f"Embedding error: {e}")
+    return []
         from qdrant_client import QdrantClient
         from qdrant_client.models import PointStruct
         
@@ -435,7 +461,20 @@ class SelfLearningSystem:
     
     def search_session(self, session_id: str, query: str, limit: int = 5) -> List[Dict]:
         """Sucht nur in der Session-Collection."""
-        from services.rag_pipeline import get_embedding
+        # Lokale Embedding-Funktion
+def get_embedding(text: str) -> list:
+    import httpx
+    try:
+        response = httpx.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text", "prompt": text},
+            timeout=30.0
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding", [])
+    except Exception as e:
+        print(f"Embedding error: {e}")
+    return []
         from qdrant_client import QdrantClient
         
         collection_name = f"session_{session_id}"
