@@ -81,6 +81,7 @@ log.info("Auto-discovered routers: %d", count)
 for forced in (
     "backend.projects_api",
     "backend.exports_api",
+    "backend.api_export_bridge",
     "backend.pptx_api",
     "backend.images_api",     # dein Bild-Generator
 ):
