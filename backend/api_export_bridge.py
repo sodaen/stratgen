@@ -41,7 +41,20 @@ async def export_session(format: str, session_id: str):
         except:
             pass
     
-    # 2. Versuche aus Live-Generator Session
+    # 2. Versuche aus Live-Generator Session (API)
+    if not slides:
+        try:
+            import httpx
+            resp = httpx.get(f"http://127.0.0.1:8011/live/slides/{session_id}", timeout=10)
+            if resp.status_code == 200:
+                live_data = resp.json()
+                slides = live_data.get("slides", [])
+                if slides:
+                    print(f"Found {len(slides)} slides from live API")
+        except Exception as e:
+            print(f"Live API error: {e}")
+    
+    # 2b. Fallback: Datei
     if not slides:
         live_session_file = Path(f"data/live_sessions/{session_id}.json")
         if live_session_file.exists():
