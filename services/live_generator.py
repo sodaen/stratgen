@@ -28,6 +28,14 @@ from enum import Enum
 import threading
 import queue
 
+# Knowledge Integration
+try:
+    from services.knowledge_enhanced import search_knowledge_base
+    HAS_KNOWLEDGE = True
+except ImportError:
+    HAS_KNOWLEDGE = False
+    def search_knowledge_base(query, k=5): return []
+
 # Template Learner für Design-Guidance
 try:
     from services.template_learner import get_design_guidance
