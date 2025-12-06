@@ -667,3 +667,98 @@ async def hybrid_search_endpoint(
         import traceback
         traceback.print_exc()
         return {"ok": False, "error": str(e)}
+
+
+# ============================================================
+# OPTIMIZED SEARCH ENDPOINT
+# ============================================================
+
+@router.get("/search/optimized")
+async def optimized_search(
+    query: str,
+    limit: int = 10,
+    use_synonyms: bool = True,
+    use_rerank: bool = True,
+    collection: str = "knowledge_base"
+):
+    """
+    Optimierte Suche mit Query Expansion und optionalem Re-Ranking.
+    """
+    import time
+    from services.query_optimizer import optimize_query
+    
+    start = time.time()
+    
+    try:
+        # 1. Query optimieren
+        optimization = optimize_query(query, use_synonyms=use_synonyms)
+        optimized_query = optimization["optimized"]
+        
+        # 2. Vector Search mit optimierter Query
+        from qdrant_client import QdrantClient
+        import httpx
+        
+        # Embedding für optimierte Query
+        emb_response = httpx.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text", "prompt": optimized_query},
+            timeout=30.0
+        )
+        
+        if emb_response.status_code != 200:
+            return {"ok": False, "error": "Embedding failed"}
+        
+        query_embedding = emb_response.json().get("embedding", [])
+        
+        # Suche
+        client = QdrantClient(host="localhost", port=6333)
+        search_results = client.search(
+            collection_name=collection,
+            query_vector=query_embedding,
+            limit=limit * 2 if use_rerank else limit,
+            with_payload=True
+        )
+        
+        results = [
+            {
+                "id": str(r.id),
+                "score": r.score,
+                "text": r.payload.get("text", "")[:500],
+                "source": r.payload.get("source_file", "unknown")
+            }
+            for r in search_results
+        ]
+        
+        # 3. Optional: Re-Ranking
+        final_score = sum(r["score"] for r in results[:limit]) / min(len(results), limit) if results else 0
+        
+        if use_rerank and results:
+            try:
+                from services.reranker import FastReRanker
+                reranker = FastReRanker()
+                reranked = reranker.rerank(query, results, top_k=limit)
+                
+                # Update scores
+                if reranked:
+                    results = reranked
+                    final_score = sum(r["rerank_score"] for r in results) / len(results)
+            except Exception as e:
+                print(f"Rerank error: {e}")
+        
+        latency = int((time.time() - start) * 1000)
+        
+        return {
+            "ok": True,
+            "original_query": query,
+            "optimized_query": optimized_query,
+            "optimization": optimization,
+            "results": results[:limit],
+            "avg_score": round(final_score, 4),
+            "latency_ms": latency,
+            "reranked": use_rerank
+        }
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"ok": False, "error": str(e)}
