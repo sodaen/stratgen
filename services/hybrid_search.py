@@ -9,6 +9,22 @@ from collections import Counter, defaultdict
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 import hashlib
+import httpx
+
+
+def get_embedding(text: str) -> list:
+    """Generiert Embedding via Ollama."""
+    try:
+        response = httpx.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text", "prompt": text},
+            timeout=30.0
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding", [])
+    except Exception as e:
+        print(f"Embedding error: {e}")
+    return []
 
 
 @dataclass
@@ -197,20 +213,7 @@ class HybridSearch:
         2. Vector Search holt semantische Matches
         3. Scores werden kombiniert (RRF oder gewichtete Summe)
         """
-        # Lokale Embedding-Funktion
-def get_embedding(text: str) -> list:
-    import httpx
-    try:
-        response = httpx.post(
-            "http://localhost:11434/api/embeddings",
-            json={"model": "nomic-embed-text", "prompt": text},
-            timeout=30.0
-        )
-        if response.status_code == 200:
-            return response.json().get("embedding", [])
-    except Exception as e:
-        print(f"Embedding error: {e}")
-    return []
+        
         from qdrant_client import QdrantClient
         
         # Stelle sicher dass Index gebaut ist
@@ -284,20 +287,7 @@ def get_embedding(text: str) -> list:
         
         RRF Score = Σ 1/(k + rank)
         """
-        # Lokale Embedding-Funktion
-def get_embedding(text: str) -> list:
-    import httpx
-    try:
-        response = httpx.post(
-            "http://localhost:11434/api/embeddings",
-            json={"model": "nomic-embed-text", "prompt": text},
-            timeout=30.0
-        )
-        if response.status_code == 200:
-            return response.json().get("embedding", [])
-    except Exception as e:
-        print(f"Embedding error: {e}")
-    return []
+        
         from qdrant_client import QdrantClient
         
         self.build_index()
