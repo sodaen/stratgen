@@ -309,6 +309,15 @@ try:
 except Exception as e:
     log.warning(f"knowledge_analytics_api failed: {e}")
 
+# Self-Learning API
+try:
+    from services.self_learning import register_self_learning_routes
+    learning_router = register_self_learning_routes(app)
+    app.include_router(learning_router)
+    log.info("self_learning router registered")
+except Exception as e:
+    log.warning(f"self_learning failed: {e}")
+
 # nach allen include_router()-Aufrufen ausführen
 try:
     _install_preview_overrides(app)

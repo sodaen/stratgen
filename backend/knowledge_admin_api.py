@@ -501,3 +501,109 @@ async def run_benchmark():
             "scores_with": results["with_rerank"]["scores"]
         }
     }
+
+# ============================================================
+# MANUAL CONTROL ENDPOINTS (Phase 7.3)
+# ============================================================
+
+@router.post("/collections/{collection}/clear")
+async def clear_collection(collection: str):
+    """Löscht alle Chunks aus einer Collection."""
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import VectorParams, Distance
+    
+    allowed = ["knowledge_base", "design_templates", "external_sources", "generated_outputs"]
+    if collection not in allowed:
+        raise HTTPException(400, f"Collection {collection} nicht erlaubt")
+    
+    try:
+        client = QdrantClient(host="localhost", port=6333)
+        
+        # Hole aktuelle Config
+        info = client.get_collection(collection)
+        
+        # Lösche und erstelle neu
+        client.delete_collection(collection)
+        client.create_collection(
+            collection_name=collection,
+            vectors_config=VectorParams(size=768, distance=Distance.COSINE)
+        )
+        
+        return {"ok": True, "message": f"Collection {collection} geleert"}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/rebuild")
+async def full_rebuild():
+    """Startet einen vollständigen Rebuild aller Collections."""
+    import subprocess
+    import threading
+    
+    def run_rebuild():
+        try:
+            # Führe das Rebuild-Script aus
+            subprocess.run(
+                ["python3", "services/knowledge_pipeline.py"],
+                cwd="/home/sodaen/stratgen",
+                capture_output=True,
+                timeout=600
+            )
+        except Exception as e:
+            print(f"Rebuild error: {e}")
+    
+    # Starte im Hintergrund
+    thread = threading.Thread(target=run_rebuild)
+    thread.start()
+    
+    return {"ok": True, "message": "Rebuild gestartet - prüfe Logs für Status"}
+
+
+@router.post("/ingest/knowledge")
+async def ingest_knowledge():
+    """Re-indexiert die Knowledge Base."""
+    import subprocess
+    
+    try:
+        result = subprocess.run(
+            ["python3", "-c", """
+import sys
+sys.path.insert(0, '/home/sodaen/stratgen')
+from services.knowledge_pipeline import ingest_knowledge_base
+stats = ingest_knowledge_base()
+print(f"Chunks: {stats.get('chunks_created', 0)}")
+"""],
+            cwd="/home/sodaen/stratgen",
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        
+        return {"ok": True, "output": result.stdout, "chunks_created": 0}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/ingest/templates")
+async def ingest_templates():
+    """Re-indexiert die Design Templates."""
+    import subprocess
+    
+    try:
+        result = subprocess.run(
+            ["python3", "-c", """
+import sys
+sys.path.insert(0, '/home/sodaen/stratgen')
+from services.knowledge_pipeline import ingest_templates
+stats = ingest_templates()
+print(f"Chunks: {stats.get('chunks_created', 0)}")
+"""],
+            cwd="/home/sodaen/stratgen",
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        
+        return {"ok": True, "output": result.stdout}
+    except Exception as e:
+        raise HTTPException(500, str(e))
