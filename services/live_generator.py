@@ -470,8 +470,8 @@ class LiveGenerator:
             )
             # Nur verwenden wenn mindestens 80% der gewünschten Slides geliefert werden
             story_slides = story.get("recommended_slides", [])
-            if story.get("ok") and len(story_slides) >= request.deck_size * 0.8:
-                return story_slides[:request.deck_size]
+            if story.get("ok") and len(story_slides) >= int(request.deck_size) * 0.8:
+                return story_slides[:int(request.deck_size)]
             # Sonst: Fallback verwenden (wird unten generiert)
         except ImportError:
             pass
