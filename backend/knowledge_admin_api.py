@@ -607,3 +607,63 @@ print(f"Chunks: {stats.get('chunks_created', 0)}")
         return {"ok": True, "output": result.stdout}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+# ============================================================
+# HYBRID SEARCH ENDPOINT
+# ============================================================
+
+@router.get("/search/hybrid")
+async def hybrid_search_endpoint(
+    query: str,
+    limit: int = 10,
+    method: str = "rrf",
+    collection: str = "knowledge_base"
+):
+    """
+    Hybrid Search: BM25 + Vector kombiniert.
+    
+    Methods:
+    - rrf: Reciprocal Rank Fusion (empfohlen)
+    - weighted: Gewichtete Kombination
+    """
+    import time
+    
+    start = time.time()
+    
+    try:
+        from services.hybrid_search import hybrid_search
+        
+        results = hybrid_search(
+            query=query,
+            top_k=limit,
+            method=method,
+            collection=collection
+        )
+        
+        latency = int((time.time() - start) * 1000)
+        
+        # Berechne Durchschnitts-Scores
+        if results:
+            avg_hybrid = sum(r["score"] for r in results) / len(results)
+            avg_bm25 = sum(r["bm25_score"] for r in results) / len(results)
+            avg_vector = sum(r["vector_score"] for r in results) / len(results)
+        else:
+            avg_hybrid = avg_bm25 = avg_vector = 0
+        
+        return {
+            "ok": True,
+            "method": method,
+            "results": results,
+            "scores": {
+                "hybrid_avg": round(avg_hybrid, 4),
+                "bm25_avg": round(avg_bm25, 4),
+                "vector_avg": round(avg_vector, 4)
+            },
+            "latency_ms": latency
+        }
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"ok": False, "error": str(e)}
