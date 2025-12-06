@@ -775,7 +775,7 @@ def start_generation(request: Dict[str, Any]) -> Dict[str, Any]:
         brief=request.get("brief", ""),
         customer_name=request.get("customer_name", ""),
         industry=request.get("industry", ""),
-        deck_size=request.get("deck_size", "medium"),
+        deck_size=request.get("deck_size", 15),
         enable_charts=request.get("enable_charts", True),
         enable_images=request.get("enable_images", False)
     )
