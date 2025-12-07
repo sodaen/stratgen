@@ -8,20 +8,19 @@ import httpx
 import asyncio
 import time
 import psutil
-import os
 
 router = APIRouter(tags=["unified-status"])
 
 
-async def _fetch_internal(path: str, timeout: float = 2.0) -> Dict:
+async def _fetch_internal(path: str, timeout: float = 3.0) -> Dict:
     """Fetch von internem Endpoint mit Timeout."""
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"http://127.0.0.1:8011{path}", timeout=timeout)
             if resp.status_code == 200:
                 return resp.json()
-    except:
-        pass
+    except Exception as e:
+        print(f"_fetch_internal {path} error: {e}")
     return {}
 
 
@@ -59,6 +58,11 @@ async def unified_status():
         mem = type('obj', (object,), {'percent': 0, 'used': 0, 'total': 1})()
         disk = type('obj', (object,), {'percent': 0, 'free': 0, 'total': 1})()
     
+    # FIX: Workers Response richtig interpretieren
+    # workers endpoint gibt: {"ok": true, "celery_available": true, "worker_count": 1, ...}
+    celery_available = workers.get("celery_available", False) or workers.get("ok", False)
+    worker_count = workers.get("worker_count", 0)
+    
     # Konsolidierte Response
     return {
         "ok": True,
@@ -82,11 +86,12 @@ async def unified_status():
                 "total_chunks": knowledge.get("total_chunks", 0)
             },
             "redis": {
-                "status": "online" if workers.get("celery_available") else "offline"
+                # Redis ist verfügbar wenn Celery verfügbar ist
+                "status": "online" if celery_available else "offline"
             },
             "celery": {
-                "status": "online" if workers.get("worker_count", 0) > 0 else "offline",
-                "worker_count": workers.get("worker_count", 0),
+                "status": "online" if worker_count > 0 else "offline",
+                "worker_count": worker_count,
                 "queues": workers.get("queues", {})
             }
         },
@@ -119,7 +124,7 @@ async def unified_status():
             "disk_free_gb": round(disk.free / (1024**3), 1)
         },
         
-        # Workers
+        # Raw workers data for debugging
         "workers": workers
     }
 
@@ -129,7 +134,7 @@ async def unified_health():
     """Schneller Health-Check für alle Services."""
     checks = {}
     
-    # API selbst
+    # API selbst - immer online wenn dieser Endpoint antwortet
     checks["api"] = True
     
     # Ollama
@@ -148,10 +153,10 @@ async def unified_health():
     except:
         checks["qdrant"] = False
     
-    # Redis (via workers endpoint)
+    # Redis/Celery (via workers endpoint)
     try:
         workers = await _fetch_internal("/workers/status", timeout=2)
-        checks["redis"] = workers.get("celery_available", False)
+        checks["redis"] = workers.get("celery_available", False) or workers.get("ok", False)
         checks["celery"] = workers.get("worker_count", 0) > 0
     except:
         checks["redis"] = False
