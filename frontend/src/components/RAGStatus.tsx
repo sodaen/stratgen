@@ -21,7 +21,7 @@ export default function RAGStatus() {
   const fetchStats = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/rag/status')
+      const res = await fetch('/api/knowledge/admin/status')
       const data = await res.json()
       if (data.ok) {
         setStats(data)
@@ -42,7 +42,7 @@ export default function RAGStatus() {
     if (!searchQuery.trim()) return
     setSearching(true)
     try {
-      const res = await fetch(`/rag/search?q=${encodeURIComponent(searchQuery)}&limit=5`)
+      const res = await fetch(`/api/knowledge/admin/search?q=${encodeURIComponent(searchQuery)}&limit=5`)
       const data = await res.json()
       if (data.ok) {
         setSearchResults(data.results)

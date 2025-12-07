@@ -81,6 +81,8 @@ log.info("Auto-discovered routers: %d", count)
 for forced in (
     "backend.projects_api",
     "backend.exports_api",
+    "backend.rag_alias_api",
+    "backend.workers_status_api",
     "backend.ollama_api",
     "backend.system_api",
     "backend.api_export_bridge",
@@ -109,6 +111,8 @@ except Exception:
 _REQUIRED_ROUTERS = {
     "backend.projects_api",
     "backend.exports_api",
+    "backend.rag_alias_api",
+    "backend.workers_status_api",
     "backend.ollama_api",
     "backend.system_api",
     "backend.pptx_api",

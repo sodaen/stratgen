@@ -18,22 +18,30 @@ class ApiService {
     return response.json()
   }
 
+  // Health & Status
   async getHealth() {
-    return this.request<{ ok: boolean }>('/health')
+    return this.request<{ status: string }>('/health')
   }
 
   async getAgentStatus() {
-    return this.request<any>('/orchestrator/status')
+    // Korrigiert: /agent/status enthält Ollama-Info
+    return this.request<any>('/agent/status')
   }
 
   async getWorkersStatus() {
-    return this.request<any>('/workers/status')
+    // Fallback da Workers nicht implementiert
+    return this.request<any>('/workers/status').catch(() => ({
+      celery_available: false,
+      worker_count: 0,
+      queues: {}
+    }))
   }
 
   async getOrchestratorStatus() {
     return this.request<any>('/orchestrator/status')
   }
 
+  // System Management
   async restartSystem() {
     return this.request<any>('/system/restart', { method: 'POST' })
   }
@@ -42,6 +50,7 @@ class ApiService {
     return this.request<any>('/system/restart/' + service, { method: 'POST' })
   }
 
+  // Live Generation
   async startGeneration(params: any) {
     return this.request<any>('/live/start', {
       method: 'POST',
@@ -53,6 +62,11 @@ class ApiService {
     return this.request<any>('/live/slides/' + generationId)
   }
 
+  async getGenerationProgress(generationId: string) {
+    return this.request<any>('/live/progress/' + generationId)
+  }
+
+  // Orchestrator
   async analyzeOrchestrated(params: any) {
     return this.request<any>('/orchestrator/analyze', {
       method: 'POST',
@@ -67,6 +81,7 @@ class ApiService {
     })
   }
 
+  // Workers/Tasks
   async submitTask(taskType: string, taskName: string, params: any) {
     return this.request<any>('/workers/tasks/submit', {
       method: 'POST',
@@ -78,6 +93,7 @@ class ApiService {
     return this.request<any>('/workers/tasks/' + taskId)
   }
 
+  // Files
   async listFiles(path: string = '') {
     return this.request<any>('/files/list?path=' + encodeURIComponent(path))
   }
@@ -102,6 +118,7 @@ class ApiService {
     return this.request<any>('/files/storage')
   }
 
+  // Sessions
   async getActiveSessions() {
     return this.request<any[]>('/sessions/active')
   }
@@ -134,6 +151,7 @@ class ApiService {
     return response.json()
   }
 
+  // Analytics
   async getUsageStats() {
     return this.request<any>('/analytics/usage')
   }
@@ -144,6 +162,20 @@ class ApiService {
 
   async getDailyUsage(days: number = 7) {
     return this.request<any[]>('/analytics/daily?days=' + days)
+  }
+
+  // Knowledge/RAG
+  async getRAGStatus() {
+    return this.request<any>('/knowledge/admin/status')
+  }
+
+  async searchKnowledge(query: string, limit: number = 5) {
+    return this.request<any>(`/knowledge/admin/search?query=${encodeURIComponent(query)}&limit=${limit}`)
+  }
+
+  // Ollama
+  async getOllamaModels() {
+    return this.request<any>('/ollama/models')
   }
 }
 
