@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,  // Standard Vite Port
+    port: 3000,
+    strictPort: true,  // Fehler wenn Port belegt
     host: '0.0.0.0',
     proxy: {
       '/api': {
@@ -13,14 +14,6 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/exports': {
-        target: 'http://localhost:8011',
-        changeOrigin: true
-      },
-      '/live': {
-        target: 'http://localhost:8011',
-        changeOrigin: true
-      },
-      '/sessions': {
         target: 'http://localhost:8011',
         changeOrigin: true
       }
