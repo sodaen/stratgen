@@ -1,5 +1,33 @@
 const API_BASE = '/api'
 
+// Typen für konsolidierten Status
+interface UnifiedStatus {
+  ok: boolean
+  timestamp: number
+  response_ms: number
+  services: {
+    api: { status: string; response_ms: number }
+    ollama: { status: string; model: string; model_loaded: boolean }
+    qdrant: { status: string; collections: number; total_chunks: number }
+    redis: { status: string }
+    celery: { status: string; worker_count: number; queues: Record<string, number> }
+  }
+  features: Record<string, boolean>
+  features_available: number
+  features_total: number
+  agent: { version: string; intelligence: boolean }
+  knowledge: { total_chunks: number; collections: Record<string, any>; metrics: any }
+  system: {
+    cpu_percent: number
+    memory_percent: number
+    memory_used_gb: number
+    memory_total_gb: number
+    disk_percent: number
+    disk_free_gb: number
+  }
+  workers: any
+}
+
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = API_BASE + endpoint
@@ -18,30 +46,66 @@ class ApiService {
     return response.json()
   }
 
-  // Health & Status
+  // ==================== KONSOLIDIERTER STATUS ====================
+  
+  /**
+   * Holt den kompletten System-Status in einem Aufruf.
+   * Ersetzt: getAgentStatus, getWorkersStatus, getOrchestratorStatus, etc.
+   */
+  async getUnifiedStatus(): Promise<UnifiedStatus> {
+    return this.request<UnifiedStatus>('/unified/status')
+  }
+
+  /**
+   * Schneller Health-Check für alle Services.
+   */
+  async getUnifiedHealth() {
+    return this.request<any>('/unified/health')
+  }
+
+  // ==================== LEGACY STATUS (für Kompatibilität) ====================
+  
   async getHealth() {
     return this.request<{ status: string }>('/health')
   }
 
   async getAgentStatus() {
-    // Korrigiert: /agent/status enthält Ollama-Info
-    return this.request<any>('/agent/status')
+    // Nutze unified status und extrahiere Agent-Teil
+    try {
+      const unified = await this.getUnifiedStatus()
+      return {
+        version: unified.agent.version,
+        ollama: {
+          ok: unified.services.ollama.status === 'online',
+          model: unified.services.ollama.model,
+          model_loaded: unified.services.ollama.model_loaded
+        },
+        features: unified.features
+      }
+    } catch {
+      return this.request<any>('/agent/status')
+    }
   }
 
   async getWorkersStatus() {
-    // Fallback da Workers nicht implementiert
-    return this.request<any>('/workers/status').catch(() => ({
-      celery_available: false,
-      worker_count: 0,
-      queues: {}
-    }))
+    try {
+      const unified = await this.getUnifiedStatus()
+      return {
+        celery_available: unified.services.redis.status === 'online',
+        worker_count: unified.services.celery.worker_count,
+        queues: unified.services.celery.queues
+      }
+    } catch {
+      return { celery_available: false, worker_count: 0, queues: {} }
+    }
   }
 
   async getOrchestratorStatus() {
     return this.request<any>('/orchestrator/status')
   }
 
-  // System Management
+  // ==================== SYSTEM ====================
+
   async restartSystem() {
     return this.request<any>('/system/restart', { method: 'POST' })
   }
@@ -50,7 +114,8 @@ class ApiService {
     return this.request<any>('/system/restart/' + service, { method: 'POST' })
   }
 
-  // Live Generation
+  // ==================== LIVE GENERATION ====================
+
   async startGeneration(params: any) {
     return this.request<any>('/live/start', {
       method: 'POST',
@@ -66,7 +131,8 @@ class ApiService {
     return this.request<any>('/live/progress/' + generationId)
   }
 
-  // Orchestrator
+  // ==================== ORCHESTRATOR ====================
+
   async analyzeOrchestrated(params: any) {
     return this.request<any>('/orchestrator/analyze', {
       method: 'POST',
@@ -81,7 +147,8 @@ class ApiService {
     })
   }
 
-  // Workers/Tasks
+  // ==================== TASKS ====================
+
   async submitTask(taskType: string, taskName: string, params: any) {
     return this.request<any>('/workers/tasks/submit', {
       method: 'POST',
@@ -93,7 +160,8 @@ class ApiService {
     return this.request<any>('/workers/tasks/' + taskId)
   }
 
-  // Files
+  // ==================== FILES ====================
+
   async listFiles(path: string = '') {
     return this.request<any>('/files/list?path=' + encodeURIComponent(path))
   }
@@ -118,7 +186,8 @@ class ApiService {
     return this.request<any>('/files/storage')
   }
 
-  // Sessions
+  // ==================== SESSIONS ====================
+
   async getActiveSessions() {
     return this.request<any[]>('/sessions/active')
   }
@@ -151,7 +220,8 @@ class ApiService {
     return response.json()
   }
 
-  // Analytics
+  // ==================== ANALYTICS ====================
+
   async getUsageStats() {
     return this.request<any>('/analytics/usage')
   }
@@ -164,7 +234,8 @@ class ApiService {
     return this.request<any[]>('/analytics/daily?days=' + days)
   }
 
-  // Knowledge/RAG
+  // ==================== KNOWLEDGE/RAG ====================
+
   async getRAGStatus() {
     return this.request<any>('/knowledge/admin/status')
   }
@@ -173,9 +244,24 @@ class ApiService {
     return this.request<any>(`/knowledge/admin/search?query=${encodeURIComponent(query)}&limit=${limit}`)
   }
 
-  // Ollama
+  // ==================== OLLAMA ====================
+
   async getOllamaModels() {
     return this.request<any>('/ollama/models')
+  }
+
+  // ==================== ADMIN METRICS ====================
+
+  async getAdminDashboard() {
+    return this.request<any>('/admin/metrics/dashboard')
+  }
+
+  async getSourcesStatus() {
+    return this.request<any>('/generator/v2/sources/status').catch(() => ({ ok: false }))
+  }
+
+  async getSourcesMetrics() {
+    return this.request<any>('/admin/metrics/sources').catch(() => ({ ok: false }))
   }
 }
 
