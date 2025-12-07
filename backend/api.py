@@ -81,6 +81,8 @@ log.info("Auto-discovered routers: %d", count)
 for forced in (
     "backend.projects_api",
     "backend.exports_api",
+    "backend.ollama_api",
+    "backend.system_api",
     "backend.api_export_bridge",
     "backend.pptx_api",
     "backend.images_api",     # dein Bild-Generator
@@ -107,6 +109,8 @@ except Exception:
 _REQUIRED_ROUTERS = {
     "backend.projects_api",
     "backend.exports_api",
+    "backend.ollama_api",
+    "backend.system_api",
     "backend.pptx_api",
     "backend.images_api",
 }

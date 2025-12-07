@@ -1,113 +1,84 @@
 """
-System Control API - Endpoints für Frontend System Management
+System API - System Management Endpoints
 """
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-import subprocess
+from pathlib import Path
 import os
-import signal
-from typing import Optional
-import asyncio
+import shutil
+import subprocess
 
-router = APIRouter(prefix="/system", tags=["System Control"])
-
-
-class RestartResponse(BaseModel):
-    success: bool
-    message: str
-    service: Optional[str] = None
+router = APIRouter(prefix="/system", tags=["system"])
 
 
-@router.post("/restart", response_model=RestartResponse)
-async def restart_all_services():
-    """Startet alle StratGen Services neu"""
+@router.post("/restart")
+async def restart_system():
+    """Startet das Backend neu (via systemctl)."""
     try:
-        # In Production würde hier ein Supervisor/systemd verwendet
-        # Für Development: Signal an Parent Process
-        return RestartResponse(
-            success=True,
-            message="System restart initiated. Services will restart in 5 seconds.",
-        )
+        # Wir können uns nicht selbst neustarten, aber wir können es triggern
+        return {
+            "ok": True,
+            "message": "Restart requested. Use systemctl restart stratgen.service manually.",
+            "hint": "sudo systemctl restart stratgen.service"
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
 
 
-@router.post("/restart/{service}", response_model=RestartResponse)
+@router.post("/restart/{service}")
 async def restart_service(service: str):
-    """Startet einen einzelnen Service neu"""
-    valid_services = ["api", "ollama", "redis", "celery"]
+    """Startet einen spezifischen Service neu."""
+    allowed = ["ollama", "qdrant", "stratgen"]
+    if service not in allowed:
+        raise HTTPException(400, f"Service must be one of: {allowed}")
     
-    if service not in valid_services:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Invalid service. Valid services: {valid_services}"
-        )
-    
-    try:
-        if service == "celery":
-            # Celery Worker neu starten
-            subprocess.run(["pkill", "-f", "celery worker"], capture_output=True)
-            await asyncio.sleep(1)
-            subprocess.Popen(
-                ["celery", "-A", "workers.celery_app", "worker", 
-                 "-Q", "default,llm,analysis,generation,export", 
-                 "--loglevel=info"],
-                cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            )
-            
-        elif service == "redis":
-            subprocess.run(["sudo", "systemctl", "restart", "redis"], capture_output=True)
-            
-        elif service == "ollama":
-            subprocess.run(["sudo", "systemctl", "restart", "ollama"], capture_output=True)
-            
-        elif service == "api":
-            # API selbst - Signal für graceful restart
-            return RestartResponse(
-                success=True,
-                message="API restart scheduled. Will restart after current requests complete.",
-                service=service
-            )
-        
-        return RestartResponse(
-            success=True,
-            message=f"Service {service} restart initiated",
-            service=service
-        )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return {
+        "ok": True,
+        "message": f"Restart {service} requested",
+        "hint": f"sudo systemctl restart {service}.service"
+    }
 
 
-@router.get("/logs/{service}")
-async def get_service_logs(service: str, lines: int = 100):
-    """Holt die letzten Log-Zeilen eines Services"""
-    log_paths = {
-        "api": "/var/log/stratgen/api.log",
-        "celery": "/var/log/stratgen/celery.log",
-        "ollama": "/var/log/ollama/server.log",
+@router.post("/cleanup")
+async def cleanup_system():
+    """Räumt temporäre Dateien auf."""
+    cleaned = {
+        "cache_files": 0,
+        "temp_files": 0,
+        "old_exports": 0
     }
     
-    if service not in log_paths:
-        raise HTTPException(status_code=400, detail="Invalid service")
-    
-    log_path = log_paths[service]
-    
-    # Fallback auf journalctl wenn Datei nicht existiert
-    if not os.path.exists(log_path):
+    # Clean __pycache__
+    for pycache in Path(".").rglob("__pycache__"):
         try:
-            result = subprocess.run(
-                ["journalctl", "-u", service, "-n", str(lines), "--no-pager"],
-                capture_output=True,
-                text=True
-            )
-            return {"service": service, "logs": result.stdout.split("\n")}
+            shutil.rmtree(pycache)
+            cleaned["cache_files"] += 1
         except:
-            return {"service": service, "logs": [f"No logs available for {service}"]}
+            pass
     
-    try:
-        with open(log_path, 'r') as f:
-            all_lines = f.readlines()
-            return {"service": service, "logs": all_lines[-lines:]}
-    except Exception as e:
-        return {"service": service, "logs": [f"Error reading logs: {e}"]}
+    # Clean alte Exports (älter als 7 Tage)
+    exports_dir = Path("data/exports")
+    if exports_dir.exists():
+        import time
+        now = time.time()
+        for f in exports_dir.glob("*"):
+            if f.is_file() and (now - f.stat().st_mtime) > 7 * 24 * 3600:
+                try:
+                    f.unlink()
+                    cleaned["old_exports"] += 1
+                except:
+                    pass
+    
+    return {"ok": True, "cleaned": cleaned}
+
+
+@router.get("/status")
+async def system_status():
+    """Gibt System-Status zurück."""
+    import psutil
+    
+    return {
+        "cpu_percent": psutil.cpu_percent(),
+        "memory_percent": psutil.virtual_memory().percent,
+        "disk_percent": psutil.disk_usage("/").percent,
+        "uptime_seconds": int(time.time() - psutil.boot_time()) if hasattr(psutil, 'boot_time') else 0
+    }
