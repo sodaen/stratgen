@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251209-163300",
+  "created_utc": "20251209-163800",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "8a323e78",
+    "commit": "d79fa1ba",
     "branch": "staging"
   },
   "files": [
@@ -4364,9 +4364,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 9712846,
-      "mtime": 1765297962,
-      "sha256": "5ab575f1a69408fbb4dcbae62587ae622129cbfe5cc25518fc37cc86f02cd477"
+      "size": 9713225,
+      "mtime": 1765298263,
+      "sha256": "025140e23195a8305da388abd942e33486f7a5a91f3cea81e857411f623ff762"
     },
     {
       "path": "COMMANDS.md",
@@ -11887,6 +11887,12 @@
       "sha256": "d0a01224df6d5f6c2decc32a4d3dd968d022e53cf05a631cadf9f483368ad9ae"
     },
     {
+      "path": "backend/Lebenslauf_Daniel-Plötz.docx",
+      "size": 3462,
+      "mtime": 1765298168,
+      "sha256": "43e2b03227bd4b4eae85f12a69ef7f9549472803a71e283b2b498f99c6247840"
+    },
+    {
       "path": "backend/__init__.py",
       "size": 0,
       "mtime": 1759444915,
@@ -13790,9 +13796,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3613476,
-      "mtime": 1765297644,
-      "sha256": "4cb4ac3fc2b37f0de5b7bb95de33569432081bd53bfb694751316e14ad521fef"
+      "size": 3613681,
+      "mtime": 1765298004,
+      "sha256": "03e868a2fdacfd89e4c9906a19c81aa6d3a105a16d9cf1193c371e9ff36cae6c"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -29077,6 +29083,12 @@
       "sha256": "4cb4ac3fc2b37f0de5b7bb95de33569432081bd53bfb694751316e14ad521fef"
     },
     {
+      "path": "changelogs/snapshots/20251209-163300.json",
+      "size": 3613681,
+      "mtime": 1765298004,
+      "sha256": "03e868a2fdacfd89e4c9906a19c81aa6d3a105a16d9cf1193c371e9ff36cae6c"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -30165,8 +30177,8 @@
     {
       "path": "data/metrics/admin_metrics.db",
       "size": 507904,
-      "mtime": 1765297965,
-      "sha256": "d892198d19e07e4783b705689623e0fb9027b22adf02a339d8103061c35a337d"
+      "mtime": 1765298265,
+      "sha256": "a28acbed1a5390457edf79b25eabd7aae0fa6c21407847b8397255516670dac1"
     },
     {
       "path": "data/metrics/knowledge_history.json",
