@@ -251,44 +251,11 @@ def api_export_generation(generation_id: str, format: str = "pptx"):
             return result
         
         elif format == "pptx":
-            # PowerPoint mit PPTXDesignerV2
-            from services.pptx_designer_v2 import PPTXDesignerV2
-            
-            colors = {
-                "primary": "#1E40AF",
-                "secondary": "#3B82F6",
-                "accent": "#10B981",
-                "background": "#FFFFFF",
-                "text": "#111827"
-            }
-            
-            designer = PPTXDesignerV2(colors=colors)
-            pptx_bytes = designer.create_presentation(
-                slides=slides,
-                title=session.request.topic,
-                company=session.request.customer_name or "",
-                include_sources_slide=True
-            )
-            
-            # Speichern
-            import time
-            from pathlib import Path
-            ts = int(time.time())
-            exports_dir = Path("data/exports")
-            exports_dir.mkdir(parents=True, exist_ok=True)
-            filename = f"live-{generation_id[:8]}-{ts}.pptx"
-            out_path = exports_dir / filename
-            
-            with open(out_path, "wb") as f:
-                f.write(pptx_bytes)
-            
-            result = {
-                "ok": True,
-                "url": f"/exports/download/{filename}",
-                "path": str(out_path),
-                "slides_count": len(slides)
-            }
+            # Standard PPTX Export
+            from services.pptx_builder import build_pptx
+            result = build_pptx(slides, session.request.topic)
             return result
+        
         else:
             return {"ok": False, "error": f"Unbekanntes Format: {format}"}
     
