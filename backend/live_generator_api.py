@@ -51,6 +51,7 @@ class LiveGenerationRequest(BaseModel):
     brief: str
     customer_name: str = ""
     industry: str = ""
+    target_audience: str = ""
     deck_size: int = 15
     enable_charts: bool = True
     enable_images: bool = False
