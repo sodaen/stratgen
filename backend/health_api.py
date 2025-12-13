@@ -1,3 +1,7 @@
+from fastapi import APIRouter
+
+router = APIRouter(tags=["health"])
+
 
 # === RAG & Knowledge Status ===
 @router.get("/rag/status")
