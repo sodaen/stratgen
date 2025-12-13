@@ -315,3 +315,113 @@ def api_export_generation(generation_id: str, format: str = "pptx"):
 #             await websocket.send_json(event)
 #     except WebSocketDisconnect:
 #         pass
+
+
+# ============================================
+# SYNCHRONER GENERATE ENDPOINT (für Tests)
+# ============================================
+
+@router.post("/generate-sync")
+async def api_generate_sync(req: LiveGenerationRequest):
+    """
+    Synchrone Generierung - wartet bis alle Slides fertig sind.
+    Für Backend-Tests und CLI-Nutzung.
+    
+    ACHTUNG: Kann bei vielen Slides mehrere Minuten dauern!
+    """
+    if not HAS_LIVE_GENERATOR:
+        raise HTTPException(500, "Live Generator nicht verfügbar")
+    
+    import time
+    start_time = time.time()
+    
+    # Session erstellen
+    result = start_generation({
+        "topic": req.topic,
+        "brief": req.brief,
+        "customer_name": req.customer_name,
+        "industry": req.industry,
+        "target_audience": req.target_audience,
+        "deck_size": req.deck_size,
+        "style": req.style,
+        "enable_charts": req.enable_charts,
+        "enable_images": req.enable_images,
+        "temperature": req.temperature
+    })
+    
+    if not result.get("ok", True):
+        return result
+    
+    generation_id = result.get("generation_id")
+    if not generation_id:
+        return {"ok": False, "error": "No generation_id"}
+    
+    # Generierung durchführen
+    slides = []
+    events = []
+    error = None
+    
+    try:
+        async for event in live_generator.generate_async(generation_id):
+            events.append(event)
+            
+            if event.get("type") == "slide_ready":
+                slide = event.get("data", {}).get("slide", {})
+                slides.append(slide)
+                # Log progress
+                print(f"[{generation_id}] Slide {len(slides)} generiert: {slide.get('title', '?')}")
+            
+            elif event.get("type") == "error":
+                error = event.get("data", {}).get("message", "Unknown error")
+                break
+            
+            elif event.get("type") == "complete":
+                break
+    
+    except Exception as e:
+        error = str(e)
+    
+    duration = time.time() - start_time
+    
+    if error:
+        return {
+            "ok": False,
+            "error": error,
+            "generation_id": generation_id,
+            "slides_generated": len(slides),
+            "duration_seconds": round(duration, 1)
+        }
+    
+    # Session-Daten speichern für späteren Export
+    session = live_generator.get_session(generation_id)
+    if session:
+        # Speichere als JSON für Export
+        import json
+        from pathlib import Path
+        
+        session_file = Path("data/live_sessions") / f"{generation_id}.json"
+        session_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(session_file, 'w') as f:
+            json.dump({
+                "generation_id": generation_id,
+                "title": req.topic,
+                "slides": slides,
+                "request": {
+                    "topic": req.topic,
+                    "brief": req.brief,
+                    "customer_name": req.customer_name,
+                    "deck_size": req.deck_size
+                },
+                "duration_seconds": round(duration, 1)
+            }, f, indent=2, ensure_ascii=False)
+    
+    return {
+        "ok": True,
+        "generation_id": generation_id,
+        "slides_count": len(slides),
+        "duration_seconds": round(duration, 1),
+        "slides_per_minute": round(len(slides) / (duration / 60), 1) if duration > 0 else 0,
+        "export_url": f"/api/export/pptx/{generation_id}",
+        "slides": slides
+    }
