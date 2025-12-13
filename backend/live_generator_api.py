@@ -47,14 +47,17 @@ except ImportError as e:
 # ============================================
 
 class LiveGenerationRequest(BaseModel):
+    """Request für Live-Generierung."""
     topic: str
-    brief: str
+    brief: str = ""
     customer_name: str = ""
     industry: str = ""
     target_audience: str = ""
     deck_size: int = 15
+    style: str = "corporate"
     enable_charts: bool = True
     enable_images: bool = False
+    temperature: float = 0.7
 
 
 class SlideEditRequest(BaseModel):
