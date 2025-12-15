@@ -533,7 +533,7 @@ class LiveGenerator:
         content_needed = slide_count - 5  # 3 intro + 2 closing
         type_index = 0
         
-        while len(structure) < slide_count - 2 and type_index < len(content_types):
+        while len(structure) < slide_count - 2:
             slide_type, title = content_types[type_index % len(content_types)]
             
             # Bei vielen Slides: Nummerierung hinzufügen
