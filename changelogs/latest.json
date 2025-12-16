@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251216-124914",
+  "created_utc": "20251216-125514",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "c27ca3e0",
+    "commit": "91115f69",
     "branch": "staging"
   },
   "files": [
@@ -4364,9 +4364,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 10030076,
-      "mtime": 1765889323,
-      "sha256": "42c2ab29af078bb04df9f51dc8df6d6d66e9406f8816a6cc2aba4b2e25990b1f"
+      "size": 10030459,
+      "mtime": 1765889683,
+      "sha256": "755a9ab006218cd4e7addeda36c3934c21d5964c3f28029483a6c5f4fb282b02"
     },
     {
       "path": "COMMANDS.md",
@@ -13802,9 +13802,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3800007,
-      "mtime": 1765889023,
-      "sha256": "01460ccdc0c5b6ce9cde49fbe70558851bfb3413cb59a3bf94aced1061cdd6e4"
+      "size": 3800212,
+      "mtime": 1765889383,
+      "sha256": "acd4328d351947be59275b10cdcd63605cd9ca41ce5180016a15d0d22b7a28b9"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -34519,6 +34519,12 @@
       "sha256": "01460ccdc0c5b6ce9cde49fbe70558851bfb3413cb59a3bf94aced1061cdd6e4"
     },
     {
+      "path": "changelogs/snapshots/20251216-124914.json",
+      "size": 3800212,
+      "mtime": 1765889383,
+      "sha256": "acd4328d351947be59275b10cdcd63605cd9ca41ce5180016a15d0d22b7a28b9"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -35625,8 +35631,8 @@
     {
       "path": "data/metrics/admin_metrics.db",
       "size": 1441792,
-      "mtime": 1765889333,
-      "sha256": "1d44c12961602eea878f874a9c74939330a9e8b09bb1177f576853c82a106471"
+      "mtime": 1765889693,
+      "sha256": "ffc37c7feb7ed5c1d4342e171bab5324a7cc0947f1a52e7fa327a23e569c15e9"
     },
     {
       "path": "data/metrics/knowledge_history.json",
@@ -35681,6 +35687,18 @@
       "size": 27426816,
       "mtime": 1764846521,
       "sha256": "a4a6a587edbd4ab51ef849c8ffa741a9fdc093d689ceccd723e501f5512311df"
+    },
+    {
+      "path": "data/projects.sqlite-shm",
+      "size": 32768,
+      "mtime": 1765889714,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    {
+      "path": "data/projects.sqlite-wal",
+      "size": 0,
+      "mtime": 1765889714,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "path": "data/projects.sqlite.json",
@@ -102347,6 +102365,12 @@
       "size": 1788,
       "mtime": 1764442207,
       "sha256": "23b711641e94e262bacf43267eb42f5766ec45b56b59d393a88ade3eec83d811"
+    },
+    {
+      "path": "scripts/generate_deck.py",
+      "size": 5770,
+      "mtime": 1765889681,
+      "sha256": "ba3829f025bb3a1d07db2e335690c1edce8bd09200083194281ae79ea9432e08"
     },
     {
       "path": "scripts/generate_text.sh",
