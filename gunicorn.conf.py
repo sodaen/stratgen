@@ -2,7 +2,7 @@ import os
 bind = "127.0.0.1:8011"
 workers = int(os.getenv("GUNICORN_WORKERS", "1"))
 worker_class = "uvicorn.workers.UvicornWorker"
-timeout = int(os.getenv("GUNICORN_TIMEOUT", "300"))
+timeout = int(os.getenv("GUNICORN_TIMEOUT", "1800"))
 graceful_timeout = int(os.getenv("GUNICORN_GRACEFUL_TIMEOUT", "90"))
 keepalive = int(os.getenv("GUNICORN_KEEPALIVE", "30"))
 accesslog = "logs/gunicorn-access.log"
