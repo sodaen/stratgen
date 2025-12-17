@@ -324,7 +324,7 @@ Für Personas: Nutze das Format "Name: ...", "Rolle: ...", "Pain Points: ...", e
             return result
         
         # Default: Bullets oder Text
-        result["title"] = chapter_title if chapter_title else "Inhalt"
+        result["title"] = "Inhalt"
         
         if slide_type == "text":
             # Für Text-Slides: Absätze behalten
