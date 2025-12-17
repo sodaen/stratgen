@@ -14,6 +14,16 @@ from pathlib import Path
 
 sys.path.insert(0, '/home/sodaen/stratgen')
 
+# Research Enrichment für externe Daten
+try:
+    from services.research_enrichment import enrich_topic, generate_research_prompt_context, get_slide_enrichment
+    HAS_RESEARCH = True
+except ImportError:
+    HAS_RESEARCH = False
+    def enrich_topic(*args, **kwargs): return {}
+    def generate_research_prompt_context(*args, **kwargs): return ""
+    def get_slide_enrichment(*args, **kwargs): return {}
+
 
 @dataclass
 class PresentationBrief:
@@ -375,10 +385,13 @@ BRIEFING:
 AUFGABE:
 {instruction}
 
+RECHERCHE-KONTEXT:
+{self.research_context if hasattr(self, 'research_context') and self.research_context else 'Keine externen Daten verfügbar.'}
+
 WICHTIG:
 - Schreibe auf Deutsch
 - Sei konkret und spezifisch - keine generischen Aussagen
-- Verwende realistische Zahlen und Fakten
+- Verwende realistische Zahlen und Fakten (nutze den Recherche-Kontext!)
 - Passe den Inhalt an {brief.industry or 'die Branche'} an
 - Der Content muss zum Slide-Titel "{title}" passen
 
@@ -522,6 +535,15 @@ Antworte NUR mit dem geforderten Content, keine Einleitung oder Erklärung."""
     
     def generate(self, brief: PresentationBrief, progress_callback=None) -> List[Dict[str, Any]]:
         """Generiert eine komplette Präsentation."""
+        
+        # Research-Kontext für bessere Inhalte
+        if HAS_RESEARCH:
+            print("  Recherchiere externe Quellen...")
+            self.research_context = generate_research_prompt_context(brief.topic, brief.industry)
+            self.topic_enrichment = enrich_topic(brief.topic, brief.industry)
+        else:
+            self.research_context = ""
+            self.topic_enrichment = {}
         
         template_name = self._detect_template(brief)
         self.template = DECK_TEMPLATES.get(template_name, self.template)
