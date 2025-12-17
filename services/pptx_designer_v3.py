@@ -1,12 +1,12 @@
 """
-PPTX Designer V3 - Intelligente Praesentation-Engine
+PPTX Designer V3 - Mit Bild-Integration
 """
 
 import io
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
-
 from pathlib import Path
+
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -27,12 +27,13 @@ class PPTXDesignerV3:
         }
     }
     
-    def __init__(self, colors=None, palette="corporate", company_name="", include_slide_numbers=True):
+    def __init__(self, colors=None, palette="corporate", company_name="", include_slide_numbers=True, auto_images=True):
         self.palette = self.PALETTES.get(palette, self.PALETTES["corporate"])
         if colors:
             self.palette.update(colors)
         self.company_name = company_name
         self.include_slide_numbers = include_slide_numbers
+        self.auto_images = auto_images
         self.prs = Presentation()
         self.prs.slide_width = Inches(13.333)
         self.prs.slide_height = Inches(7.5)
@@ -71,6 +72,37 @@ class PPTXDesignerV3:
         p.alignment = align
         return txBox
     
+    def _add_image(self, slide, image_path, left, top, width=None, height=None):
+        """Fuegt ein Bild zum Slide hinzu."""
+        try:
+            img_path = Path(image_path) if image_path else None
+            if img_path and img_path.exists():
+                if width and height:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), Inches(width), Inches(height))
+                elif width:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), width=Inches(width))
+                elif height:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), height=Inches(height))
+                else:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top))
+                return True
+        except Exception as e:
+            print(f"Bild-Fehler: {e}")
+        return False
+    
+    def _get_image_for_slide(self, slide_type: str, title: str = "") -> Optional[str]:
+        """Holt automatisch ein passendes Bild via Unsplash."""
+        if not self.auto_images:
+            return None
+        try:
+            from services.unsplash_service import get_image_for_slide
+            result = get_image_for_slide(slide_type, title)
+            if result:
+                return result.get("local_path")
+        except Exception as e:
+            print(f"Unsplash error: {e}")
+        return None
+    
     def _add_slide_number(self, slide, number):
         if self.include_slide_numbers:
             self._add_text_box(slide, 12.5, 7.0, 0.7, 0.3, f"{number}/{self.total_slides}", font_size=10, font_color=self.palette["text_light"], align=PP_ALIGN.RIGHT)
@@ -80,7 +112,18 @@ class PPTXDesignerV3:
             self._add_text_box(slide, 0.5, 7.0, 4, 0.3, self.company_name, font_size=10, font_color=self.palette["text_light"])
     
     def _render_title_slide(self, slide, data, number):
-        self._add_background(slide, self.palette["primary"])
+        # Hintergrund-Bild oder Farbe
+        image_path = data.get("image_path") or self._get_image_for_slide("title", data.get("title", ""))
+        if image_path:
+            self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
+            # Overlay fuer bessere Lesbarkeit
+            overlay = self._add_shape(slide, 0, 0, 13.333, 7.5, self.palette["primary"])
+            overlay.fill.solid()
+            overlay.fill.fore_color.rgb = self._hex_to_rgb(self.palette["primary"])
+            # Transparenz simulieren durch dunklere Farbe
+        else:
+            self._add_background(slide, self.palette["primary"])
+        
         self._add_shape(slide, 1, 3.2, 11.333, 0.02, self.palette["accent"])
         title = data.get("title", "Praesentation")
         self._add_text_box(slide, 1, 2.0, 11.333, 1.2, title, font_size=44, font_color="#FFFFFF", bold=True, align=PP_ALIGN.CENTER)
@@ -91,7 +134,17 @@ class PPTXDesignerV3:
         self._add_text_box(slide, 1, 6.5, 11.333, 0.4, date_str, font_size=14, font_color=self.palette["secondary"], align=PP_ALIGN.CENTER)
     
     def _render_chapter_slide(self, slide, data, number):
-        self._add_background(slide, self.palette["chapter_bg"])
+        # Hintergrund-Bild oder Farbe
+        image_path = data.get("image_path") or self._get_image_for_slide("chapter", data.get("title", ""))
+        if image_path:
+            self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
+            # Dunkles Overlay
+            overlay = self._add_shape(slide, 0, 0, 13.333, 7.5, "#000000")
+            # Leider keine echte Transparenz in python-pptx, daher dunkler Balken
+            self._add_shape(slide, 0, 2.0, 13.333, 4.0, self.palette["chapter_bg"])
+        else:
+            self._add_background(slide, self.palette["chapter_bg"])
+        
         self._add_shape(slide, 0, 0, 0.15, 7.5, self.palette["accent"])
         chapter_num = data.get("chapter_number", "")
         if chapter_num:
@@ -165,7 +218,16 @@ class PPTXDesignerV3:
         self._add_shape(slide, 0, 0, 13.333, 1.0, self.palette["primary"])
         title = data.get("title", "Persona")
         self._add_text_box(slide, 0.5, 0.25, 12, 0.6, title, font_size=24, bold=True, font_color="#FFFFFF")
-        self._add_shape(slide, 0.5, 1.3, 2.5, 2.5, self.palette["secondary"], MSO_SHAPE.OVAL)
+        
+        # Persona-Bild (Kreis mit Bild oder Platzhalter)
+        image_path = data.get("image_path") or self._get_image_for_slide("persona", data.get("persona_name", ""))
+        if image_path:
+            # Bild einfuegen (quadratisch)
+            self._add_image(slide, image_path, 0.5, 1.3, 2.5, 2.5)
+        else:
+            # Platzhalter-Kreis
+            self._add_shape(slide, 0.5, 1.3, 2.5, 2.5, self.palette["secondary"], MSO_SHAPE.OVAL)
+        
         bullets = data.get("bullets", [])
         name = data.get("persona_name", bullets[0] if bullets else "Max Mustermann")
         role = data.get("persona_role", bullets[1] if len(bullets) > 1 else "Entscheider")
@@ -252,7 +314,14 @@ class PPTXDesignerV3:
         self._add_footer(slide)
     
     def _render_quote_slide(self, slide, data, number):
-        self._add_background(slide, self.palette["chapter_bg"])
+        # Hintergrund-Bild oder Farbe
+        image_path = data.get("image_path") or self._get_image_for_slide("quote", data.get("quote", ""))
+        if image_path:
+            self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
+            self._add_shape(slide, 0, 0, 13.333, 7.5, self.palette["chapter_bg"])
+        else:
+            self._add_background(slide, self.palette["chapter_bg"])
+        
         self._add_text_box(slide, 1, 1.5, 2, 1.5, '"', font_size=100, font_color=self.palette["accent"], bold=True)
         bullets = data.get("bullets", [])
         quote = data.get("quote", bullets[0] if bullets else "Zitat")
@@ -291,24 +360,6 @@ class PPTXDesignerV3:
             txt = "\n".join(str(b) for b in bullets[:3]) if bullets else self.company_name
             self._add_text_box(slide, 4.2, 4.7, 4.933, 1.6, txt, font_size=14, font_color="#FFFFFF", align=PP_ALIGN.CENTER)
     
-
-    def _add_image(self, slide, image_path, left, top, width=None, height=None):
-        """Fügt ein Bild zum Slide hinzu."""
-        try:
-            from pathlib import Path
-            img_path = Path(image_path)
-            if img_path.exists():
-                if width and height:
-                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), Inches(width), Inches(height))
-                elif width:
-                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), width=Inches(width))
-                else:
-                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top))
-                return True
-        except Exception as e:
-            print(f"Bild-Fehler: {e}")
-        return False
-
     def create_presentation(self, slides, title="Praesentation", company="", include_sources_slide=False):
         self.company_name = company or self.company_name
         self.total_slides = len(slides)
@@ -345,6 +396,6 @@ class PPTXDesignerV3:
         return output.read()
 
 
-def create_presentation_v3(slides, title="Praesentation", company="", colors=None, palette="corporate"):
-    designer = PPTXDesignerV3(colors=colors, palette=palette, company_name=company)
+def create_presentation_v3(slides, title="Praesentation", company="", colors=None, palette="corporate", auto_images=True):
+    designer = PPTXDesignerV3(colors=colors, palette=palette, company_name=company, auto_images=auto_images)
     return designer.create_presentation(slides, title, company)
