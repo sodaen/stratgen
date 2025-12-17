@@ -109,7 +109,15 @@ class IntelligentDeckGenerator:
         try:
             from services.llm import generate
             self.llm_calls += 1
-            return generate(prompt, temperature=0.7, max_tokens=max_tokens)
+            result = generate(prompt, temperature=0.7, max_tokens=max_tokens)
+            # Handle dict response from Ollama
+            if isinstance(result, dict):
+                if result.get('ok'):
+                    return result.get('response', '')
+                else:
+                    print(f"LLM Error: {result.get('error', 'Unknown')}")
+                    return ""
+            return str(result)
         except Exception as e:
             print(f"LLM Error: {e}")
             return ""
