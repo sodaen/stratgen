@@ -744,3 +744,67 @@ try:
     app.include_router(_agent_autotune_router)
 except Exception:
     pass
+
+
+# ============================================
+# INTELLIGENT DECK GENERATOR API
+# ============================================
+
+@app.post("/api/generate/intelligent")
+async def generate_intelligent_deck(request: Request):
+    """
+    Generiert eine intelligente Präsentation aus einem Briefing.
+    
+    Body:
+    {
+        "topic": "Thema der Präsentation",
+        "objective": "Ziel und Kontext",
+        "customer": "Kundenname",
+        "industry": "Branche",
+        "target_audience": "Zielgruppe",
+        "slide_count": 30,
+        "auto_images": true
+    }
+    """
+    try:
+        data = await request.json()
+        
+        from services.intelligent_deck_generator import generate_presentation_from_brief
+        import time
+        
+        timestamp = int(time.time())
+        safe_topic = "".join(c if c.isalnum() else "-" for c in data.get("topic", "deck")[:30])
+        output_path = f"data/exports/{safe_topic}-{timestamp}.pptx"
+        
+        result = generate_presentation_from_brief(
+            topic=data.get("topic", "Präsentation"),
+            objective=data.get("objective", ""),
+            customer=data.get("customer", ""),
+            industry=data.get("industry", ""),
+            target_audience=data.get("target_audience", ""),
+            slide_count=data.get("slide_count", 30),
+            output_path=output_path,
+            auto_images=data.get("auto_images", True)
+        )
+        
+        # Entferne pptx_bytes aus Response (zu groß für JSON)
+        if "pptx_bytes" in result:
+            del result["pptx_bytes"]
+        
+        return result
+        
+    except Exception as e:
+        import traceback
+        return {"ok": False, "error": str(e), "traceback": traceback.format_exc()}
+
+
+@app.get("/api/generate/templates")
+async def get_deck_templates():
+    """Gibt verfügbare Präsentations-Templates zurück."""
+    return {
+        "templates": [
+            {"id": "gtm_strategy", "name": "Go-to-Market Strategie", "slides": "~31"},
+            {"id": "pitch_deck", "name": "Pitch Deck", "slides": "~20"},
+            {"id": "sales_deck", "name": "Sales Präsentation", "slides": "~18"},
+        ]
+    }
