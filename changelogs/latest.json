@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251217-154947",
+  "created_utc": "20251217-155547",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "4ee6bc83",
+    "commit": "bdfe23b9",
     "branch": "staging"
   },
   "files": [
@@ -4370,9 +4370,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 10127086,
-      "mtime": 1765986585,
-      "sha256": "219837abd0222c08da7766416f2c389abd43d1bb9b687296ab44dbc76cc37c2a"
+      "size": 10127442,
+      "mtime": 1765986945,
+      "sha256": "a77247770aa924deea5e94313ac25d6e7740221c979e16e04dbf492f43e1d954"
     },
     {
       "path": "COMMANDS.md",
@@ -13808,9 +13808,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 3857914,
-      "mtime": 1765986258,
-      "sha256": "2875b3087a9a37fbd37feb0bb3fec110602c625603784f2e5c6311ce6848bed8"
+      "size": 3858119,
+      "mtime": 1765986618,
+      "sha256": "e613dac874de0720ecf6cd53d3763e4ad988c53b30e6f6816cbdc624501e8b3e"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -36151,6 +36151,12 @@
       "sha256": "2875b3087a9a37fbd37feb0bb3fec110602c625603784f2e5c6311ce6848bed8"
     },
     {
+      "path": "changelogs/snapshots/20251217-154947.json",
+      "size": 3858119,
+      "mtime": 1765986617,
+      "sha256": "e613dac874de0720ecf6cd53d3763e4ad988c53b30e6f6816cbdc624501e8b3e"
+    },
+    {
       "path": "config/datasources.yml",
       "size": 331,
       "mtime": 1761380376,
@@ -37257,8 +37263,8 @@
     {
       "path": "data/metrics/admin_metrics.db",
       "size": 1744896,
-      "mtime": 1765986591,
-      "sha256": "c6f7b844075ec3faa41515c5df361c54af39a32bc55286219279acb066484af4"
+      "mtime": 1765986951,
+      "sha256": "cf82cf38b061c382909b86b3bf9ed8320ef61c686b633b4d2ccff3e13f8fb263"
     },
     {
       "path": "data/metrics/knowledge_history.json",
