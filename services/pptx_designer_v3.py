@@ -6,6 +6,7 @@ import io
 from typing import Dict, Any, List
 from datetime import datetime
 
+from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -290,6 +291,24 @@ class PPTXDesignerV3:
             txt = "\n".join(str(b) for b in bullets[:3]) if bullets else self.company_name
             self._add_text_box(slide, 4.2, 4.7, 4.933, 1.6, txt, font_size=14, font_color="#FFFFFF", align=PP_ALIGN.CENTER)
     
+
+    def _add_image(self, slide, image_path, left, top, width=None, height=None):
+        """Fügt ein Bild zum Slide hinzu."""
+        try:
+            from pathlib import Path
+            img_path = Path(image_path)
+            if img_path.exists():
+                if width and height:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), Inches(width), Inches(height))
+                elif width:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top), width=Inches(width))
+                else:
+                    slide.shapes.add_picture(str(img_path), Inches(left), Inches(top))
+                return True
+        except Exception as e:
+            print(f"Bild-Fehler: {e}")
+        return False
+
     def create_presentation(self, slides, title="Praesentation", company="", include_sources_slide=False):
         self.company_name = company or self.company_name
         self.total_slides = len(slides)
