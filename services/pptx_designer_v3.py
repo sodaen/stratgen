@@ -116,11 +116,8 @@ class PPTXDesignerV3:
         image_path = data.get("image_path") or self._get_image_for_slide("title", data.get("title", ""))
         if image_path:
             self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
-            # Overlay fuer bessere Lesbarkeit
-            overlay = self._add_shape(slide, 0, 0, 13.333, 7.5, self.palette["primary"])
-            overlay.fill.solid()
-            overlay.fill.fore_color.rgb = self._hex_to_rgb(self.palette["primary"])
-            # Transparenz simulieren durch dunklere Farbe
+            # Nur unterer Balken für Textlesbarkeit (Bild bleibt sichtbar oben)
+            self._add_shape(slide, 0, 4.5, 13.333, 3.0, self.palette["primary"])
         else:
             self._add_background(slide, self.palette["primary"])
         
@@ -138,10 +135,8 @@ class PPTXDesignerV3:
         image_path = data.get("image_path") or self._get_image_for_slide("chapter", data.get("title", ""))
         if image_path:
             self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
-            # Dunkles Overlay
-            overlay = self._add_shape(slide, 0, 0, 13.333, 7.5, "#000000")
-            # Leider keine echte Transparenz in python-pptx, daher dunkler Balken
-            self._add_shape(slide, 0, 2.0, 13.333, 4.0, self.palette["chapter_bg"])
+            # Nur mittlerer Balken für Text (Bild oben und unten sichtbar)
+            self._add_shape(slide, 0, 2.5, 13.333, 2.5, self.palette["chapter_bg"])
         else:
             self._add_background(slide, self.palette["chapter_bg"])
         
