@@ -160,21 +160,37 @@ class PPTXDesignerV3:
         self._add_shape(slide, 0, 0, 13.333, 0.08, self.palette["primary"])
         title = data.get("title", "Inhalt")
         self._add_text_box(slide, 0.5, 0.4, 12, 0.7, title, font_size=28, bold=True, font_color=self.palette["primary"])
+        
+        # Optionales Bild rechts (jeder 3. Slide)
+        image_path = None
+        if self.auto_images and number % 3 == 0:
+            try:
+                from services.unsplash_service import get_image_for_slide
+                image_path = get_image_for_slide(title, self.company_name)
+            except:
+                pass
+        
         bullets = data.get("bullets", [])
         if not bullets:
             content = data.get("content", "")
             if content:
                 bullets = [content]
+        
+        text_width = 7.5 if image_path else 11.5
         y_pos = 1.4
         for bullet in bullets[:6]:
             if not bullet or len(str(bullet).strip()) < 3:
                 continue
             self._add_shape(slide, 0.5, y_pos + 0.15, 0.15, 0.15, self.palette["accent"], MSO_SHAPE.OVAL)
-            self._add_text_box(slide, 0.85, y_pos, 11.5, 0.9, str(bullet), font_size=16, font_color=self.palette["text"])
+            self._add_text_box(slide, 0.85, y_pos, text_width, 0.9, str(bullet), font_size=16, font_color=self.palette["text"])
             y_pos += 1.0
+        
+        if image_path:
+            self._add_image(slide, image_path, 9.0, 1.4, 3.8, 3.8)
+        
         self._add_slide_number(slide, number)
         self._add_footer(slide)
-    
+
     def _render_text_slide(self, slide, data, number):
         self._add_background(slide)
         self._add_shape(slide, 0, 0, 0.08, 7.5, self.palette["primary"])
@@ -351,23 +367,39 @@ class PPTXDesignerV3:
         self._add_slide_number(slide, number)
     
     def _render_conclusion_slide(self, slide, data, number):
-        self._add_background(slide)
-        self._add_shape(slide, 0, 0, 13.333, 0.15, self.palette["accent"])
+        # Optionales Hintergrundbild
+        image_path = None
+        if self.auto_images:
+            try:
+                from services.unsplash_service import get_image_for_slide
+                image_path = get_image_for_slide("success teamwork business", self.company_name)
+            except:
+                pass
+        
+        if image_path:
+            self._add_image(slide, image_path, 0, 0, 13.333, 7.5)
+            # Overlay
+            self._add_shape(slide, 0, 0, 13.333, 7.5, self.palette["primary"])
+        else:
+            self._add_background(slide)
+            self._add_shape(slide, 0, 0, 13.333, 0.15, self.palette["accent"])
+        
         title = data.get("title", "Key Takeaways")
-        self._add_text_box(slide, 0.5, 0.5, 12, 0.7, title, font_size=32, bold=True, font_color=self.palette["primary"])
+        self._add_text_box(slide, 0.5, 0.5, 12, 0.7, title, font_size=32, bold=True, font_color=self.palette["primary"] if not image_path else "#FFFFFF")
         bullets = data.get("bullets", [])
         cy = 1.5
+        text_color = self.palette["text"] if not image_path else "#FFFFFF"
         for i, b in enumerate(bullets[:5], 1):
-            self._add_shape(slide, 0.5, cy, 0.6, 0.6, self.palette["primary"])
+            self._add_shape(slide, 0.5, cy, 0.6, 0.6, self.palette["primary"] if not image_path else self.palette["accent"])
             self._add_text_box(slide, 0.5, cy + 0.05, 0.6, 0.5, str(i), font_size=20, bold=True, font_color="#FFFFFF", align=PP_ALIGN.CENTER)
-            self._add_text_box(slide, 1.3, cy, 11, 0.9, str(b), font_size=16, font_color=self.palette["text"])
+            self._add_text_box(slide, 1.3, cy, 11, 0.9, str(b), font_size=16, font_color=text_color)
             cy += 1.1
         cta = data.get("cta", bullets[5] if len(bullets) > 5 else "")
         if cta:
             self._add_shape(slide, 0.5, 6.3, 12.333, 0.8, self.palette["accent"])
             self._add_text_box(slide, 0.5, 6.4, 12.333, 0.6, str(cta), font_size=18, bold=True, font_color="#FFFFFF", align=PP_ALIGN.CENTER)
-        self._add_slide_number(slide, number)
-    
+        self._add_slide_number(slide, number, color="#FFFFFF" if image_path else None)
+
     def _render_contact_slide(self, slide, data, number):
         self._add_background(slide, self.palette["primary"])
         title = data.get("title", "Vielen Dank!")
