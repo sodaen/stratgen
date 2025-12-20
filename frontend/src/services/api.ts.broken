@@ -28,27 +28,6 @@ interface UnifiedStatus {
   workers: any
 }
 
-// Typen für Intelligent Generator
-interface IntelligentGeneratorParams {
-  topic: string
-  objective?: string
-  customer?: string
-  industry?: string
-  target_audience?: string
-  slide_count?: number
-  auto_images?: boolean
-}
-
-interface IntelligentGeneratorResponse {
-  ok: boolean
-  slides_count?: number
-  duration_seconds?: number
-  llm_calls?: number
-  output_path?: string
-  size_kb?: number
-  error?: string
-}
-
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = API_BASE + endpoint
@@ -69,21 +48,29 @@ class ApiService {
 
   // ==================== KONSOLIDIERTER STATUS ====================
   
+  /**
+   * Holt den kompletten System-Status in einem Aufruf.
+   * Ersetzt: getAgentStatus, getWorkersStatus, getOrchestratorStatus, etc.
+   */
   async getUnifiedStatus(): Promise<UnifiedStatus> {
     return this.request<UnifiedStatus>('/unified/status')
   }
 
+  /**
+   * Schneller Health-Check für alle Services.
+   */
   async getUnifiedHealth() {
     return this.request<any>('/unified/health')
   }
 
-  // ==================== LEGACY STATUS ====================
+  // ==================== LEGACY STATUS (für Kompatibilität) ====================
   
   async getHealth() {
     return this.request<{ status: string }>('/health')
   }
 
   async getAgentStatus() {
+    // Nutze unified status und extrahiere Agent-Teil
     try {
       const unified = await this.getUnifiedStatus()
       return {
@@ -125,29 +112,6 @@ class ApiService {
 
   async restartService(service: string) {
     return this.request<any>('/system/restart/' + service, { method: 'POST' })
-  }
-
-  // ==================== INTELLIGENT GENERATOR (NEU) ====================
-
-  async generateIntelligent(params: IntelligentGeneratorParams): Promise<IntelligentGeneratorResponse> {
-    return this.request<IntelligentGeneratorResponse>('/generate/intelligent', {
-      method: 'POST',
-      body: JSON.stringify(params),
-    })
-  }
-
-  async getTemplates() {
-    return this.request<{
-      templates: Array<{ id: string; name: string; slides: string }>
-    }>('/generate/templates')
-  }
-
-  async downloadPresentation(outputPath: string): Promise<Blob> {
-    const response = await fetch(API_BASE + '/files/download?path=' + encodeURIComponent(outputPath))
-    if (!response.ok) {
-      throw new Error('Download failed')
-    }
-    return response.blob()
   }
 
   // ==================== LIVE GENERATION ====================
@@ -302,3 +266,56 @@ class ApiService {
 }
 
 export const api = new ApiService()
+
+  // ==================== INTELLIGENT GENERATOR (NEU) ====================
+
+  /**
+   * Generiert eine Präsentation mit dem Intelligent Deck Generator.
+   * Nutzt LLM + Research Enrichment für hochwertige Inhalte.
+   */
+  async generateIntelligent(params: {
+    topic: string
+    objective?: string
+    customer?: string
+    industry?: string
+    target_audience?: string
+    slide_count?: number
+    auto_images?: boolean
+  }) {
+    return this.request<{
+      ok: boolean
+      slides_count?: number
+      duration_seconds?: number
+      llm_calls?: number
+      output_path?: string
+      size_kb?: number
+      error?: string
+    }>('/generate/intelligent', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    })
+  }
+
+  /**
+   * Holt verfügbare Präsentations-Templates.
+   */
+  async getTemplates() {
+    return this.request<{
+      templates: Array<{
+        id: string
+        name: string
+        slides: string
+      }>
+    }>('/generate/templates')
+  }
+
+  /**
+   * Download einer generierten PPTX-Datei.
+   */
+  async downloadPresentation(outputPath: string): Promise<Blob> {
+    const response = await fetch('/api/files/download?path=' + encodeURIComponent(outputPath))
+    if (!response.ok) {
+      throw new Error('Download failed')
+    }
+    return response.blob()
+  }
