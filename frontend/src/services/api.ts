@@ -266,3 +266,56 @@ class ApiService {
 }
 
 export const api = new ApiService()
+
+  // ==================== INTELLIGENT GENERATOR (NEU) ====================
+
+  /**
+   * Generiert eine Präsentation mit dem Intelligent Deck Generator.
+   * Nutzt LLM + Research Enrichment für hochwertige Inhalte.
+   */
+  async generateIntelligent(params: {
+    topic: string
+    objective?: string
+    customer?: string
+    industry?: string
+    target_audience?: string
+    slide_count?: number
+    auto_images?: boolean
+  }) {
+    return this.request<{
+      ok: boolean
+      slides_count?: number
+      duration_seconds?: number
+      llm_calls?: number
+      output_path?: string
+      size_kb?: number
+      error?: string
+    }>('/generate/intelligent', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    })
+  }
+
+  /**
+   * Holt verfügbare Präsentations-Templates.
+   */
+  async getTemplates() {
+    return this.request<{
+      templates: Array<{
+        id: string
+        name: string
+        slides: string
+      }>
+    }>('/generate/templates')
+  }
+
+  /**
+   * Download einer generierten PPTX-Datei.
+   */
+  async downloadPresentation(outputPath: string): Promise<Blob> {
+    const response = await fetch('/api/files/download?path=' + encodeURIComponent(outputPath))
+    if (!response.ok) {
+      throw new Error('Download failed')
+    }
+    return response.blob()
+  }
