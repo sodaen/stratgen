@@ -16,68 +16,27 @@ UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "moK2jVfu4dsOnnm-gM_7e-yd
 CACHE_DIR = Path("data/images/unsplash_cache")
 
 
-# Keyword-Mappings für Slide-Typen - VERBESSERT v3.41
+# Keyword-Mappings für Slide-Typen
 SLIDE_TYPE_KEYWORDS = {
-    # Title & Chapter - dunkle, kontrastreiche Bilder
-    "title": "dark corporate skyline night",
-    "chapter": "dark abstract minimal geometric",
-    
-    # Strategie & Analyse
-    "executive_summary": "aerial city view modern",
-    "context": "landscape horizon perspective",
-    "situation": "cityscape urban modern",
-    "market": "trading floor financial",
-    "analysis": "data visualization abstract",
-    "competition": "chess strategy game",
-    
-    # People & Team
-    "persona": "professional portrait headshot",
-    "team": "diverse team collaboration",
-    "stakeholder": "business meeting conference",
-    
-    # Process & Planning
-    "timeline": "road highway perspective",
-    "roadmap": "mountain path journey",
-    "process": "workflow automation factory",
-    "milestones": "steps climbing achievement",
-    
-    # Data & Metrics
-    "chart": "abstract data lines",
-    "data": "digital technology abstract",
-    "metrics": "dashboard analytics screen",
-    "kpi": "performance measurement gauge",
-    
-    # Solutions & Benefits
-    "solution": "light bulb innovation idea",
-    "benefits": "growth plant nature success",
-    "features": "technology circuit modern",
-    "approach": "bridge connection architecture",
-    
-    # Risk & Budget
-    "risks": "storm weather dramatic",
-    "mitigation": "shield protection security",
-    "budget": "coins investment finance",
-    "roi": "growth chart profit arrow",
-    
-    # Conclusion & Contact
-    "conclusion": "sunrise horizon optimism",
-    "next_steps": "arrow direction forward",
-    "contact": "handshake partnership deal",
-    "quote": "minimal typography dark",
-}
-
-# Industrie-spezifische Keywords
-INDUSTRY_KEYWORDS = {
-    "technology": ["digital", "circuit", "code", "server"],
-    "finance": ["trading", "coins", "wealth", "banking"],
-    "healthcare": ["medical", "hospital", "health", "care"],
-    "manufacturing": ["factory", "industrial", "production"],
-    "retail": ["shopping", "store", "commerce", "market"],
-    "consulting": ["strategy", "meeting", "professional"],
-    "energy": ["solar", "wind", "power", "sustainable"],
-    "automotive": ["car", "vehicle", "automotive", "road"],
-    "real_estate": ["building", "architecture", "property"],
-    "media": ["camera", "broadcast", "entertainment"],
+    "title": "business presentation professional",
+    "chapter": "abstract gradient modern",
+    "executive_summary": "business strategy overview",
+    "market": "market analysis data charts",
+    "competition": "competition business rivalry",
+    "persona": "business professional portrait",
+    "comparison": "comparison options choice",
+    "chart": "data analytics dashboard",
+    "timeline": "roadmap journey path",
+    "roadmap": "roadmap journey planning",
+    "quote": "inspiration motivation",
+    "conclusion": "success achievement goal",
+    "contact": "handshake partnership team",
+    "team": "team collaboration office",
+    "benefits": "growth success business",
+    "features": "technology innovation",
+    "risks": "risk management strategy",
+    "budget": "finance money investment",
+    "roi": "return investment profit",
 }
 
 
@@ -102,30 +61,17 @@ def get_image_for_slide(
         Dict mit Bild-Infos oder None
     """
     # Query zusammenbauen
-    base_query = SLIDE_TYPE_KEYWORDS.get(slide_type.lower(), SLIDE_TYPE_KEYWORDS.get("context", "professional business"))
+    base_query = SLIDE_TYPE_KEYWORDS.get(slide_type, "business professional")
     
-    # Industrie-Keywords hinzufügen wenn verfügbar
-    industry = ""
+    # Keywords aus Titel extrahieren
+    title_words = title.lower().split()[:3] if title else []
+    
+    # Finale Query
+    query_parts = [base_query] + title_words
     if keywords:
-        for kw in keywords:
-            kw_lower = kw.lower()
-            if kw_lower in INDUSTRY_KEYWORDS:
-                industry = " ".join(INDUSTRY_KEYWORDS[kw_lower][:2])
-                break
+        query_parts.extend(keywords)
     
-    # Relevante Wörter aus Titel extrahieren (keine Stoppwörter)
-    stopwords = {"der", "die", "das", "und", "für", "von", "mit", "zu", "im", "the", "and", "for", "to", "in", "a", "an"}
-    title_words = [w for w in title.lower().split() if len(w) > 3 and w not in stopwords][:2] if title else []
-    
-    # Finale Query: Base + Industrie + Titel-Keywords
-    query_parts = [base_query]
-    if industry:
-        query_parts.append(industry)
-    query_parts.extend(title_words)
-    if keywords:
-        query_parts.extend([k for k in keywords if k.lower() not in INDUSTRY_KEYWORDS][:2])
-    
-    query = " ".join(query_parts[:6])  # Max 6 Begriffe
+    query = " ".join(query_parts[:5])  # Max 5 Begriffe
     
     # API aufrufen
     url = "https://api.unsplash.com/search/photos"
