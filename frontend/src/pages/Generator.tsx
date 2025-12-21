@@ -78,6 +78,10 @@ export default function Generator() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Intelligent Mode - nutzt neuen Generator mit Research
+  const [useIntelligentMode, setUseIntelligentMode] = useState(true)
+  const [intelligentResult, setIntelligentResult] = useState<any>(null)
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -174,6 +178,46 @@ export default function Generator() {
     setError(null)
     setSlides([])
     setProgress(0)
+    setIntelligentResult(null)
+
+    // Intelligent Mode - direkter API-Call ohne Session
+    if (useIntelligentMode) {
+      setCurrentPhase('Generating with AI + Research...')
+      try {
+        const response = await fetch('/api/generate/intelligent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: config.project_name || config.brief.substring(0, 50),
+            objective: config.brief,
+            customer: config.company_name,
+            industry: config.industry,
+            target_audience: config.audience,
+            slide_count: config.deck_size,
+            auto_images: true
+          })
+        })
+        
+        if (!response.ok) throw new Error('Generation failed')
+        
+        const result = await response.json()
+        
+        if (result.ok) {
+          setIntelligentResult(result)
+          setProgress(100)
+          setCurrentPhase('Complete!')
+        } else {
+          throw new Error(result.error || 'Generation failed')
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to generate')
+      } finally {
+        setIsGenerating(false)
+      }
+      return
+    }
+
+    // Session Mode (Legacy)
     setCurrentPhase('Creating session...')
 
     try {
