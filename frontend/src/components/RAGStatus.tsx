@@ -6,6 +6,10 @@ interface RAGStats {
   collections: Record<string, { points: number; status: string }>
   total_chunks?: number
   metrics?: any
+  // New API fields
+  qdrant_available?: boolean
+  embedder_available?: boolean
+  vision_available?: boolean
   // Optional legacy fields
   rag?: {
     qdrant: boolean
