@@ -16,7 +16,8 @@ import {
   AlertCircle,
   Image as ImageIcon,
   FileSpreadsheet,
-  File
+  File,
+  Download
 } from 'lucide-react'
 import { cn } from '../utils/helpers'
 import { useSessionStore } from '../stores/sessionStore'
@@ -936,6 +937,7 @@ function StepGenerate({
         
         <div className="flex justify-center gap-4">
           {intelligentResult ? (
+            <a
             
               href={"/api/files/download?path=" + encodeURIComponent(intelligentResult.output_path || "")}
               className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center gap-2"
