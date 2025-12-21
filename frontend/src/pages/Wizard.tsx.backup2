@@ -83,10 +83,6 @@ export default function Wizard() {
   
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [briefingQuality, setBriefingQuality] = useState(0)
-  
-  // Intelligent Mode
-  const [useIntelligentMode, setUseIntelligentMode] = useState(true)
-  const [intelligentResult, setIntelligentResult] = useState<any>(null)
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -222,44 +218,8 @@ export default function Wizard() {
     setIsGenerating(true)
     setError(null)
     setProgress(0)
-    setIntelligentResult(null)
-
-    // Intelligent Mode
-    if (useIntelligentMode) {
-      setCurrentPhase('Generating with AI + Research...')
-      try {
-        const response = await fetch('/api/generate/intelligent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            topic: config.project_name || config.brief.substring(0, 50),
-            objective: config.brief,
-            customer: config.company_name,
-            industry: config.industry,
-            target_audience: config.audience,
-            slide_count: config.deck_size,
-            auto_images: true
-          })
-        })
-        const result = await response.json()
-        if (result.ok) {
-          setIntelligentResult(result)
-          setProgress(100)
-          setCurrentPhase('Complete!')
-          setGenerationComplete(true)
-        } else {
-          throw new Error(result.error || 'Generation failed')
-        }
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setIsGenerating(false)
-      }
-      return
-    }
-
-    // Legacy Session Mode
     setCurrentPhase('Creating session...')
+
     try {
       // 1. Create session
       const createResponse = await fetch('/api/sessions/create', {
