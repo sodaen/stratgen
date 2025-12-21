@@ -388,6 +388,28 @@ export default function Generator() {
                 disabled={isGenerating}
               />
             </div>
+            
+            {/* Intelligent Mode Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl border border-purple-500/20">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                <div>
+                  <p className="text-white font-medium">Intelligent Mode</p>
+                  <p className="text-sm text-slate-400">AI + Research für bessere Inhalte</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUseIntelligentMode(!useIntelligentMode)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                  useIntelligentMode ? 'bg-purple-500' : 'bg-dark-border'
+                }`}
+                disabled={isGenerating}
+              >
+                <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                  useIntelligentMode ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
