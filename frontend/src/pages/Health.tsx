@@ -133,7 +133,7 @@ export default function Health() {
         celery: {
           status: workersStatus?.worker_count > 0 ? 'online' : 'offline',
           details: workersStatus?.worker_count > 0 
-            ? `${workersStatus.worker_count} workers active` 
+            ? `${workersStatus?.worker_count} workers active` 
             : 'No workers'
         },
       })
