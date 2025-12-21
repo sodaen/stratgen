@@ -927,15 +927,30 @@ function StepGenerate({
           <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
         </motion.div>
         <h3 className="text-2xl font-bold text-white mb-2">Generation Complete!</h3>
-        <p className="text-slate-400 mb-8">Your presentation is ready to view and edit.</p>
+        <p className="text-slate-400 mb-8">
+          {intelligentResult 
+            ? `${intelligentResult.slides_count} slides created in ${Math.round(intelligentResult.duration_seconds || 0)}s`
+            : 'Your presentation is ready to view and edit.'
+          }
+        </p>
         
         <div className="flex justify-center gap-4">
-          <button
-            onClick={onOpenEditor}
-            className="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-blue-500/25 transition-all"
-          >
-            Open in Editor
-          </button>
+          {intelligentResult ? (
+            
+              href={"/api/files/download?path=" + encodeURIComponent(intelligentResult.output_path || "")}
+              className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              Download PPTX
+            </a>
+          ) : (
+            <button
+              onClick={onOpenEditor}
+              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-blue-500/25 transition-all"
+            >
+              Open in Editor
+            </button>
+          )}
           <button
             onClick={onViewPipeline}
             className="px-8 py-3 bg-dark-border rounded-xl text-slate-400 hover:text-white transition-colors"
