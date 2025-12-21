@@ -83,9 +83,9 @@ export default function RAGStatus() {
 
   // Derive RAG status from what we have
   const ragStatus = stats?.rag || {
-    qdrant: stats?.ok && Object.keys(stats?.collections || {}).length > 0,
-    embedder: stats?.ok,
-    vision: false
+    qdrant: stats?.qdrant_available ?? (stats?.ok && Object.keys(stats?.collections || {}).length > 0),
+    embedder: stats?.embedder_available ?? stats?.ok,
+    vision: stats?.vision_available ?? false
   }
 
   return (
