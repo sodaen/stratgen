@@ -54,11 +54,32 @@ async def get_knowledge_status():
         from services.knowledge_metrics import get_metrics
         metrics = get_metrics().to_dict()
         
+        # Vision Check
+        vision_available = False
+        try:
+            import requests
+            resp = requests.get("http://localhost:11434/api/tags", timeout=2)
+            models = resp.json().get("models", [])
+            vision_available = any("moondream" in m.get("name", "").lower() for m in models)
+        except:
+            pass
+        
+        # Embedder Check
+        embedder_available = False
+        try:
+            from sentence_transformers import SentenceTransformer
+            embedder_available = True
+        except:
+            pass
+        
         return {
             "ok": True,
             "collections": collections_info,
             "total_chunks": total_chunks,
-            "metrics": metrics
+            "metrics": metrics,
+            "qdrant_available": True,
+            "embedder_available": embedder_available,
+            "vision_available": vision_available
         }
     
     except Exception as e:
