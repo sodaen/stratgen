@@ -508,6 +508,35 @@ export default function Generator() {
         </div>
 
         {/* Error Display */}
+        {/* Intelligent Mode Result */}
+        {intelligentResult && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <div>
+                  <p className="text-white font-medium">Presentation Ready!</p>
+                  <p className="text-sm text-slate-400">
+                    {intelligentResult.slides_count} slides • {Math.round(intelligentResult.size_kb || 0)} KB • {Math.round(intelligentResult.duration_seconds || 0)}s
+                  </p>
+                </div>
+              </div>
+              
+                href={`/api/files/download?path=${encodeURIComponent(intelligentResult.output_path || '')}`}
+                download
+                className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
+              >
+                <Download className="w-4 h-4" />
+                Download PPTX
+              </a>
+            </div>
+          </motion.div>
+        )}
+
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
