@@ -208,8 +208,8 @@ export default function Pipeline() {
   const fetchWorkerStatus = async () => {
     try {
       const status = await api.getWorkersStatus()
-      if (status?.workers) {
-        setWorkers(Object.entries(status.workers).map(([name, info]: [string, any]) => ({
+      if (status?.worker_count ? 'available' : 'unavailable') {
+        setWorkers(Object.entries(status.worker_count ? 'available' : 'unavailable').map(([name, info]: [string, any]) => ({
           name,
           queue: info.queues?.join(', ') || 'default',
           active: info.active || 0,
