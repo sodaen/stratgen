@@ -496,6 +496,7 @@ export default function Generator() {
                 </div>
               </div>
               
+              <a
                 href={"/api/files/download?path=" + encodeURIComponent(intelligentResult.output_path || "")}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg font-medium flex items-center gap-2"
               >
