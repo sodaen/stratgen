@@ -455,6 +455,9 @@ export default function Wizard() {
                 currentPhase={currentPhase}
                 generationComplete={generationComplete}
                 onGenerate={handleGenerate}
+                useIntelligentMode={useIntelligentMode}
+                setUseIntelligentMode={setUseIntelligentMode}
+                intelligentResult={intelligentResult}
                 onOpenEditor={openInEditor}
                 onViewPipeline={viewInPipeline}
                 sessionId={sessionId}
@@ -896,7 +899,10 @@ function StepGenerate({
   onGenerate,
   onOpenEditor,
   onViewPipeline,
-  sessionId
+  sessionId,
+  useIntelligentMode,
+  setUseIntelligentMode,
+  intelligentResult
 }: {
   isGenerating: boolean
   progress: number
@@ -906,6 +912,9 @@ function StepGenerate({
   onOpenEditor: () => void
   onViewPipeline: () => void
   sessionId: string | null
+  useIntelligentMode?: boolean
+  setUseIntelligentMode?: (v: boolean) => void
+  intelligentResult?: any
 }) {
   if (generationComplete) {
     return (
