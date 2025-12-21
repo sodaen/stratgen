@@ -79,7 +79,7 @@ export default function Generator() {
   const [error, setError] = useState<string | null>(null)
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
   
-  // Intelligent Mode - nutzt neuen Generator mit Research
+  // Intelligent Mode
   const [useIntelligentMode, setUseIntelligentMode] = useState(true)
   const [intelligentResult, setIntelligentResult] = useState<any>(null)
 
@@ -180,9 +180,9 @@ export default function Generator() {
     setProgress(0)
     setIntelligentResult(null)
 
-    // Intelligent Mode - direkter API-Call ohne Session
+    // Intelligent Mode
     if (useIntelligentMode) {
-      setCurrentPhase('Generating with AI + Research...')
+      setCurrentPhase('Generating with AI...')
       try {
         const response = await fetch('/api/generate/intelligent', {
           method: 'POST',
@@ -197,11 +197,7 @@ export default function Generator() {
             auto_images: true
           })
         })
-        
-        if (!response.ok) throw new Error('Generation failed')
-        
         const result = await response.json()
-        
         if (result.ok) {
           setIntelligentResult(result)
           setProgress(100)
@@ -210,16 +206,15 @@ export default function Generator() {
           throw new Error(result.error || 'Generation failed')
         }
       } catch (err: any) {
-        setError(err.message || 'Failed to generate')
+        setError(err.message)
       } finally {
         setIsGenerating(false)
       }
       return
     }
 
-    // Session Mode (Legacy)
+    // Legacy Session Mode
     setCurrentPhase('Creating session...')
-
     try {
       // 1. Create session
       const createResponse = await fetch('/api/sessions/create', {
@@ -388,28 +383,6 @@ export default function Generator() {
                 disabled={isGenerating}
               />
             </div>
-            
-            {/* Intelligent Mode Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl border border-purple-500/20">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                <div>
-                  <p className="text-white font-medium">Intelligent Mode</p>
-                  <p className="text-sm text-slate-400">AI + Research für bessere Inhalte</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setUseIntelligentMode(!useIntelligentMode)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  useIntelligentMode ? 'bg-purple-500' : 'bg-dark-border'
-                }`}
-                disabled={isGenerating}
-              >
-                <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  useIntelligentMode ? 'translate-x-6' : 'translate-x-0.5'
-                }`} />
-              </button>
-            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -507,36 +480,33 @@ export default function Generator() {
           </div>
         </div>
 
-        {/* Error Display */}
-        {/* Intelligent Mode Result */}
+        {/* Intelligent Result */}
         {intelligentResult && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl"
+            className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CheckCircle className="w-6 h-6 text-green-400" />
                 <div>
-                  <p className="text-white font-medium">Presentation Ready!</p>
-                  <p className="text-sm text-slate-400">
-                    {intelligentResult.slides_count} slides • {Math.round(intelligentResult.size_kb || 0)} KB • {Math.round(intelligentResult.duration_seconds || 0)}s
-                  </p>
+                  <p className="text-white font-medium">Ready!</p>
+                  <p className="text-sm text-slate-400">{intelligentResult.slides_count} slides</p>
                 </div>
               </div>
               
-                href={`/api/files/download?path=${encodeURIComponent(intelligentResult.output_path || '')}`}
-                download
-                className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
+                href={"/api/files/download?path=" + encodeURIComponent(intelligentResult.output_path || "")}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg font-medium flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                Download PPTX
+                Download
               </a>
             </div>
           </motion.div>
         )}
-
+        
+        {/* Error Display */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
