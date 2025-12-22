@@ -152,8 +152,10 @@ class UnifiedKnowledge:
         
         return {
             "ok": True,
-            "text_results": unique_results[:5],
-            "visual_templates": visual_templates[:3],
+            "knowledge": unique_results[:5],  # Für intelligent_deck_generator
+            "text_results": unique_results[:5],  # Legacy
+            "templates": visual_templates[:3],
+            "visual_templates": visual_templates[:3],  # Legacy
             "queries_used": queries
         }
     
