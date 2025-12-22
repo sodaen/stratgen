@@ -75,7 +75,7 @@ _embedder = None
 class OllamaEmbedder:
     """Embedder der mxbai-embed-large über Ollama nutzt (768 dim)."""
     
-    def __init__(self, model: str = "mxbai-embed-large"):
+    def __init__(self, model: str = "nomic-embed-text"):
         self.model = model
         self.url = "http://localhost:11434/api/embeddings"
     
@@ -96,7 +96,7 @@ class OllamaEmbedder:
             print(f"Embedding error: {e}")
         
         # Fallback: Zero-Vector (sollte nicht passieren)
-        return np.zeros(768)
+        return np.zeros(768)  # nomic-embed-text dimension
 
 
 def get_embedder():
@@ -104,8 +104,8 @@ def get_embedder():
     if _embedder is None:
         try:
             # Nutze Ollama mxbai-embed-large (768 dim) - kompatibel mit Qdrant Collection
-            _embedder = OllamaEmbedder("mxbai-embed-large")
-            print("Using OllamaEmbedder with mxbai-embed-large (768 dim)")
+            _embedder = OllamaEmbedder("nomic-embed-text")
+            print("Using OllamaEmbedder with nomic-embed-text (768 dim)")
         except Exception as e:
             print(f"Embedder init failed: {e}")
             return None
