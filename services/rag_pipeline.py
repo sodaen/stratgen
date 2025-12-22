@@ -72,12 +72,40 @@ def get_qdrant():
 
 # Singleton für Embedder
 _embedder = None
+class OllamaEmbedder:
+    """Embedder der mxbai-embed-large über Ollama nutzt (768 dim)."""
+    
+    def __init__(self, model: str = "mxbai-embed-large"):
+        self.model = model
+        self.url = "http://localhost:11434/api/embeddings"
+    
+    def encode(self, text: str):
+        import httpx
+        import numpy as np
+        
+        try:
+            response = httpx.post(
+                self.url,
+                json={"model": self.model, "prompt": text},
+                timeout=30
+            )
+            if response.status_code == 200:
+                embedding = response.json().get("embedding", [])
+                return np.array(embedding)
+        except Exception as e:
+            print(f"Embedding error: {e}")
+        
+        # Fallback: Zero-Vector (sollte nicht passieren)
+        return np.zeros(768)
+
+
 def get_embedder():
     global _embedder
     if _embedder is None:
         try:
-            from sentence_transformers import SentenceTransformer
-            _embedder = SentenceTransformer('all-MiniLM-L6-v2')
+            # Nutze Ollama mxbai-embed-large (768 dim) - kompatibel mit Qdrant Collection
+            _embedder = OllamaEmbedder("mxbai-embed-large")
+            print("Using OllamaEmbedder with mxbai-embed-large (768 dim)")
         except Exception as e:
             print(f"Embedder init failed: {e}")
             return None
