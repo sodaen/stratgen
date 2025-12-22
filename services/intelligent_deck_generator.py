@@ -578,6 +578,17 @@ Antworte NUR mit dem geforderten Content, keine Einleitung oder Erklärung."""
                 
                 slides.append(slide)
         
+        
+        # Skaliere auf gewünschte Slide-Anzahl wenn nötig
+        if hasattr(brief, 'slide_count') and brief.slide_count and len(slides) < brief.slide_count:
+            try:
+                from services.plan_scale import expand_to_length
+                plan = [{"kind": s.get("type", "content"), "title": s.get("title", ""), "bullets": s.get("bullets", [])} for s in slides]
+                expanded = expand_to_length(plan, brief.slide_count)
+                slides = [{"type": p.get("kind", "content"), "title": p.get("title", ""), "bullets": p.get("bullets", [])} for p in expanded]
+                print(f"  Slides skaliert: {len(slides)} (Ziel: {brief.slide_count})")
+            except Exception as e:
+                print(f"  Skalierung übersprungen: {e}")
         return slides
 
 
