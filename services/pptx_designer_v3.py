@@ -162,7 +162,9 @@ class PPTXDesignerV3:
         if self.auto_images and number % 3 == 0:
             try:
                 from services.unsplash_service import get_image_for_slide
-                image_path = get_image_for_slide(title, self.company_name)
+                result = get_image_for_slide(title, self.company_name)
+                if result and isinstance(result, dict):
+                    image_path = result.get("local_path")
             except:
                 pass
         
@@ -198,7 +200,9 @@ class PPTXDesignerV3:
         if self.auto_images and number % 2 == 0:
             try:
                 from services.unsplash_service import get_image_for_slide
-                image_path = get_image_for_slide(title, self.company_name)
+                result = get_image_for_slide(title, self.company_name)
+                if result and isinstance(result, dict):
+                    image_path = result.get("local_path")
             except:
                 pass
         
@@ -368,7 +372,9 @@ class PPTXDesignerV3:
         if self.auto_images:
             try:
                 from services.unsplash_service import get_image_for_slide
-                image_path = get_image_for_slide("success teamwork business", self.company_name)
+                result = get_image_for_slide("success teamwork business", self.company_name)
+                if result and isinstance(result, dict):
+                    image_path = result.get("local_path")
             except:
                 pass
         
