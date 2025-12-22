@@ -17,6 +17,14 @@ sys.path.insert(0, '/home/sodaen/stratgen')
 # Research Enrichment für externe Daten
 try:
     from services.research_enrichment import enrich_topic, generate_research_prompt_context, get_slide_enrichment
+    from services.unified_knowledge import search_for_slide as knowledge_search
+    KNOWLEDGE_AVAILABLE = True
+except ImportError:
+    KNOWLEDGE_AVAILABLE = False
+    def knowledge_search(*args, **kwargs): return {"knowledge": [], "templates": []}
+
+try:
+    pass  # placeholder für original imports
     HAS_RESEARCH = True
 except ImportError:
     HAS_RESEARCH = False
@@ -239,6 +247,21 @@ class IntelligentDeckGenerator:
         title = self._get_specific_title(chapter_name, slide_type, brief, context)
         slide["title"] = title
         
+        # Knowledge Base Suche für zusätzlichen Kontext
+        try:
+            if KNOWLEDGE_AVAILABLE:
+                knowledge_result = knowledge_search(
+                    slide_type=slide_type,
+                    slide_title=title,
+                    brief=f"{brief.topic} {brief.industry}",
+                    context={"chapter": chapter_title}
+                )
+                knowledge_texts = [k.get("text", "")[:200] for k in knowledge_result.get("knowledge", [])[:3]]
+                if knowledge_texts:
+                    context["knowledge_context"] = "\n".join(knowledge_texts)
+        except Exception as e:
+            pass  # Knowledge ist optional
+        
         # LLM für Content
         prompt = self._build_enhanced_prompt(slide_type, title, chapter_title, brief, context)
         response = self._call_llm(prompt, max_tokens=700)
@@ -387,6 +410,9 @@ AUFGABE:
 
 RECHERCHE-KONTEXT:
 {self.research_context if hasattr(self, 'research_context') and self.research_context else 'Keine externen Daten verfügbar.'}
+
+INTERNES WISSEN (aus Knowledge Base):
+{context.get('knowledge_context', 'Kein spezifisches Wissen verfügbar.')}
 
 WICHTIG:
 - Schreibe auf Deutsch
