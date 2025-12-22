@@ -1,8 +1,8 @@
 {
-  "created_utc": "20251222-002620",
+  "created_utc": "20251222-003220",
   "root": "/home/sodaen/stratgen",
   "git": {
-    "commit": "897732d1",
+    "commit": "e3d15bc3",
     "branch": "staging"
   },
   "files": [
@@ -4562,9 +4562,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 10420078,
-      "mtime": 1766363160,
-      "sha256": "38a78e317dfcf99de4c1f98f431166cac8fd657d0684c89120287168eed6f045"
+      "size": 10420536,
+      "mtime": 1766363520,
+      "sha256": "fa7320aa7f339122af7a527b08f8ed37c7e895e21e9ab9f6aaf01fdc5c8860c2"
     },
     {
       "path": "COMMANDS.md",
@@ -12505,6 +12505,12 @@
       "sha256": "0b001475115638c45c6fbd79377838ebec0f4f61168f32087ffa8013b7451906"
     },
     {
+      "path": "backend/__pycache__/qa_api.cpython-312.pyc",
+      "size": 1869,
+      "mtime": 1766363499,
+      "sha256": "1ba503e9a93ad8fbefb322f03712db05b6ef41fd387ae7ad7a9b514ee1a2923a"
+    },
+    {
       "path": "backend/__pycache__/rag_alias_api.cpython-312.pyc",
       "size": 2299,
       "mtime": 1766046971,
@@ -13163,6 +13169,12 @@
       "size": 2726,
       "mtime": 1762159587,
       "sha256": "e368b19691c85926e3951eade382ba646e59693b6c6e6b071917ca63c843e649"
+    },
+    {
+      "path": "backend/qa_api.py",
+      "size": 1129,
+      "mtime": 1766363499,
+      "sha256": "c683cfdbdb2c9b7c302bd439cff8a2a94cb6ffb90642057030da72e14ca92967"
     },
     {
       "path": "backend/rag_alias_api.py",
@@ -14018,9 +14030,9 @@
     },
     {
       "path": "changelogs/latest.json",
-      "size": 4014110,
-      "mtime": 1766362856,
-      "sha256": "ed5a4e7ff1330d3b2f1a8bb6c0a19d3321116683e11ea85af850cad78ffc9578"
+      "size": 4014315,
+      "mtime": 1766363217,
+      "sha256": "c6b436ac53b1db4e5e6e88127d41b385d38544e429355c129f311213d9f300bd"
     },
     {
       "path": "changelogs/snapshots/20251128-161908.json",
@@ -40607,6 +40619,12 @@
       "size": 4014110,
       "mtime": 1766362856,
       "sha256": "ed5a4e7ff1330d3b2f1a8bb6c0a19d3321116683e11ea85af850cad78ffc9578"
+    },
+    {
+      "path": "changelogs/snapshots/20251222-002620.json",
+      "size": 4014315,
+      "mtime": 1766363217,
+      "sha256": "c6b436ac53b1db4e5e6e88127d41b385d38544e429355c129f311213d9f300bd"
     },
     {
       "path": "config/datasources.yml",
@@ -109784,9 +109802,9 @@
     },
     {
       "path": "services/intelligent_deck_generator.py",
-      "size": 26582,
-      "mtime": 1765988216,
-      "sha256": "e2e8795f54cd97aa0c42bbb366175e8ad44c38560ac804d817cfbe6d89f1e5d5"
+      "size": 27362,
+      "mtime": 1766363412,
+      "sha256": "71ae98e676ce1bc9e8ec13f5543183817140aeea9042d670e6a1b36e633a5f16"
     },
     {
       "path": "services/knowledge.py",
