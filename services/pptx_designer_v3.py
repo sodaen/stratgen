@@ -103,9 +103,10 @@ class PPTXDesignerV3:
             print(f"Unsplash error: {e}")
         return None
     
-    def _add_slide_number(self, slide, number):
+    def _add_slide_number(self, slide, number, color=None):
         if self.include_slide_numbers:
-            self._add_text_box(slide, 12.5, 7.0, 0.7, 0.3, f"{number}/{self.total_slides}", font_size=10, font_color=self.palette["text_light"], align=PP_ALIGN.RIGHT)
+            font_color = color if color else self.palette["text_light"]
+            self._add_text_box(slide, 12.5, 7.0, 0.7, 0.3, f"{number}/{self.total_slides}", font_size=10, font_color=font_color, align=PP_ALIGN.RIGHT)
     
     def _add_footer(self, slide):
         if self.company_name:
