@@ -446,6 +446,23 @@ Antworte NUR mit dem geforderten Content."""
         """Parst die LLM-Response."""
         result = {}
         
+        # Extrahiere Quellen aus dem Response
+        if response:
+            import re
+            source_patterns = [
+                r'\(Quelle:\s*([^)]+)\)',
+                r'\(([^)]*(?:Statista|FAZ|Horizont|BCG|McKinsey|Gartner|IDC|Bitkom|DIHK|IHK|Handelsblatt)[^)]*\d{4}[^)]*)\)',
+                r'laut\s+(\w+\s*\d{4})',
+            ]
+            for pattern in source_patterns:
+                try:
+                    matches = re.findall(pattern, response, re.IGNORECASE)
+                    for match in matches:
+                        if match and len(match) > 3 and match not in self.collected_sources:
+                            self.collected_sources.append(match.strip())
+                except:
+                    pass
+        
         if not response:
             result["bullets"] = ["Strategische Analyse", "Konkrete Maßnahmen", "Messbare Ergebnisse"]
             return result
