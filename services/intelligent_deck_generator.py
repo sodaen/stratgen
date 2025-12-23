@@ -153,6 +153,7 @@ class IntelligentDeckGenerator:
     def __init__(self, template: str = "gtm_strategy"):
         self.template = DECK_TEMPLATES.get(template, DECK_TEMPLATES["gtm_strategy"])
         self.llm_calls = 0
+        self.collected_sources = []  # Sammelt Quellen aus allen Slides
         self.persona_index = 0
         self.slide_titles_used = set()
     
@@ -620,6 +621,22 @@ Antworte NUR mit dem geforderten Content."""
                 
                 slides.append(slide)
         
+        
+        # Füge Quellenfolie vor dem letzten Slide (contact) ein
+        if self.collected_sources:
+            # Dedupliziere Quellen
+            unique_sources = list(dict.fromkeys(self.collected_sources))
+            sources_slide = {
+                "type": "sources",
+                "title": "Quellen & Referenzen",
+                "sources": unique_sources[:20]  # Max 20 Quellen
+            }
+            # Füge vor dem letzten Slide ein (contact)
+            if slides and slides[-1].get("type") == "contact":
+                slides.insert(-1, sources_slide)
+            else:
+                slides.append(sources_slide)
+            print(f"  Quellenfolie mit {len(unique_sources)} Quellen hinzugefügt")
         
         # Skaliere auf gewünschte Slide-Anzahl wenn nötig
         if hasattr(brief, 'slide_count') and brief.slide_count and len(slides) < brief.slide_count:
