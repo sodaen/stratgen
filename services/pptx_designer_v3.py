@@ -402,6 +402,47 @@ class PPTXDesignerV3:
             self._add_text_box(slide, 0.5, 6.4, 12.333, 0.6, str(cta), font_size=18, bold=True, font_color="#FFFFFF", align=PP_ALIGN.CENTER)
         self._add_slide_number(slide, number, color="#FFFFFF" if image_path else None)
 
+    def _render_sources_slide(self, slide, data, number):
+        """Rendert eine Quellenübersicht-Folie."""
+        self._add_background(slide)
+        
+        # Titel
+        self._add_text_box(slide, 0.5, 0.3, 12.333, 0.8, "Quellen & Referenzen", 
+                          font_size=32, bold=True, font_color=self.palette["primary"])
+        
+        # Linie unter Titel
+        self._add_shape(slide, 0.5, 1.0, 12.333, 0.02, self.palette["accent"])
+        
+        # Quellen aus data
+        sources = data.get("sources", [])
+        if not sources:
+            sources = data.get("bullets", [])
+        
+        # Zwei Spalten für Quellen
+        cy = 1.3
+        col_width = 6.0
+        
+        for i, source in enumerate(sources[:20]):  # Max 20 Quellen
+            col = 0 if i < 10 else 1
+            row = i if i < 10 else i - 10
+            
+            x = 0.5 + (col * col_width)
+            y = cy + (row * 0.55)
+            
+            # Nummer und Quelle
+            source_text = f"{i+1}. {source}" if not str(source).startswith(('•', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9')) else source
+            self._add_text_box(slide, x, y, col_width - 0.3, 0.5, 
+                              str(source_text)[:80], 
+                              font_size=11, font_color=self.palette["text"])
+        
+        # Footer
+        self._add_text_box(slide, 0.5, 6.8, 12.333, 0.4, 
+                          "Alle Quellen wurden zum Zeitpunkt der Erstellung geprüft.",
+                          font_size=9, font_color=self.palette["text_light"], align=PP_ALIGN.CENTER)
+        
+        self._add_slide_number(slide, number)
+        self._add_footer(slide)
+
     def _render_contact_slide(self, slide, data, number):
         self._add_background(slide, self.palette["primary"])
         title = data.get("title", "Vielen Dank!")
@@ -422,7 +463,7 @@ class PPTXDesignerV3:
             "text": self._render_text_slide, "persona": self._render_persona_slide,
             "comparison": self._render_comparison_slide, "chart": self._render_chart_slide,
             "timeline": self._render_timeline_slide, "quote": self._render_quote_slide,
-            "conclusion": self._render_conclusion_slide, "contact": self._render_contact_slide,
+            "conclusion": self._render_conclusion_slide, "contact": self._render_contact_slide, "sources": self._render_sources_slide,
         }
         FALLBACKS = {
             "problem": "bullets", "solution": "bullets", "benefits": "bullets",
