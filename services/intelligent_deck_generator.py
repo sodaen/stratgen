@@ -414,14 +414,30 @@ RECHERCHE-KONTEXT:
 INTERNES WISSEN (aus Knowledge Base):
 {context.get('knowledge_context', 'Kein spezifisches Wissen verfügbar.')}
 
-WICHTIG:
-- Schreibe auf Deutsch
-- Sei konkret und spezifisch - keine generischen Aussagen
-- Verwende realistische Zahlen und Fakten (nutze den Recherche-Kontext!)
-- Passe den Inhalt an {brief.industry or 'die Branche'} an
-- Der Content muss zum Slide-Titel "{title}" passen
+WICHTIG - QUALITÄTSREGELN:
 
-Antworte NUR mit dem geforderten Content, keine Einleitung oder Erklärung."""
+SPRACHE:
+- Schreibe AUSSCHLIESSLICH auf Deutsch
+- Keine englischen Sätze oder Absätze
+- Englische Fachbegriffe nur wenn etabliert (z.B. "Marketing", "ROI")
+
+KONKRETHEIT:
+- Vermeide generische Phrasen wie "ist wichtig", "muss sich anpassen"
+- Jede Aussage braucht konkrete Zahlen, Fakten oder Beispiele
+- Beziehe dich immer auf {brief.customer or 'das Unternehmen'} und {brief.industry or 'die Branche'}
+
+QUELLEN:
+- Nenne bei Statistiken die Quelle: (Quelle: Statista 2024)
+- Sammle alle Quellen für die Quellenfolie
+
+VERBOTEN:
+- "Die digitale Transformation ist wichtig/entscheidend"
+- "In Zeiten von..." / "Im heutigen Wettbewerb"
+- "Max Mustermann" oder offensichtliche Platzhalter
+- Wiederholung von Inhalten aus anderen Slides
+
+Der Content muss zum Slide-Titel "{title}" passen.
+Antworte NUR mit dem geforderten Content."""
 
         return prompt
     
