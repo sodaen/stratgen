@@ -641,8 +641,33 @@ Antworte NUR mit dem geforderten Content."""
         
         # Füge Quellenfolie vor dem letzten Slide (contact) ein
         if self.collected_sources:
-            # Dedupliziere Quellen
-            unique_sources = list(dict.fromkeys(self.collected_sources))
+            # Bereinige und dedupliziere Quellen
+            cleaned_sources = []
+            seen = set()
+            skip_patterns = ["eigene", "intern", "unternehmen", "erfahrung"]
+            
+            for src in self.collected_sources:
+                # Normalisiere
+                src_clean = src.strip()
+                src_clean = src_clean.replace("Quelle: ", "").replace("Quelle:", "")
+                src_lower = src_clean.lower()
+                
+                # Skip interne/eigene Quellen
+                if any(skip in src_lower for skip in skip_patterns):
+                    continue
+                
+                # Skip Duplikate (case-insensitive)
+                if src_lower in seen:
+                    continue
+                
+                # Skip zu kurze Einträge
+                if len(src_clean) < 5:
+                    continue
+                
+                seen.add(src_lower)
+                cleaned_sources.append(src_clean)
+            
+            unique_sources = cleaned_sources
             sources_slide = {
                 "type": "sources",
                 "title": "Quellen & Referenzen",
