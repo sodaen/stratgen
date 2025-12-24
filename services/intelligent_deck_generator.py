@@ -353,15 +353,23 @@ Goals:
 
 Zitat: "[Typische Aussage dieser Persona]" """,
 
-            "comparison": f"""Erstelle einen Vergleich zum Thema "{title}".
-Vergleiche {brief.customer or 'unsere Lösung'} mit 2 Alternativen.
+            "comparison": f"""Erstelle einen aussagekräftigen Wettbewerbsvergleich für {brief.customer or 'unser Unternehmen'}.
 
-Format (4 Zeilen, durch | getrennt):
-Kriterium | {brief.customer or 'Unsere Lösung'} | Alternative A | Alternative B
-[Kriterium 1] | [Vorteil] | [Nachteil] | [Nachteil]
-[Kriterium 2] | [Vorteil] | [Neutral] | [Nachteil]
-[Kriterium 3] | [Vorteil] | [Nachteil] | [Neutral]
-[Kriterium 4] | [Vorteil] | [Nachteil] | [Nachteil]""",
+BRANCHE: {brief.industry or 'B2B'}
+
+WICHTIG: 
+- Nenne ECHTE Wettbewerber aus der Branche (z.B. Siemens, Bosch, ABB für Industrie)
+- Keine Platzhalter wie "Alternative A"
+- Konkrete, messbare Aussagen
+
+FORMAT:
+Kriterium | {brief.customer or 'Wir'} | [Echter Wettbewerber 1] | [Echter Wettbewerber 2]
+[Kernthema] | ✓ [konkreter Vorteil] | ✗ [Schwäche] | ○ [neutral]
+Innovation | [Bewertung mit Begründung] | [Bewertung] | [Bewertung]
+Nachhaltigkeit | [Bewertung] | [Bewertung] | [Bewertung]
+Preis-Leistung | [Bewertung] | [Bewertung] | [Bewertung]
+Service | [Bewertung] | [Bewertung] | [Bewertung]""",
+
 
             "chart": f"""Erstelle 4-5 Key Insights mit Daten/Zahlen zum Thema "{title}".
 Diese werden in einem Chart visualisiert.
@@ -478,6 +486,17 @@ Antworte NUR mit dem geforderten Content."""
         if not response:
             result["bullets"] = ["Strategische Analyse", "Konkrete Maßnahmen", "Messbare Ergebnisse"]
             return result
+        
+        # Prüfe auf Englisch und ersetze
+        english_phrases = {
+            "The ": "Die ", "This ": "Dies ", " is ": " ist ", " are ": " sind ",
+            " will ": " wird ", " can ": " kann ", " has ": " hat ",
+            "strategy": "Strategie", "business": "Geschäft", "market": "Markt",
+            "customer": "Kunde", "solution": "Lösung"
+        }
+        for eng, ger in english_phrases.items():
+            if eng in response and response.count(eng) < 3:  # Nur wenn wenige Vorkommen
+                response = response.replace(eng, ger)
         
         lines = [l.strip() for l in response.strip().split("\n") if l.strip()]
         
