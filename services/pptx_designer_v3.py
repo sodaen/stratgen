@@ -195,6 +195,9 @@ class PPTXDesignerV3:
         title = data.get("title", "Details")
         self._add_text_box(slide, 0.5, 0.4, 12, 0.7, title, font_size=28, bold=True, font_color=self.palette["primary"])
         
+        # Linie unter Titel
+        self._add_shape(slide, 0.5, 1.0, 12, 0.02, self.palette["accent"])
+        
         # Optionales Key Visual rechts (jeder 2. Text-Slide)
         image_path = None
         if self.auto_images and number % 2 == 0:
@@ -206,21 +209,34 @@ class PPTXDesignerV3:
             except:
                 pass
         
+        bullets = data.get("bullets", [])
         content = data.get("content", "")
-        if not content:
-            bullets = data.get("bullets", [])
-            if bullets:
-                content = "\n\n".join(str(b) for b in bullets)
+        
+        # Strukturierte Darstellung
+        if bullets and len(bullets) > 1:
+            # Mehrere Absätze → strukturiert darstellen
+            text_width = 7.0 if image_path else 11.5
+            y_pos = 1.2
+            
+            for i, bullet in enumerate(bullets[:4]):
+                # Kleiner Akzent-Marker
+                self._add_shape(slide, 0.5, y_pos + 0.15, 0.15, 0.15, self.palette["accent"])
+                # Text mit Abstand
+                self._add_text_box(slide, 0.8, y_pos, text_width, 1.3, 
+                                  str(bullet)[:300], 
+                                  font_size=14, font_color=self.palette["text"])
+                y_pos += 1.4
+        elif content:
+            # Einzelner Textblock → begrenzt darstellen
+            text_width = 7.0 if image_path else 11.5
+            # Begrenze auf 400 Zeichen
+            display_content = content[:400] + "..." if len(content) > 400 else content
+            self._add_text_box(slide, 0.5, 1.2, text_width, 5.0, 
+                              display_content, 
+                              font_size=15, font_color=self.palette["text"])
         
         if image_path:
-            # Text links, Bild rechts
-            if content:
-                self._add_text_box(slide, 0.5, 1.3, 7.5, 5.5, content, font_size=15, font_color=self.palette["text"])
-            self._add_image(slide, image_path, 8.5, 1.3, 4.3, 4.3)
-        else:
-            # Volle Breite ohne Bild
-            if content:
-                self._add_text_box(slide, 0.5, 1.3, 12, 5.5, content, font_size=15, font_color=self.palette["text"])
+            self._add_image(slide, image_path, 8.2, 1.2, 4.5, 4.5)
         
         self._add_slide_number(slide, number)
         self._add_footer(slide)
