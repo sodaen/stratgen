@@ -247,13 +247,17 @@ class PPTXDesignerV3:
         self._add_text_box(slide, 0.5, 0.4, 12, 0.7, title, font_size=32, bold=True, font_color=self.palette["primary"])
         self._add_shape(slide, 0.5, 1.1, 12, 0.02, self.palette["accent"])
         bullets = data.get("bullets", [])
-        y_pos = 1.5
-        for i, bullet in enumerate(bullets[:4]):
-            self._add_shape(slide, 0.5, y_pos, 0.4, 0.4, self.palette["primary"])
-            self._add_text_box(slide, 0.5, y_pos, 0.4, 0.4, str(i + 1), font_size=14, font_color="#FFFFFF", bold=True, align=PP_ALIGN.CENTER)
-            self._add_text_box(slide, 1.1, y_pos, 5.5, 1.2, str(bullet), font_size=14, font_color=self.palette["text"])
-            y_pos += 1.4
-        self._add_shape(slide, 7, 1.5, 5.5, 5, self.palette["primary"])
+        
+        # Zwei-Spalten Layout ohne Überlappung
+        y_pos = 1.4
+        for i, bullet in enumerate(bullets[:5]):
+            # Nummer-Box
+            self._add_shape(slide, 0.5, y_pos, 0.35, 0.35, self.palette["primary"])
+            self._add_text_box(slide, 0.5, y_pos, 0.35, 0.35, str(i + 1), font_size=12, font_color="#FFFFFF", bold=True, align=PP_ALIGN.CENTER)
+            # Bullet-Text (begrenzt auf 100 Zeichen)
+            bullet_text = str(bullet)[:100] + "..." if len(str(bullet)) > 100 else str(bullet)
+            self._add_text_box(slide, 1.0, y_pos, 11.5, 1.0, bullet_text, font_size=13, font_color=self.palette["text"])
+            y_pos += 1.1
         highlights = data.get("highlights", bullets[4:] if len(bullets) > 4 else [])
         if highlights:
             self._add_text_box(slide, 7.3, 1.7, 5, 0.5, "KEY HIGHLIGHTS", font_size=14, font_color="#FFFFFF", bold=True)
