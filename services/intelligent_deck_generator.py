@@ -462,8 +462,9 @@ Antworte NUR mit dem geforderten Content."""
             import re
             source_patterns = [
                 r'\(Quelle:\s*([^)]+)\)',
-                r'\(([^)]*(?:Statista|FAZ|Horizont|BCG|McKinsey|Gartner|IDC|Bitkom|DIHK|IHK|Handelsblatt)[^)]*\d{4}[^)]*)\)',
-                r'laut\s+(\w+\s*\d{4})',
+                r'\(([^)]*(?:Statista|FAZ|Horizont|BCG|McKinsey|Gartner|IDC|Bitkom|DIHK|IHK|Handelsblatt|VDMA|Destatis|Bundesregierung|EU-Kommission|Fraunhofer|VDI)[^)]*(?:\d{4})?[^)]*)\)',
+                r'laut\s+([A-Z][\w\s]+\d{4})',
+                r'\(Stand:\s*([^)]+)\)',
             ]
             for pattern in source_patterns:
                 try:
