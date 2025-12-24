@@ -617,6 +617,25 @@ Antworte NUR mit dem geforderten Content."""
             if clean and len(clean) > 5:
                 result["bullets"].append(clean)
         
+        # ===== TEXTBEGRENZUNG FÜR LESBARKEIT =====
+        # Begrenze Content auf ~500 Zeichen
+        if result.get("content"):
+            content_text = result["content"]
+            if len(content_text) > 500:
+                content_text = content_text[:500]
+                last_period = content_text.rfind(".")
+                if last_period > 300:
+                    content_text = content_text[:last_period + 1]
+                result["content"] = content_text
+        
+        # Begrenze Bullets: max 6 Stück, je max 120 Zeichen
+        if result.get("bullets"):
+            bullets = result["bullets"][:6]
+            result["bullets"] = [
+                (b[:120] + "...") if len(b) > 120 else b 
+                for b in bullets
+            ]
+        
         return result
     
     def _detect_template(self, brief: PresentationBrief) -> str:
