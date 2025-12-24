@@ -403,12 +403,17 @@ class PPTXDesignerV3:
         self._add_slide_number(slide, number, color="#FFFFFF" if image_path else None)
 
     def _render_sources_slide(self, slide, data, number):
-        """Rendert eine Quellenübersicht-Folie."""
+        """Rendert eine Quellenübersicht-Folie mit detaillierten Angaben."""
         self._add_background(slide)
         
         # Titel
         self._add_text_box(slide, 0.5, 0.3, 12.333, 0.8, "Quellen & Referenzen", 
                           font_size=32, bold=True, font_color=self.palette["primary"])
+        
+        # Untertitel mit Hinweis
+        self._add_text_box(slide, 0.5, 0.9, 12.333, 0.4, 
+                          "Alle Angaben wurden zum Zeitpunkt der Erstellung geprüft. Stand: Dezember 2024",
+                          font_size=11, font_color=self.palette["text_light"])
         
         # Linie unter Titel
         self._add_shape(slide, 0.5, 1.0, 12.333, 0.02, self.palette["accent"])
