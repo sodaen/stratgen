@@ -403,17 +403,12 @@ class PPTXDesignerV3:
         self._add_slide_number(slide, number, color="#FFFFFF" if image_path else None)
 
     def _render_sources_slide(self, slide, data, number):
-        """Rendert eine Quellenübersicht-Folie mit detaillierten Angaben."""
+        """Rendert eine Quellenübersicht-Folie mit URLs."""
         self._add_background(slide)
         
         # Titel
         self._add_text_box(slide, 0.5, 0.3, 12.333, 0.8, "Quellen & Referenzen", 
                           font_size=32, bold=True, font_color=self.palette["primary"])
-        
-        # Untertitel mit Hinweis
-        self._add_text_box(slide, 0.5, 0.9, 12.333, 0.4, 
-                          "Alle Angaben wurden zum Zeitpunkt der Erstellung geprüft. Stand: Dezember 2024",
-                          font_size=11, font_color=self.palette["text_light"])
         
         # Linie unter Titel
         self._add_shape(slide, 0.5, 1.0, 12.333, 0.02, self.palette["accent"])
@@ -423,27 +418,42 @@ class PPTXDesignerV3:
         if not sources:
             sources = data.get("bullets", [])
         
-        # Zwei Spalten für Quellen
-        cy = 1.3
-        col_width = 6.0
+        # Formatiere Quellen mit Nummern
+        cy = 1.2
         
-        for i, source in enumerate(sources[:20]):  # Max 20 Quellen
-            col = 0 if i < 10 else 1
-            row = i if i < 10 else i - 10
+        for i, source in enumerate(sources[:15]):  # Max 15 Quellen für Lesbarkeit
+            y = cy + (i * 0.38)
             
-            x = 0.5 + (col * col_width)
-            y = cy + (row * 0.55)
+            # Trenne Quelle und URL
+            if " - http" in str(source):
+                parts = str(source).split(" - http", 1)
+                name = parts[0]
+                url = "http" + parts[1] if len(parts) > 1 else ""
+            else:
+                name = str(source)
+                url = ""
             
-            # Nummer und Quelle
-            source_text = f"{i+1}. {source}" if not str(source).startswith(('•', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9')) else source
-            self._add_text_box(slide, x, y, col_width - 0.3, 0.5, 
-                              str(source_text)[:80], 
-                              font_size=11, font_color=self.palette["text"])
+            # Nummer und Name
+            self._add_text_box(slide, 0.5, y, 0.4, 0.35, f"{i+1}.", 
+                              font_size=10, bold=True, font_color=self.palette["primary"])
+            self._add_text_box(slide, 0.9, y, 5.5, 0.35, name[:50], 
+                              font_size=10, font_color=self.palette["text"])
+            
+            # URL (wenn vorhanden)
+            if url:
+                self._add_text_box(slide, 6.5, y, 6.0, 0.35, url[:45], 
+                                  font_size=9, font_color=self.palette["text_light"])
+        
+        # Mehr Quellen Hinweis
+        if len(sources) > 15:
+            self._add_text_box(slide, 0.5, 6.5, 12.333, 0.3, 
+                              f"+ {len(sources) - 15} weitere Quellen",
+                              font_size=9, font_color=self.palette["text_light"])
         
         # Footer
-        self._add_text_box(slide, 0.5, 6.8, 12.333, 0.4, 
-                          "Alle Quellen wurden zum Zeitpunkt der Erstellung geprüft.",
-                          font_size=9, font_color=self.palette["text_light"], align=PP_ALIGN.CENTER)
+        self._add_text_box(slide, 0.5, 6.9, 12.333, 0.3, 
+                          f"Stand: Dezember 2024 | Alle Links wurden bei Erstellung geprüft",
+                          font_size=8, font_color=self.palette["text_light"], align=PP_ALIGN.CENTER)
         
         self._add_slide_number(slide, number)
         self._add_footer(slide)
