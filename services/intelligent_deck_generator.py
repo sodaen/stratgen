@@ -699,10 +699,17 @@ Antworte NUR mit dem geforderten Content."""
                 cleaned_sources.append(src_clean)
             
             unique_sources = cleaned_sources
+            # Reichere Quellen mit URLs an
+            try:
+                from services.source_urls import enrich_sources
+                enriched_sources = enrich_sources(unique_sources[:20])
+            except:
+                enriched_sources = unique_sources[:20]
+            
             sources_slide = {
                 "type": "sources",
                 "title": "Quellen & Referenzen",
-                "sources": unique_sources[:20]  # Max 20 Quellen
+                "sources": enriched_sources
             }
             # Füge vor dem letzten Slide ein (contact)
             if slides and slides[-1].get("type") == "contact":
