@@ -265,7 +265,7 @@ class IntelligentDeckGenerator:
         
         # LLM für Content
         prompt = self._build_enhanced_prompt(slide_type, title, chapter_title, brief, context)
-        response = self._call_llm(prompt, max_tokens=700)
+        response = self._call_llm(prompt, max_tokens=450)
         
         # Response parsen
         parsed = self._parse_response(response, slide_type, context)
