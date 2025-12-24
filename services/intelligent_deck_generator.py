@@ -495,8 +495,17 @@ Antworte NUR mit dem geforderten Content."""
             "customer": "Kunde", "solution": "Lösung"
         }
         for eng, ger in english_phrases.items():
-            if eng in response and response.count(eng) < 3:  # Nur wenn wenige Vorkommen
+            if eng in response and response.count(eng) < 3:
                 response = response.replace(eng, ger)
+        
+        # Entferne Markdown-Formatierung (**, *, #, etc.)
+        response = response.replace("**", "")
+        response = response.replace("##", "")
+        response = response.replace("###", "")
+        response = response.replace("# ", "")
+        # Entferne führende Sternchen bei Bullets (behalte -)
+        import re
+        response = re.sub(r"^\* ", "- ", response, flags=re.MULTILINE)
         
         lines = [l.strip() for l in response.strip().split("\n") if l.strip()]
         
