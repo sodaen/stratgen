@@ -302,13 +302,24 @@ Jeder Punkt sollte:
 - 1-2 Sätze lang sein
 Format: Beginne jeden Punkt mit "- " """,
 
-            "text": f"""Erstelle einen ausführlichen Text zum Thema "{title}".
-Der Text sollte:
-- 2-3 Absätze mit je 3-4 Sätzen
-- Konkret auf {brief.customer or 'das Unternehmen'} und {brief.industry or 'die Branche'} eingehen
-- Fakten, Zahlen und Beispiele enthalten
-- Professionell und überzeugend formuliert sein
-Schreibe die Absätze direkt ohne Aufzählungszeichen.""",
+            "text": f"""Erstelle strukturierten Content zum Thema "{title}" für {brief.customer or 'das Unternehmen'}.
+
+FORMAT (WICHTIG - gut lesbar für Präsentation):
+
+**Kernaussage:** [1 prägnanter Satz]
+
+**Kontext:**
+[2-3 Sätze mit Zahlen/Fakten zur Branche {brief.industry or 'B2B'}]
+
+**Unsere Position:**
+[2-3 Sätze wie {brief.customer or 'wir'} das Thema adressiert]
+
+**Fazit:** [1 Satz mit konkretem Nutzen]
+
+REGELN:
+- Jeder Abschnitt max. 3 Sätze
+- Konkrete Zahlen mit Quellenangabe
+- Keine Textwüsten - gut strukturiert""",
 
             "bullets": f"""Erstelle 5-6 prägnante Bullet Points zum Thema "{title}".
 Jeder Bullet sollte:
