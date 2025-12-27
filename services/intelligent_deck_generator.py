@@ -684,7 +684,19 @@ Antworte NUR mit dem geforderten Content."""
                     current.append(line)
             if current:
                 paragraphs.append(" ".join(current))
-            result["bullets"] = paragraphs if paragraphs else [response]
+            
+            # Fallback wenn keine sinnvollen Absätze
+            if not paragraphs or all(len(p) < 20 for p in paragraphs):
+                title = context.get("title", "Analyse")
+                customer = context.get("brief_customer", "das Unternehmen")
+                industry = context.get("brief_industry", "die Branche")
+                paragraphs = [
+                    f"{title}: Strategische Analyse für {customer}.",
+                    f"Die aktuelle Marktsituation in {industry} erfordert gezielte Maßnahmen.",
+                    f"Mit unserem Ansatz erreichen wir messbare Ergebnisse.",
+                ]
+            
+            result["bullets"] = paragraphs
             return result
         
         # Default: Bullets
