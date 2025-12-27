@@ -295,12 +295,25 @@ class IntelligentDeckGenerator:
         """Erstellt einen verbesserten, spezifischen Prompt."""
         
         type_instructions = {
-            "executive_summary": """Erstelle 4-5 Executive Summary Punkte für diese Präsentation.
-Jeder Punkt sollte:
-- Ein konkretes Highlight oder Ergebnis nennen
-- Zahlen/Fakten enthalten wo möglich
-- 1-2 Sätze lang sein
-Format: Beginne jeden Punkt mit "- " """,
+            "executive_summary": f"""Erstelle eine deutsche Zusammenfassung für die Präsentation "{brief.topic}".
+
+WICHTIG: Schreibe KOMPLETT auf Deutsch! Keine englischen Wörter!
+
+Erstelle 5 Kernpunkte die folgende Kapitel zusammenfassen:
+1. Marktanalyse - Chancen im {brief.industry or 'Markt'}
+2. Wettbewerb - Positionierung von {brief.customer or 'dem Unternehmen'}
+3. Zielgruppen - Wer sind die Kunden
+4. Strategie - Der Weg zum Erfolg
+5. Umsetzung - Konkrete nächste Schritte
+
+Format für jeden Punkt:
+- [Kapitelnummer]. [Kapitelname]: [1-2 Sätze mit konkretem Inhalt und Zahlen]
+
+Beispiel:
+- 1. Marktanalyse: Der deutsche Markt wächst um 15% jährlich und bietet ein Potenzial von 50 Mio. EUR.
+- 2. Wettbewerb: Gegenüber Siemens und Bosch differenzieren wir uns durch...
+
+Schreibe NUR auf Deutsch!""",
 
             "text": f"""Erstelle strukturierten Content zum Thema "{title}" für {brief.customer or 'das Unternehmen'}.
 
@@ -483,8 +496,23 @@ Antworte NUR mit dem geforderten Content."""
                 except:
                     pass
         
-        if not response:
-            result["bullets"] = ["Strategische Analyse", "Konkrete Maßnahmen", "Messbare Ergebnisse"]
+        if not response or len(response.strip()) < 20:
+            # Generiere sinnvollen Fallback basierend auf Slide-Typ
+            fallback_content = {
+                "text": f"Analyse und strategische Empfehlungen für {context.get('brief_customer', 'das Unternehmen')}.",
+                "bullets": [
+                    f"Strategische Positionierung im {context.get('brief_industry', 'Markt')}",
+                    "Konkrete Maßnahmen zur Zielerreichung",
+                    "Messbare Erfolgskriterien definiert",
+                    "Zeitplan und Ressourcenplanung",
+                ],
+                "chart": [
+                    "Marktentwicklung zeigt positiven Trend",
+                    "Wachstumspotenzial von 15-20% identifiziert",
+                    "Investitionsbedarf und ROI berechnet",
+                ],
+            }
+            result["bullets"] = fallback_content.get(slide_type, fallback_content["bullets"])
             return result
         
         # Prüfe auf Englisch und übersetze komplett wenn nötig
