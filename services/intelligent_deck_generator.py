@@ -487,15 +487,51 @@ Antworte NUR mit dem geforderten Content."""
             result["bullets"] = ["Strategische Analyse", "Konkrete Maßnahmen", "Messbare Ergebnisse"]
             return result
         
-        # Prüfe auf Englisch und ersetze
-        english_phrases = {
-            "The ": "Die ", "This ": "Dies ", " is ": " ist ", " are ": " sind ",
-            " will ": " wird ", " can ": " kann ", " has ": " hat ",
-            "strategy": "Strategie", "business": "Geschäft", "market": "Markt",
-            "customer": "Kunde", "solution": "Lösung"
-        }
-        for eng, ger in english_phrases.items():
-            if eng in response and response.count(eng) < 3:
+        # Prüfe auf Englisch und übersetze komplett wenn nötig
+        english_indicators = ["The ", "This ", " is ", " are ", " will ", " can ", 
+                             "Market ", "Growth", "Opportunity", "Approach", "Customer",
+                             "Experience", "Competitive", "Advantage", "focusing"]
+        english_count = sum(1 for ind in english_indicators if ind in response)
+        
+        # Wenn zu viel Englisch, nutze umfangreiche Ersetzung
+        if english_count > 3:
+            translations = {
+                # Ganze Phrasen zuerst
+                "Market Growth Opportunity": "Marktwachstumschance",
+                "Multi-Channel Approach": "Multi-Kanal-Ansatz",
+                "Customer Experience": "Kundenerlebnis",
+                "Competitive Advantage": "Wettbewerbsvorteil",
+                "Data-Driven Insights": "Datengetriebene Erkenntnisse",
+                "Key Insights": "Zentrale Erkenntnisse",
+                "Key Market Insights": "Zentrale Markterkenntnisse",
+                "Executive Summary": "Zusammenfassung",
+                "is projected to": "wird voraussichtlich",
+                "By integrating": "Durch Integration von",
+                "By focusing on": "Durch Fokussierung auf",
+                "Implementing an": "Implementierung einer",
+                "Utilizing data": "Nutzung von Daten",
+                # Einzelwörter
+                "The ": "Die ", "This ": "Dies ", " is ": " ist ", " are ": " sind ",
+                " will ": " wird ", " can ": " kann ", " has ": " hat ", " have ": " haben ",
+                "market": "Markt", "Market": "Markt",
+                "growth": "Wachstum", "Growth": "Wachstum",
+                "strategy": "Strategie", "Strategy": "Strategie",
+                "customer": "Kunde", "Customer": "Kunde",
+                "business": "Geschäft", "Business": "Geschäft",
+                "channel": "Kanal", "Channel": "Kanal",
+                "online": "Online", "Online": "Online",
+                "sales": "Vertrieb", "Sales": "Vertrieb",
+                "reach": "erreichen",
+                "billion": "Milliarden",
+                "million": "Millionen",
+                "projected": "prognostiziert",
+                "integrating": "integrieren",
+                "multiple": "mehrere",
+                "unique": "einzigartige",
+                "needs": "Bedürfnisse",
+                "preferences": "Präferenzen",
+            }
+            for eng, ger in translations.items():
                 response = response.replace(eng, ger)
         
         # Entferne Markdown-Formatierung (**, *, #, etc.)
@@ -506,6 +542,19 @@ Antworte NUR mit dem geforderten Content."""
         # Entferne führende Sternchen bei Bullets (behalte -)
         import re
         response = re.sub(r"^\* ", "- ", response, flags=re.MULTILINE)
+        
+        # Entferne unausgefüllte Platzhalter
+        placeholders = [
+            "[Bewertung]", "[Bewertung mit Begründung]", "[Kernthema]",
+            "[konkreter Vorteil]", "[konkrete Schwäche]", "[neutral]",
+            "[Echter Wettbewerber 1]", "[Echter Wettbewerber 2]",
+            "\n\n", "  "
+        ]
+        for ph in placeholders:
+            response = response.replace(ph, "")
+        # Bereinige doppelte Leerzeichen
+        while "  " in response:
+            response = response.replace("  ", " ")
         
         lines = [l.strip() for l in response.strip().split("\n") if l.strip()]
         
