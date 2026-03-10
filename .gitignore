@@ -136,3 +136,4 @@ backend/.venv/
 transcripts/
 *.tar.gz
 CHANGELOG.md
+CHANGELOG.001.md
