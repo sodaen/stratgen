@@ -1,7 +1,15 @@
-GNU AFFERO GENERAL PUBLIC LICENSE
-Version 3, 19 November 2007
-
+STRATGEN - AI-Powered Presentation Generator
 Copyright (C) 2024-2025 Daniel Plötz
+
+================================================================================
+                              DUAL LICENSE
+================================================================================
+
+This software is available under two license options:
+
+--------------------------------------------------------------------------------
+OPTION 1: AGPL-3.0 (Open Source)
+--------------------------------------------------------------------------------
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -13,18 +21,28 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+Full license text: https://www.gnu.org/licenses/agpl-3.0.html
 
----
+IMPORTANT: If you modify this software and provide it as a service to others
+(including as a web service, SaaS, or cloud application), you MUST make your
+complete source code available under AGPL-3.0.
 
-STRATGEN - AI-Powered Presentation Generator
+--------------------------------------------------------------------------------
+OPTION 2: Commercial License
+--------------------------------------------------------------------------------
 
-Author: Daniel Plötz
-Repository: https://github.com/danielploetz-glitch/stratgen
-Contact: [Your Email]
+For commercial use without AGPL-3.0 obligations (e.g., closed-source products,
+proprietary modifications, or SaaS without code disclosure), a separate
+commercial license is available.
 
-This software generates professional business presentations using AI.
-Commercial use requires explicit permission from the copyright holder.
+Commercial licensing includes:
+- Use in closed-source products
+- No requirement to disclose modifications
+- Priority support
+- Custom development options
 
-For commercial licensing inquiries, please contact the author.
+For commercial licensing inquiries, contact:
+- Email: [deine-email@domain.de]
+- GitHub: @danielploetz-glitch
+
+================================================================================
