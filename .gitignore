@@ -135,9 +135,6 @@ backend/.venv/
 # Transcripts und Archive
 transcripts/
 *.tar.gz
-<<<<<<< HEAD
-CHANGELOG.001.md
-=======
 CHANGELOG.md
 CHANGELOG.001.md
 
@@ -153,4 +150,9 @@ backend/*.backup*
 changelogs/snapshots/
 changelogs/latest.json
 changelogs/changelogs_archive.tar.gz
->>>>>>> staging
+
+# === Claude Export / Upload Ordner ===
+upload_stratgen_*/
+context_snapshot.txt
+exports/claude_export_*.txt
+frontend/*.pptx
