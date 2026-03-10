@@ -137,3 +137,16 @@ transcripts/
 *.tar.gz
 CHANGELOG.md
 CHANGELOG.001.md
+
+# === Persönliche / Sensitive Dateien ===
+*.docx
+*.doc
+backend/*.txt
+backend/*.bak*
+backend/*.disabled
+backend/*.backup*
+
+# === Changelogs & Snapshots ===
+changelogs/snapshots/
+changelogs/latest.json
+changelogs/changelogs_archive.tar.gz
