@@ -100,3 +100,38 @@ backend/.venv/
 
 # Transcripts
 transcripts/
+
+# === OPEN SOURCE BEREINIGUNG ===
+
+# Alle PPTX-Dateien (außer Templates)
+*.pptx
+!templates/pptx/*.pptx
+
+# Raw-Daten und Uploads
+Raw/
+raw/
+_Raw/
+
+# Qdrant Datenbank
+.qdrant/
+
+# Changelogs (zu groß)
+changelogs/
+CHANGELOG-*.md
+CHANGELOG.*.md
+
+# Exports und generierte Dateien
+exports/
+runs/
+Acme*.pptx
+deck_*.pptx
+
+# Styles Backups
+styles/backups/
+
+# Alte Backend venv
+backend/.venv/
+
+# Transcripts und Archive
+transcripts/
+*.tar.gz
