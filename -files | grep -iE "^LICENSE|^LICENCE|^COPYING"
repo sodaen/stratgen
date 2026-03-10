@@ -1,0 +1,383 @@
+[1mdiff --git a/CHANGELOG.md b/CHANGELOG.md[m
+[1mindex fb29ef97..b928fb55 100644[m
+[1m--- a/CHANGELOG.md[m
+[1m+++ b/CHANGELOG.md[m
+[36m@@ -17587,3 +17587,378 @@[m [mGeänderte Dateien (git status):[m
+ [m
+ - CHANGELOG.md[m
+ [m
+[32m+[m[32m_heartbeat 2026-03-10 13:27:42_[m
+[32m+[m[32m## 2026-03-10 13:28:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:29:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:30:43_[m
+[32m+[m[32m## 2026-03-10 13:31:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:32:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:33:43_[m
+[32m+[m[32m## 2026-03-10 13:34:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:35:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:36:43_[m
+[32m+[m[32m## 2026-03-10 13:37:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:38:43_[m
+[32m+[m[32m## 2026-03-10 13:39:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:40:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:41:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:42:43_[m
+[32m+[m[32m_heartbeat 2026-03-10 13:43:43_[m
+[32m+[m[32m## 2026-03-10 13:44:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:45:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:46:43[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:47:43_[m
+[32m+[m[32m_heartbeat 2026-03-10 13:48:44_[m
+[32m+[m[32m## 2026-03-10 13:49:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:50:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:51:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:52:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:53:44_[m
+[32m+[m[32m## 2026-03-10 13:54:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:55:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:56:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 13:57:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 13:58:44_[m
+[32m+[m[32m_heartbeat 2026-03-10 13:59:44_[m
+[32m+[m[32m## 2026-03-10 14:00:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:01:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:02:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:03:44_[m
+[32m+[m[32m## 2026-03-10 14:04:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:05:44_[m
+[32m+[m[32m## 2026-03-10 14:06:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:07:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:08:44[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:09:45_[m
+[32m+[m[32m## 2026-03-10 14:10:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:11:45_[m
+[32m+[m[32m## 2026-03-10 14:12:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:13:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:14:45_[m
+[32m+[m[32m## 2026-03-10 14:15:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:16:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:17:45_[m
+[32m+[m[32m## 2026-03-10 14:18:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:19:45_[m
+[32m+[m[32m## 2026-03-10 14:20:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:21:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:22:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:23:45_[m
+[32m+[m[32m_heartbeat 2026-03-10 14:24:45_[m
+[32m+[m[32m## 2026-03-10 14:25:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:26:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:27:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:28:45[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:29:45_[m
+[32m+[m[32m## 2026-03-10 14:30:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:31:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:32:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:33:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:34:46_[m
+[32m+[m[32m_heartbeat 2026-03-10 14:35:46_[m
+[32m+[m[32m## 2026-03-10 14:36:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:37:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:38:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:39:46_[m
+[32m+[m[32m## 2026-03-10 14:40:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:41:46_[m
+[32m+[m[32m## 2026-03-10 14:42:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:43:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:44:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:45:46_[m
+[32m+[m[32m## 2026-03-10 14:46:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:47:46_[m
+[32m+[m[32m## 2026-03-10 14:48:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:49:46[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:50:46_[m
+[32m+[m[32m## 2026-03-10 14:51:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:52:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:53:47_[m
+[32m+[m[32m## 2026-03-10 14:54:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:55:47_[m
+[32m+[m[32m## 2026-03-10 14:56:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:57:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 14:58:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 14:59:47_[m
+[32m+[m[32m_heartbeat 2026-03-10 15:00:47_[m
+[32m+[m[32m## 2026-03-10 15:01:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 15:02:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 15:03:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m_heartbeat 2026-03-10 15:04:47_[m
+[32m+[m[32m_heartbeat 2026-03-10 15:05:47_[m
+[32m+[m[32m## 2026-03-10 15:06:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 15:07:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 15:08:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
+[32m+[m[32m## 2026-03-10 15:09:47[m
+[32m+[m[32mGeänderte Dateien (git status):[m
+[32m+[m
+[32m+[m[32m- CHANGELOG.md[m
+[32m+[m
