@@ -155,3 +155,4 @@ changelogs/changelogs_archive.tar.gz
 upload_stratgen_*/
 context_snapshot.txt
 exports/claude_export_*.txt
+frontend/*.pptx
