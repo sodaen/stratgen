@@ -135,3 +135,4 @@ backend/.venv/
 # Transcripts und Archive
 transcripts/
 *.tar.gz
+CHANGELOG.001.md
