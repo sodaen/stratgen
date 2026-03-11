@@ -100,7 +100,9 @@ async def export_session(format: str, session_id: str):
                 slides=slides,
                 title=title,
                 company=company,
-                include_sources_slide=True
+                include_sources_slide=True,
+                customer_name=company,
+                use_images=True
             )
             
             filename = f"export-{session_id[:8]}-{ts}.pptx"

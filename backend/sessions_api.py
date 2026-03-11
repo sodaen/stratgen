@@ -97,7 +97,7 @@ async def run_generation(session_id: str):
             deck_size=map_deck_size(config.get("deck_size", 10)),
             style_profile=config.get("style", "corporate"),
             enable_charts=True,
-            enable_images=False,
+            enable_images=True,  # Sprint 2: Auto Images
             language="de"
         )
         
