@@ -1,5 +1,0 @@
-[
-  {"source":"talkwalker","brand":"Acme GmbH","region":"DE","channel":"social","metric":"mentions","period":"2024Q1","value":820,"unit":""},
-  {"source":"talkwalker","brand":"Acme GmbH","region":"DE","channel":"social","metric":"mentions","period":"2024Q2","value":910,"unit":""},
-  {"source":"talkwalker","brand":"Acme GmbH","region":"DE","channel":"social","metric":"sentiment_pos","period":"2024Q2","value":62.5,"unit":"%"}
-]

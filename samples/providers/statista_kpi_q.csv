@@ -1,9 +1,0 @@
-source,brand,region,channel,metric,period,value,unit
-statista,Acme GmbH,DE,paid,CTR,2024Q1,2.3,%
-statista,Acme GmbH,DE,paid,CTR,2024Q2,2.9,%
-statista,Acme GmbH,DE,paid,CPC,2024Q1,1.18,EUR
-statista,Acme GmbH,DE,paid,CPC,2024Q2,1.12,EUR
-statista,Acme GmbH,DE,paid,CAC,2024Q1,345,EUR
-statista,Acme GmbH,DE,paid,CAC,2024Q2,332,EUR
-statista,Acme GmbH,DE,paid,ROAS,2024Q1,3.2,
-statista,Acme GmbH,DE,paid,ROAS,2024Q2,3.6,
