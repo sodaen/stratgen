@@ -1,158 +1,165 @@
-# === Virtuelle Umgebungen ===
-.venv/
-venv/
-ENV/
-backend/.venv/
 
-# === Daten & Datenbanken ===
-data/
-.qdrant/
-qdrant_storage/
-*.db
-*.sqlite
-
-# === Backups ===
-*.bak
-*.bak.*
-*.broken.*
-*.userbak.*
-backups/
-backups_before_patches/
-_backups/
-
-# === Node.js ===
-node_modules/
-frontend/node_modules/
-
-# === Python Cache ===
-__pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-
-# === Logs ===
-logs/
-*.log
-.run*.log
-
-# === Große/temporäre Dateien ===
-_upload/
-uploads/
-exports/*.pptx
-static/images/*
-!static/images/.gitkeep
-CHANGELOG-*.md
-__ALL_PY__.txt
-snapshot_files.txt
-*.zip
-
-# === Secrets ===
-.env
-.env.local
-*.pem
-*.key
-
-# === IDE ===
-.idea/
-.vscode/
-*.swp
-
-# === OS ===
-.DS_Store
-Thumbs.db
-
-# === Misc ===
-.pytest_cache/
-.run/
-*.pid
+"Acme GmbH"/
+"Acme GmbH (2)"/
+_acme_notes.txt
+Acme*.pptx
 .aider*
-
-# === OPEN SOURCE BEREINIGUNG ===
-
 # Alle PPTX-Dateien (außer Templates)
-*.pptx
-!templates/pptx/*.pptx
-
-# Raw-Daten und Uploads
-Raw/
-raw/
-_Raw/
-
-# Qdrant Datenbank
-.qdrant/
-
-# Changelogs (zu groß)
-changelogs/
-CHANGELOG-*.md
-CHANGELOG.*.md
-
-# Exports und generierte Dateien
-exports/
-runs/
-Acme*.pptx
-deck_*.pptx
-
-# Styles Backups
-styles/backups/
-
+__ALL_PY__.txt
 # Alte Backend venv
-backend/.venv/
-
-# Transcripts
-transcripts/
-
-# === OPEN SOURCE BEREINIGUNG ===
-
-# Alle PPTX-Dateien (außer Templates)
-*.pptx
-!templates/pptx/*.pptx
-
-# Raw-Daten und Uploads
-Raw/
-raw/
-_Raw/
-
-# Qdrant Datenbank
-.qdrant/
-
-# Changelogs (zu groß)
-changelogs/
-CHANGELOG-*.md
-CHANGELOG.*.md
-
-# Exports und generierte Dateien
-exports/
-runs/
-Acme*.pptx
-deck_*.pptx
-
-# Styles Backups
-styles/backups/
-
-# Alte Backend venv
-backend/.venv/
-
-# Transcripts und Archive
-transcripts/
-*.tar.gz
-CHANGELOG.md
-CHANGELOG.001.md
-
-# === Persönliche / Sensitive Dateien ===
-*.docx
-*.doc
-backend/*.txt
+backend/*.backup
+backend/*.backup*
 backend/*.bak*
 backend/*.disabled
-backend/*.backup*
-
-# === Changelogs & Snapshots ===
-changelogs/snapshots/
-changelogs/latest.json
+backend/*.txt
+backend/.venv/
+backend/*.zip
+*.backup
+*.backup_*
+_backups/
+backups/
+backups_*/
+# === Backups ===
+backups_before_patches/
+# Backups & Temp
+*.bak
+*.bak.*
+*.bak_*
+*.broken.*
+build/
+CHANGELOG.001.md
+CHANGELOG*.md
+CHANGELOG-*.md
+CHANGELOG.*.md
+CHANGELOG.md
+changelog.py
+changelogs/
 changelogs/changelogs_archive.tar.gz
-
+changelogs/latest.json
+changelogs/snapshots/
+# === Changelogs & Snapshots ===
+# Changelogs (zu groß)
 # === Claude Export / Upload Ordner ===
-upload_stratgen_*/
+_compose*.json
 context_snapshot.txt
+_*.csv
+data/
+data/agent-runs/
+data/agent_runs.jsonl
+data/autolearn.sqlite
+data/brands/
+data/brand_voice.sqlite
+data/cache/
+data/charts/
+data/config/
+data/content/
+data/exports/
+data/generated_outputs/
+data/pptx_previews/
+data/sessions/
+data/*.sqlite
+# === Daten & Datenbanken ===
+*.db
+deck_*.pptx
+*.disabled
+dist/
+*.doc
+*.docx
+.DS_Store
+*.egg-info/
+.eggs/
+.env
+env/
+ENV/
+.env.local
+exports/
 exports/claude_export_*.txt
+exports/*.pptx
+# Exports und generierte Dateien
+frontend/dist/
+frontend/node_modules/
 frontend/*.pptx
+# Generierte Outputs
+# === Große/temporäre Dateien ===
+headers.txt
+# === IDE ===
+.idea/
+_insights.json
+_*.json
+*.key
+# Laufzeit & Daten
+*.log
+logs/
+# === Logs ===
+Makefilealt
+make.*.inc
+_metrics.csv
+# === Misc ===
+# Node / Frontend
+# === Node.js ===
+node_modules/
+# === OPEN SOURCE BEREINIGUNG ===
+# === OS ===
+patch_*.py
+*.pem
+# Persönliche & Kundendaten
+# === Persönliche / Sensitive Dateien ===
+*.pid
+_plan.json
+*.pptx
+*.pptx.tmp
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+.pytest_cache/
+# Python
+.Python
+# === Python Cache ===
+.qdrant/
+# Qdrant Datenbank
+qdrant_storage/
+raw/
+_Raw/
+Raw/
+# Raw-Daten und Uploads
+_render*.json
+_req*.json
+# Root-Level Temp-Dateien (Debug/Dev Artefakte)
+.run/
+.run*.log
+runs/
+# === Secrets ===
+snapshot_files.txt
+snapshot.txt
+*.so
+# Sonstige
+*.sqlite
+static/images/*
+!static/images/.gitkeep
+stratgen/
+styles/backups/
+# Styles Backups
+*.swo
+*.swp
+*.targets.mk
+*.tar.gz
+!templates/pptx/*.pptx
+Thumbs.db
+*.tmp
+_tmp/
+transcripts/
+# Transcripts
+# Transcripts und Archive
+*.tsbuildinfo
+_*.txt
+_upload/
+uploads/
+upload_stratgen_*/
+*.userbak.*
+.venv/
+venv/
+# === Virtuelle Umgebungen ===
+# Virtuelle Umgebungen
+.vscode/
+*.zip
