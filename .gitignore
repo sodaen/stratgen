@@ -163,3 +163,10 @@ venv/
 # Virtuelle Umgebungen
 .vscode/
 *.zip
+
+# Image Library (Laufzeit-Daten)
+images/library/
+images/index.json
+data/imports/
+data/chats/
+data/exports/charts/
