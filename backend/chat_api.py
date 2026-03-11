@@ -46,7 +46,15 @@ def _ollama_host() -> str:
 def _model() -> str:
     return os.getenv("LLM_MODEL", "mistral")
 
+# _OFFLINE_GUARD_
+try:
+    from services.offline import is_offline as _is_offline
+except ImportError:
+    def _is_offline(): return False
+
 def _llm(prompt: str, max_tokens: int = 1200) -> str:
+    if _is_offline():
+        return "Offline-Modus aktiv – LLM nicht verfügbar."
     provider = os.getenv("LLM_PROVIDER", "ollama")
     if provider == "ollama":
         try:

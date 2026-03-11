@@ -18,6 +18,13 @@ from pydantic import BaseModel, Field
 
 log = logging.getLogger("stratgen.competitor")
 
+# _OFFLINE_GUARD_
+try:
+    from services.offline import is_offline, offline_result
+except ImportError:
+    def is_offline(): return False
+    def offline_result(s): return {"ok": False, "offline": True, "service": s}
+
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
 COMP_DIR = Path("data/competitors")

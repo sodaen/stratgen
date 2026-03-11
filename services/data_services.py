@@ -169,6 +169,13 @@ def get_trend_data(keywords: List[str], timeframe: str = "today 3-m") -> Dict[st
 # === OPEN DATA SOURCES ===
 
 @lru_cache(maxsize=20)
+# _OFFLINE_GUARD_
+try:
+    from services.offline import is_offline, offline_result
+except ImportError:
+    def is_offline(): return False
+    def offline_result(s): return {"ok": False, "offline": True, "service": s}
+
 def get_world_bank_data(indicator: str, country: str = "WLD", years: int = 10) -> Dict[str, Any]:
     """
     Holt Daten von der World Bank API.
@@ -177,6 +184,8 @@ def get_world_bank_data(indicator: str, country: str = "WLD", years: int = 10) -
     - SP.POP.TOTL (Population)
     - IT.NET.USER.ZS (Internet Users %)
     """
+    if is_offline():
+        return offline_result("world_bank")
     try:
         url = f"https://api.worldbank.org/v2/country/{country}/indicator/{indicator}"
         params = {

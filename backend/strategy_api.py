@@ -19,6 +19,13 @@ from pydantic import BaseModel
 
 log = logging.getLogger("stratgen.strategy")
 
+# _OFFLINE_GUARD_
+try:
+    from services.offline import is_offline, offline_result
+except ImportError:
+    def is_offline(): return False
+    def offline_result(s): return {"ok": False, "offline": True, "service": s}
+
 router = APIRouter(prefix="/strategy", tags=["strategy"])
 
 STRAT_DIR = Path("data/strategies")
