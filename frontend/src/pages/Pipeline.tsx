@@ -91,8 +91,21 @@ export default function Pipeline() {
 
   useEffect(() => {
     fetchAll()
-    pollingRef.current = setInterval(fetchAll, 1000)
-    return () => { if (pollingRef.current) clearInterval(pollingRef.current) }
+    // Adaptives Polling: 1s wenn aktiv, 5s wenn kein laufender Job
+    let cancelled = false
+    const adaptivePoll = async () => {
+      if (cancelled) return
+      await fetchAll()
+      if (cancelled) return
+      // Intervall je nach Status
+      const delay = prevStatusRef.current === 'running' ? 1000 : 5000
+      pollingRef.current = setTimeout(adaptivePoll, delay) as any
+    }
+    pollingRef.current = setTimeout(adaptivePoll, 1000) as any
+    return () => {
+      cancelled = true
+      if (pollingRef.current) clearTimeout(pollingRef.current)
+    }
   }, [])
 
   // Auto-redirect zum Editor wenn fertig

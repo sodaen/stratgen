@@ -168,6 +168,7 @@ def get_trend_data(keywords: List[str], timeframe: str = "today 3-m") -> Dict[st
 
 # === OPEN DATA SOURCES ===
 
+@lru_cache(maxsize=20)
 def get_world_bank_data(indicator: str, country: str = "WLD", years: int = 10) -> Dict[str, Any]:
     """
     Holt Daten von der World Bank API.
@@ -319,17 +320,34 @@ def get_news_rss(topic: str, source: str = "google") -> List[Dict]:
 
 # === SERVICE STATUS ===
 
+# ── TTL-Cache: verhindert externe HTTP-Calls bei jedem Status-Request ──
+import time as _ds_time
+_DS_CACHE: dict = {"result": None, "ts": 0.0}
+_DS_CACHE_TTL = 300  # 5 Minuten
+
 def check_data_services() -> Dict[str, Any]:
-    """Prüft alle Data Services."""
+    """Prüft alle Data Services – gecacht für 5 Minuten."""
+    now = _ds_time.time()
+    if _DS_CACHE["result"] is not None and (now - _DS_CACHE["ts"]) < _DS_CACHE_TTL:
+        return _DS_CACHE["result"]
+    result = _check_data_services_live()
+    _DS_CACHE.update({"result": result, "ts": now})
+    return result
+
+def _check_data_services_live() -> Dict[str, Any]:
+    """Tatsächliche Prüfung (nur alle 5 min)."""
     status = {}
     
-    # Wikipedia
+    # Wikipedia (lru_cache kümmert sich schon)
     result = get_wikipedia_summary("Marketing")
     status["wikipedia"] = {"available": result.get("ok", False)}
     
-    # World Bank
-    result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
-    status["world_bank"] = {"available": result.get("ok", False)}
+    # World Bank – gecacht über lru_cache ODER einmaliger Check
+    try:
+        result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
+        status["world_bank"] = {"available": result.get("ok", False)}
+    except Exception:
+        status["world_bank"] = {"available": False}
     
     # Unsplash (immer verfügbar via Source URL)
     status["unsplash"] = {"available": True, "note": "Source URL (no API key)"}
