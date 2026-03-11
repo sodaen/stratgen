@@ -1,4 +1,4 @@
-# StratGen – Release v0.2.0 (Sprint 1–4)
+# StratGen – Release v3.56.0 (Sprint 1–4)
 
 **Branch:** `staging` → `main`  
 **Datum:** 2026-03-11  
