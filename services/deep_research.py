@@ -253,36 +253,25 @@ def search_tavily(query: str, max_results: int = 5) -> list[dict]:
     return data.get("results", [])
 
 
-def search_duckduckgo(query: str, max_results: int = 5) -> list[dict]:
-    """DuckDuckGo Instant Answer API – kostenlos, kein Key."""
-    import requests as req
-    # DuckDuckGo HTML Search (kein offizielles API, aber stabil)
-    headers = {"User-Agent": "StratGen/3.5 Research Bot"}
-    r = req.get(
-        "https://html.duckduckgo.com/html/",
-        params={"q": query},
-        headers=headers,
-        timeout=15
-    )
-    r.raise_for_status()
+def search_duckduckgo(query: str, max_results: int = 5, language: str = "de") -> list[dict]:
+    """DuckDuckGo Suche via ddgs Library."""
+    try:
+        from ddgs import DDGS
+    except ImportError:
+        try:
+            from duckduckgo_search import DDGS
+        except ImportError:
+            log.error("ddgs nicht installiert. Bitte: pip install ddgs")
+            return []
 
-    # Einfaches Parsing der Suchergebnisse
-    results = []
-    pattern = re.compile(
-        r'class="result__title"[^>]*>.*?<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>.*?'
-        r'class="result__snippet"[^>]*>(.*?)</span>',
-        re.DOTALL
-    )
-    for m in pattern.finditer(r.text):
-        url, title, snippet = m.group(1), m.group(2), m.group(3)
-        title = re.sub(r"<[^>]+>", "", title).strip()
-        snippet = re.sub(r"<[^>]+>", "", snippet).strip()
-        if url.startswith("http"):
-            results.append({"url": url, "title": title, "content": snippet})
-        if len(results) >= max_results:
-            break
-
-    return results
+    region = "de-de" if language == "de" else "en-us"
+    try:
+        with DDGS() as ddgs:
+            raw = list(ddgs.text(query, region=region, max_results=max_results))
+        return [{"url": r.get("href",""), "title": r.get("title",""), "content": r.get("body","")} for r in raw]
+    except Exception as e:
+        log.warning("DuckDuckGo search failed for '%s': %s", query, e)
+        return []
 
 
 def _fetch_page_text(url: str, timeout: int = 10) -> str:
@@ -384,7 +373,7 @@ def run_session(session: ResearchSession) -> Generator[dict, None, None]:
             if use_tavily:
                 raw_results = search_tavily(query, results_per_query)
             else:
-                raw_results = search_duckduckgo(query, results_per_query)
+                raw_results = search_duckduckgo(query, results_per_query, session.language)
         except Exception as e:
             log.warning("Search failed for '%s': %s", query, e)
             yield {"type": "query_error", "query": query, "error": str(e)}
