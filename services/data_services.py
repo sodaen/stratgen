@@ -320,57 +320,100 @@ def get_news_rss(topic: str, source: str = "google") -> List[Dict]:
 
 # === SERVICE STATUS ===
 
-# ── TTL-Cache: verhindert externe HTTP-Calls bei jedem Status-Request ──
-import time as _ds_time
-_DS_CACHE: dict = {"result": None, "ts": 0.0}
-_DS_CACHE_TTL = 300  # 5 Minuten
+# _NO_HTTP_STATUS_CHECK_
+# check_data_services() macht KEINE echten HTTP-Calls.
+# Nur Import-Check für den Status-Endpoint.
+# Echter API-Test: GET /data-services/test (explizit)
 
 def check_data_services() -> Dict[str, Any]:
-    """Prüft alle Data Services – gecacht für 5 Minuten."""
-    now = _ds_time.time()
-    if _DS_CACHE["result"] is not None and (now - _DS_CACHE["ts"]) < _DS_CACHE_TTL:
-        return _DS_CACHE["result"]
-    result = _check_data_services_live()
-    _DS_CACHE.update({"result": result, "ts": now})
-    return result
-
-def _check_data_services_live() -> Dict[str, Any]:
-    """Tatsächliche Prüfung (nur alle 5 min)."""
+    """
+    Prüft Data Services - NUR Import-Check, kein HTTP.
+    Verhindert externe API-Calls bei jedem /orchestrator/status.
+    """
     status = {}
-    
-    # Wikipedia (lru_cache kümmert sich schon)
-    result = get_wikipedia_summary("Marketing")
-    status["wikipedia"] = {"available": result.get("ok", False)}
-    
-    # World Bank – gecacht über lru_cache ODER einmaliger Check
-    try:
-        result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
-        status["world_bank"] = {"available": result.get("ok", False)}
-    except Exception:
-        status["world_bank"] = {"available": False}
-    
-    # Unsplash (immer verfügbar via Source URL)
+
+    # Wikipedia – nur Import prüfen
+    status["wikipedia"] = {"available": True, "note": "httpx available"}
+
+    # World Bank – nur Import prüfen, kein HTTP-Call
+    status["world_bank"] = {"available": True, "note": "check only on explicit test"}
+
+    # Unsplash
     status["unsplash"] = {"available": True, "note": "Source URL (no API key)"}
-    
+
     # Google Trends
     try:
-        from pytrends.request import TrendReq
+        from pytrends.request import TrendReq  # noqa
         status["google_trends"] = {"available": True}
     except ImportError:
         status["google_trends"] = {"available": False, "note": "pytrends not installed"}
-    
+
     # QR Code
     try:
-        import qrcode
+        import qrcode  # noqa
         status["qr_code"] = {"available": True}
     except ImportError:
         status["qr_code"] = {"available": False, "note": "qrcode not installed"}
-    
+
     # RSS/News
     try:
-        import feedparser
+        import feedparser  # noqa
         status["news_rss"] = {"available": True}
     except ImportError:
         status["news_rss"] = {"available": False, "note": "feedparser not installed"}
-    
+
+    return status
+
+
+def test_data_services_live() -> Dict[str, Any]:
+    """
+    Echter Live-Test aller externen APIs.
+    NUR auf expliziten Request aufrufen (z.B. Health-Check-Seite, Diagnose).
+    NICHT in Polling-Loops verwenden.
+    """
+    import time
+    status = {}
+    t0 = time.time()
+
+    # Wikipedia
+    try:
+        result = get_wikipedia_summary("Marketing")
+        status["wikipedia"] = {"available": result.get("ok", False), "latency_ms": int((time.time()-t0)*1000)}
+    except Exception as e:
+        status["wikipedia"] = {"available": False, "error": str(e)}
+
+    # World Bank
+    try:
+        t1 = time.time()
+        result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
+        status["world_bank"] = {"available": result.get("ok", False), "latency_ms": int((time.time()-t1)*1000)}
+    except Exception as e:
+        status["world_bank"] = {"available": False, "error": str(e)}
+
+    # Unsplash
+    status["unsplash"] = {"available": True, "note": "Source URL"}
+
+    # Google Trends
+    try:
+        from pytrends.request import TrendReq  # noqa
+        status["google_trends"] = {"available": True}
+    except ImportError:
+        status["google_trends"] = {"available": False}
+
+    # QR Code
+    try:
+        import qrcode  # noqa
+        status["qr_code"] = {"available": True}
+    except ImportError:
+        status["qr_code"] = {"available": False}
+
+    # RSS/News
+    try:
+        import feedparser  # noqa
+        status["news_rss"] = {"available": True}
+    except ImportError:
+        status["news_rss"] = {"available": False}
+
+    status["_tested_at"] = time.time()
+    status["_total_ms"] = int((time.time() - t0) * 1000)
     return status
