@@ -108,6 +108,25 @@ async def export_session(format: str, session_id: str):
             
             with open(out_path, 'wb') as f:
                 f.write(pptx_bytes)
+
+            # ── SELF-LEARNING HOOK ──────────────────────────
+            try:
+                from services.self_learning import self_learning as _sl
+                import threading as _threading
+                _export_path_for_sl = str(out_path)
+                _session_id_for_sl = session_id
+                def _run_learning():
+                    _sl.on_export_complete(
+                        export_path=_export_path_for_sl,
+                        session_id=_session_id_for_sl,
+                        export_type="pptx"
+                    )
+                _threading.Thread(target=_run_learning, daemon=True).start()
+                logger.info("Self-learning hook triggered for session %s", session_id)
+            except Exception as _sl_err:
+                logger.debug("Self-learning hook skipped: %s", _sl_err)
+            # ── /SELF-LEARNING HOOK ─────────────────────────
+
             
             return {
                 "ok": True,
@@ -188,3 +207,23 @@ async def export_session(format: str, session_id: str):
         }
     
     raise HTTPException(400, f"Format {format} not implemented")
+
+
+@router.post("/export/learn/{session_id}")
+async def trigger_learning_manually(session_id: str, export_type: str = "pptx"):
+    """Manuell Self-Learning für eine bereits exportierte Session triggern."""
+    try:
+        from services.self_learning import self_learning as _sl
+        candidates = list(EXPORTS_DIR.glob(f"export-{session_id[:8]}-*.{export_type}"))
+        if not candidates:
+            candidates = list(EXPORTS_DIR.glob(f"*{session_id[:8]}*.{export_type}"))
+        if not candidates:
+            return {"ok": False, "error": "Keine Export-Datei gefunden"}
+        export_path = str(sorted(candidates, key=lambda f: f.stat().st_mtime, reverse=True)[0])
+        result = _sl.on_export_complete(
+            export_path=export_path, session_id=session_id, export_type=export_type
+        )
+        return {"ok": True, "learning_result": result}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
