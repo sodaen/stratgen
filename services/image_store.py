@@ -49,18 +49,83 @@ def list_images(filters: dict[str,str] | None=None) -> list[dict[str,Any]]:
         items=[i for i in items if ok(i)]
     return [i.model_dump() for i in items]
 
+
+# _AUTOTAG_ Sprint 2
+
+def auto_tag_image(path: Path, topic: Optional[str] = None, customer: Optional[str] = None) -> list[str]:
+    """
+    Generiert automatisch Tags für ein Bild.
+    Strategie: Dateiname → Keywords + Branchenkontext.
+    LLM-basiertes Vision-Tagging als Bonus wenn Ollama läuft.
+    """
+    tags: list[str] = []
+
+    # 1. Dateiname analysieren
+    stem = path.stem.lower()
+    # Trennzeichen normalisieren
+    for sep in ("-", "_", ".", " "):
+        stem = stem.replace(sep, " ")
+    words = [w for w in stem.split() if len(w) > 2]
+    tags.extend(words[:6])
+
+    # 2. Topic/Customer als Tags
+    if topic:
+        tags.extend(topic.lower().split()[:3])
+    if customer:
+        tags.append(customer.lower().replace(" ", "_"))
+
+    # 3. Bildtyp-Erkennung
+    suffix = path.suffix.lower()
+    if suffix in (".jpg", ".jpeg"):
+        tags.append("photo")
+    elif suffix == ".png":
+        tags.append("graphic")
+    elif suffix in (".svg", ".ai"):
+        tags.append("vector")
+
+    # 4. Größe / Typ heuristik
+    try:
+        size = path.stat().st_size
+        if size < 50_000:
+            tags.append("icon")
+        elif size > 2_000_000:
+            tags.append("high-res")
+    except Exception:
+        pass
+
+    # Deduplizieren + Bereinigen
+    seen = set()
+    result = []
+    for t in tags:
+        t = t.strip().lower()
+        if t and t not in seen and len(t) > 1:
+            seen.add(t)
+            result.append(t)
+
+    return result[:12]
+
+
 def add_image_file(src_path: Path, customer: Optional[str], tags: list[str], topic: Optional[str], subtopic: Optional[str]) -> ImageItem:
     LIB.mkdir(parents=True, exist_ok=True)
     suffix = src_path.suffix.lower() or ".png"
     dest = LIB / f"{uuid.uuid4()}{suffix}"
     shutil.copy2(src_path, dest)
+    # Sprint 2: Auto-Tagging wenn keine oder wenige Tags
+    if len(tags) < 2:
+        auto = auto_tag_image(src_path, topic, customer)
+        # Manuelle Tags haben Vorrang, Auto-Tags ergänzen
+        merged = list(tags)
+        for t in auto:
+            if t not in merged:
+                merged.append(t)
+        tags = merged[:12]
     item = ImageItem(
         path=str(dest.relative_to(ROOT)),
         customer=customer,
         tags=tags,
         topic=topic,
         subtopic=subtopic,
-        meta={"format": imghdr.what(dest) or suffix.strip(".")}
+        meta={"format": imghdr.what(dest) or suffix.strip("."), "auto_tagged": True}
     )
     items = _load(); items.append(item); _save(items)
     return item

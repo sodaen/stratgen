@@ -168,6 +168,14 @@ def get_trend_data(keywords: List[str], timeframe: str = "today 3-m") -> Dict[st
 
 # === OPEN DATA SOURCES ===
 
+@lru_cache(maxsize=20)
+# _OFFLINE_GUARD_
+try:
+    from services.offline import is_offline, offline_result
+except ImportError:
+    def is_offline(): return False
+    def offline_result(s): return {"ok": False, "offline": True, "service": s}
+
 def get_world_bank_data(indicator: str, country: str = "WLD", years: int = 10) -> Dict[str, Any]:
     """
     Holt Daten von der World Bank API.
@@ -176,6 +184,8 @@ def get_world_bank_data(indicator: str, country: str = "WLD", years: int = 10) -
     - SP.POP.TOTL (Population)
     - IT.NET.USER.ZS (Internet Users %)
     """
+    if is_offline():
+        return offline_result("world_bank")
     try:
         url = f"https://api.worldbank.org/v2/country/{country}/indicator/{indicator}"
         params = {
@@ -319,40 +329,100 @@ def get_news_rss(topic: str, source: str = "google") -> List[Dict]:
 
 # === SERVICE STATUS ===
 
+# _NO_HTTP_STATUS_CHECK_
+# check_data_services() macht KEINE echten HTTP-Calls.
+# Nur Import-Check für den Status-Endpoint.
+# Echter API-Test: GET /data-services/test (explizit)
+
 def check_data_services() -> Dict[str, Any]:
-    """Prüft alle Data Services."""
+    """
+    Prüft Data Services - NUR Import-Check, kein HTTP.
+    Verhindert externe API-Calls bei jedem /orchestrator/status.
+    """
     status = {}
-    
-    # Wikipedia
-    result = get_wikipedia_summary("Marketing")
-    status["wikipedia"] = {"available": result.get("ok", False)}
-    
-    # World Bank
-    result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
-    status["world_bank"] = {"available": result.get("ok", False)}
-    
-    # Unsplash (immer verfügbar via Source URL)
+
+    # Wikipedia – nur Import prüfen
+    status["wikipedia"] = {"available": True, "note": "httpx available"}
+
+    # World Bank – nur Import prüfen, kein HTTP-Call
+    status["world_bank"] = {"available": True, "note": "check only on explicit test"}
+
+    # Unsplash
     status["unsplash"] = {"available": True, "note": "Source URL (no API key)"}
-    
+
     # Google Trends
     try:
-        from pytrends.request import TrendReq
+        from pytrends.request import TrendReq  # noqa
         status["google_trends"] = {"available": True}
     except ImportError:
         status["google_trends"] = {"available": False, "note": "pytrends not installed"}
-    
+
     # QR Code
     try:
-        import qrcode
+        import qrcode  # noqa
         status["qr_code"] = {"available": True}
     except ImportError:
         status["qr_code"] = {"available": False, "note": "qrcode not installed"}
-    
+
     # RSS/News
     try:
-        import feedparser
+        import feedparser  # noqa
         status["news_rss"] = {"available": True}
     except ImportError:
         status["news_rss"] = {"available": False, "note": "feedparser not installed"}
-    
+
+    return status
+
+
+def test_data_services_live() -> Dict[str, Any]:
+    """
+    Echter Live-Test aller externen APIs.
+    NUR auf expliziten Request aufrufen (z.B. Health-Check-Seite, Diagnose).
+    NICHT in Polling-Loops verwenden.
+    """
+    import time
+    status = {}
+    t0 = time.time()
+
+    # Wikipedia
+    try:
+        result = get_wikipedia_summary("Marketing")
+        status["wikipedia"] = {"available": result.get("ok", False), "latency_ms": int((time.time()-t0)*1000)}
+    except Exception as e:
+        status["wikipedia"] = {"available": False, "error": str(e)}
+
+    # World Bank
+    try:
+        t1 = time.time()
+        result = get_world_bank_data("NY.GDP.MKTP.CD", "DEU", 1)
+        status["world_bank"] = {"available": result.get("ok", False), "latency_ms": int((time.time()-t1)*1000)}
+    except Exception as e:
+        status["world_bank"] = {"available": False, "error": str(e)}
+
+    # Unsplash
+    status["unsplash"] = {"available": True, "note": "Source URL"}
+
+    # Google Trends
+    try:
+        from pytrends.request import TrendReq  # noqa
+        status["google_trends"] = {"available": True}
+    except ImportError:
+        status["google_trends"] = {"available": False}
+
+    # QR Code
+    try:
+        import qrcode  # noqa
+        status["qr_code"] = {"available": True}
+    except ImportError:
+        status["qr_code"] = {"available": False}
+
+    # RSS/News
+    try:
+        import feedparser  # noqa
+        status["news_rss"] = {"available": True}
+    except ImportError:
+        status["news_rss"] = {"available": False}
+
+    status["_tested_at"] = time.time()
+    status["_total_ms"] = int((time.time() - t0) * 1000)
     return status

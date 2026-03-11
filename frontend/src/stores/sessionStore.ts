@@ -58,23 +58,26 @@ export const useSessionStore = create<SessionStore>()(
           if (!response.ok) return
           
           const backendSessions = await response.json()
+          if (!backendSessions || backendSessions.length === 0) return
+
           const sessionsMap: Record<string, Session> = {}
           
           for (const s of backendSessions) {
             sessionsMap[s.id] = {
               id: s.id,
-              name: s.config?.project_name || 'Unnamed',
+              name: s.config?.project_name || s.config?.company_name || 'Unbenannt',
               company: s.config?.company_name || '',
               status: s.status,
-              phase: s.phase,
+              phase: s.phase || 'pending',
               progress: s.progress || 0,
               slidesGenerated: s.slides_generated || 0,
               totalSlides: s.total_slides || 10,
-              createdAt: s.created_at,
-              updatedAt: s.updated_at
+              createdAt: s.created_at || new Date().toISOString(),
+              updatedAt: s.updated_at || s.created_at || new Date().toISOString()
             }
           }
           
+          // Backend-Stand hat immer Vorrang (überschreibt localStorage)
           set((state) => ({
             sessions: { ...state.sessions, ...sessionsMap }
           }))

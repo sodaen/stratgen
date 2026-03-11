@@ -75,6 +75,10 @@ class PPTXDesignerV2:
         
         self.prs = None
         self.slide_sources = []  # Sammelt Quellen pro Slide
+        # Sprint 2: Image + Layout tracking
+        self._customer_name = ""
+        self._topic = ""
+        self._use_images = True  # Auto Images aktiviert
     
     def _hex_to_rgb(self, hex_color: str) -> RGBColor:
         """Konvertiert Hex zu RGB."""
@@ -118,10 +122,12 @@ class PPTXDesignerV2:
         p.font.color.rgb = self._hex_to_rgb(self.colors.get("secondary", "#666666"))
         p.alignment = PP_ALIGN.RIGHT
     
-    def create_presentation(self, slides: List[Dict], 
+    def create_presentation(self, slides: List[Dict],
                            title: str = "Präsentation",
                            company: str = "",
-                           include_sources_slide: bool = True) -> bytes:
+                           include_sources_slide: bool = True,
+                           customer_name: str = "",
+                           use_images: bool = True) -> bytes:
         """
         Erstellt eine komplette PPTX-Präsentation.
         
@@ -137,6 +143,9 @@ class PPTXDesignerV2:
         self.prs = Presentation()
         self.prs.slide_width = Inches(13.333)  # 16:9
         self.prs.slide_height = Inches(7.5)
+        self._customer_name = customer_name or company
+        self._topic = title
+        self._use_images = use_images
         
         all_sources = []
         total_slides = len(slides) + (1 if include_sources_slide else 0)
@@ -146,21 +155,37 @@ class PPTXDesignerV2:
             sources = slide_data.get("sources", [])
             all_sources.extend(sources)
             
-            # Erstelle Slide basierend auf Typ
+            # Erstelle Slide basierend auf Typ – Sprint 2: vollständiges Routing
             if slide_type == "title" or i == 0:
                 slide = self._add_title_slide(slide_data, company)
             elif slide_type == "section":
                 slide = self._add_section_slide(slide_data)
-            elif slide_type == "two_column":
+            elif slide_type == "two_column" or slide_type == "comparison":
                 slide = self._add_two_column_slide(slide_data)
-            elif slide_type == "bullets":
+            elif slide_type == "bullets" or slide_type == "list":
                 slide = self._add_bullet_slide(slide_data)
-            elif slide_type == "quote":
+            elif slide_type == "quote" or slide_type == "statement":
                 slide = self._add_quote_slide(slide_data)
-            elif slide_type == "data" or slide_type == "chart":
+            elif slide_type in ("data", "chart", "bar", "line", "pie"):
                 slide = self._add_data_slide(slide_data)
+            elif slide_type == "image" or slide_type == "visual":
+                slide = self._add_image_slide(slide_data)
+            elif slide_type == "agenda":
+                slide = self._add_agenda_slide(slide_data)
+            elif slide_type == "cta" or slide_type == "next_steps":
+                slide = self._add_cta_slide(slide_data)
+            elif slide_type == "kpi" or slide_type == "metrics":
+                slide = self._add_kpi_slide(slide_data)
+            elif slide_type == "swot":
+                slide = self._add_swot_slide(slide_data)
+            elif slide_type == "timeline" or slide_type == "roadmap":
+                slide = self._add_timeline_slide(slide_data)
             else:
                 slide = self._add_content_slide(slide_data)
+            
+            # Auto Images: Bild einfügen wenn vorhanden oder gefunden
+            if self._use_images and slide_type not in ("title", "section"):
+                self._try_add_image(slide, slide_data)
             
             # Füge Quellen-Footer hinzu (außer bei Title-Slide)
             if sources and slide_type != "title":
@@ -547,6 +572,321 @@ class PPTXDesignerV2:
         
         return slide
     
+
+    # ─────────────────────────────────────────
+    # SPRINT 2: AUTO IMAGES
+    # ─────────────────────────────────────────
+
+    def _try_add_image(self, slide, data: Dict):
+        """
+        Versucht ein passendes Bild einzufügen.
+        Priorität: 1. slide["image"] explizit gesetzt
+                   2. resolve_for_slide() aus image_store
+        Bild wird rechts oben eingefügt (2.5" x 2.5") wenn Platz ist.
+        """
+        # _SPRINT2_PATCH_
+        img_path = None
+
+        # 1. Explizit im Slide-Dict
+        explicit = data.get("image") or data.get("image_path")
+        if explicit:
+            p = Path(explicit)
+            if p.exists():
+                img_path = p
+
+        # 2. image_store resolve
+        if not img_path and self._customer_name:
+            try:
+                from services.image_store import resolve_for_slide
+                tokens = []
+                title = data.get("title", "")
+                bullets = data.get("bullets", [])
+                # Tokens aus Titel + ersten Bullets
+                words = (title + " " + " ".join(str(b) for b in bullets[:2])).split()
+                tokens = [w.lower().strip(".,!?:;") for w in words if len(w) > 4][:8]
+                topic = data.get("topic") or self._topic
+                subtopic = data.get("subtopic") or data.get("type", "")
+                resolved = resolve_for_slide(
+                    self._customer_name, topic, subtopic, tokens
+                )
+                if resolved and resolved.exists():
+                    img_path = resolved
+            except Exception as e:
+                logger.debug("Auto image resolve failed: %s", e)
+
+        if not img_path:
+            return
+
+        # Bild rechts oben einfügen (overlay, klein)
+        try:
+            from pptx.util import Inches as _In
+            W, H = _In(2.8), _In(2.8)
+            LEFT = self.prs.slide_width - W - _In(0.3)
+            TOP = _In(0.5)
+            slide.shapes.add_picture(str(img_path), LEFT, TOP, W, H)
+            logger.debug("Auto image inserted: %s", img_path.name)
+        except Exception as e:
+            logger.debug("Image insert failed: %s", e)
+
+    # ─────────────────────────────────────────
+    # SPRINT 2: NEUE LAYOUT-TYPEN
+    # ─────────────────────────────────────────
+
+    def _add_agenda_slide(self, data: Dict):
+        """Agenda-Slide mit nummerierten Punkten."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide)
+
+        # Linke Farbfläche
+        bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(0.5), Inches(7.5))
+        bar.fill.solid(); bar.fill.fore_color.rgb = self._hex_to_rgb(self.colors["primary"]); bar.line.fill.background()
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(11.8), Inches(0.8))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", "Agenda"); p.font.size = Pt(32); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb(self.colors["primary"])
+
+        # Trennlinie
+        line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(1.25), Inches(11.5), Inches(0.04))
+        line.fill.solid(); line.fill.fore_color.rgb = self._hex_to_rgb(self.colors["accent"]); line.line.fill.background()
+
+        # Nummerierte Punkte
+        bullets = data.get("bullets", [])
+        y = 1.5
+        for i, bullet in enumerate(bullets[:8]):
+            # Nummer-Badge
+            badge = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(0.75), Inches(y), Inches(0.4), Inches(0.4))
+            badge.fill.solid(); badge.fill.fore_color.rgb = self._hex_to_rgb(self.colors["accent"]); badge.line.fill.background()
+            bt = badge.text_frame.paragraphs[0]
+            bt.text = str(i + 1); bt.font.size = Pt(12); bt.font.bold = True
+            bt.font.color.rgb = self._hex_to_rgb("#FFFFFF"); bt.alignment = PP_ALIGN.CENTER
+
+            # Text
+            tb2 = slide.shapes.add_textbox(Inches(1.3), Inches(y - 0.05), Inches(11.0), Inches(0.5))
+            p2 = tb2.text_frame.paragraphs[0]
+            p2.text = str(bullet); p2.font.size = Pt(20)
+            p2.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+            y += 0.65
+
+        return slide
+
+    def _add_cta_slide(self, data: Dict):
+        """CTA / Nächste Schritte Slide."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide, use_primary=True)
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.5), Inches(0.8), Inches(12.333), Inches(1))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", "Nächste Schritte")
+        p.font.size = Pt(40); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb("#FFFFFF"); p.alignment = PP_ALIGN.CENTER
+
+        # Accent-Linie
+        line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(5), Inches(1.9), Inches(3.333), Inches(0.06))
+        line.fill.solid(); line.fill.fore_color.rgb = self._hex_to_rgb(self.colors["accent"]); line.line.fill.background()
+
+        # Steps als Kästen
+        bullets = data.get("bullets", [])
+        n = min(len(bullets), 4)
+        if n > 0:
+            box_w = 11.5 / n
+            for i, step in enumerate(bullets[:4]):
+                x = 0.75 + i * box_w
+                box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(2.5), Inches(box_w - 0.2), Inches(3.5))
+                box.fill.solid(); box.fill.fore_color.rgb = self._hex_to_rgb("#FFFFFF"); box.line.fill.background()
+
+                num_tb = slide.shapes.add_textbox(Inches(x + 0.1), Inches(2.7), Inches(box_w - 0.4), Inches(0.5))
+                np_ = num_tb.text_frame.paragraphs[0]
+                np_.text = str(i + 1); np_.font.size = Pt(28); np_.font.bold = True
+                np_.font.color.rgb = self._hex_to_rgb(self.colors["accent"]); np_.alignment = PP_ALIGN.CENTER
+
+                step_tb = slide.shapes.add_textbox(Inches(x + 0.1), Inches(3.4), Inches(box_w - 0.4), Inches(2.3))
+                step_tb.text_frame.word_wrap = True
+                sp = step_tb.text_frame.paragraphs[0]
+                sp.text = str(step); sp.font.size = Pt(16)
+                sp.font.color.rgb = self._hex_to_rgb(self.colors["primary"]); sp.alignment = PP_ALIGN.CENTER
+
+        return slide
+
+    def _add_kpi_slide(self, data: Dict):
+        """KPI / Metriken Slide mit großen Zahlen."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide)
+
+        # Oben: Balken
+        bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.12))
+        bar.fill.solid(); bar.fill.fore_color.rgb = self._hex_to_rgb(self.colors["primary"]); bar.line.fill.background()
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.75), Inches(0.35), Inches(11.8), Inches(0.8))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", "KPIs & Metriken"); p.font.size = Pt(32); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+
+        # KPI-Kästen (aus bullets: "Label: Wert")
+        bullets = data.get("bullets", [])
+        kpis = []
+        for b in bullets:
+            b = str(b)
+            if ":" in b:
+                parts = b.split(":", 1)
+                kpis.append({"label": parts[0].strip(), "value": parts[1].strip()})
+            else:
+                kpis.append({"label": b, "value": "—"})
+
+        n = min(len(kpis), 4)
+        if n > 0:
+            box_w = 11.5 / n
+            for i, kpi in enumerate(kpis[:4]):
+                x = 0.75 + i * box_w
+                box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(1.8), Inches(box_w - 0.2), Inches(4.5))
+                box.fill.solid(); box.fill.fore_color.rgb = self._hex_to_rgb(self.colors["primary"] + "18"); box.line.fill.background()
+
+                # Wert groß
+                val_tb = slide.shapes.add_textbox(Inches(x), Inches(2.2), Inches(box_w - 0.2), Inches(2))
+                vp = val_tb.text_frame.paragraphs[0]
+                vp.text = kpi["value"]; vp.font.size = Pt(44); vp.font.bold = True
+                vp.font.color.rgb = self._hex_to_rgb(self.colors["accent"]); vp.alignment = PP_ALIGN.CENTER
+
+                # Label klein
+                lbl_tb = slide.shapes.add_textbox(Inches(x), Inches(4.4), Inches(box_w - 0.2), Inches(1))
+                lp = lbl_tb.text_frame.paragraphs[0]
+                lp.text = kpi["label"]; lp.font.size = Pt(16)
+                lp.font.color.rgb = self._hex_to_rgb(self.colors["text"]); lp.alignment = PP_ALIGN.CENTER
+
+        return slide
+
+    def _add_swot_slide(self, data: Dict):
+        """2x2 SWOT-Matrix Slide."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide)
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.5), Inches(0.2), Inches(12.333), Inches(0.7))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", "SWOT-Analyse"); p.font.size = Pt(28); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+
+        # 4 Quadranten
+        bullets = data.get("bullets", [])
+        quadrants = [
+            ("S – Stärken", self.colors["accent"], bullets[0] if len(bullets) > 0 else ""),
+            ("W – Schwächen", "#EF4444", bullets[1] if len(bullets) > 1 else ""),
+            ("O – Chancen", "#3B82F6", bullets[2] if len(bullets) > 2 else ""),
+            ("T – Risiken", "#F59E0B", bullets[3] if len(bullets) > 3 else ""),
+        ]
+        positions = [(0.4, 1.0), (6.8, 1.0), (0.4, 4.2), (6.8, 4.2)]
+
+        for (label, color, text), (x, y) in zip(quadrants, positions):
+            box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(6.2), Inches(3.0))
+            box.fill.solid(); box.fill.fore_color.rgb = self._hex_to_rgb(color + "22"); box.line.color.rgb = self._hex_to_rgb(color)
+
+            hdr = slide.shapes.add_textbox(Inches(x + 0.1), Inches(y + 0.1), Inches(6.0), Inches(0.5))
+            hp = hdr.text_frame.paragraphs[0]
+            hp.text = label; hp.font.size = Pt(16); hp.font.bold = True
+            hp.font.color.rgb = self._hex_to_rgb(color)
+
+            if text:
+                tb2 = slide.shapes.add_textbox(Inches(x + 0.1), Inches(y + 0.65), Inches(6.0), Inches(2.1))
+                tb2.text_frame.word_wrap = True
+                tp = tb2.text_frame.paragraphs[0]
+                tp.text = str(text); tp.font.size = Pt(14)
+                tp.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+
+        return slide
+
+    def _add_timeline_slide(self, data: Dict):
+        """Timeline / Roadmap Slide."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide)
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.75), Inches(0.3), Inches(11.8), Inches(0.8))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", "Roadmap"); p.font.size = Pt(32); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+
+        # Horizontale Zeitlinie
+        line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(3.6), Inches(11.8), Inches(0.08))
+        line.fill.solid(); line.fill.fore_color.rgb = self._hex_to_rgb(self.colors["primary"]); line.line.fill.background()
+
+        bullets = data.get("bullets", [])
+        n = min(len(bullets), 6)
+        if n > 0:
+            spacing = 11.5 / n
+            for i, step in enumerate(bullets[:6]):
+                x = 0.75 + i * spacing
+
+                # Punkt auf der Linie
+                dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + spacing/2 - 0.15), Inches(3.44), Inches(0.3), Inches(0.3))
+                dot.fill.solid(); dot.fill.fore_color.rgb = self._hex_to_rgb(self.colors["accent"]); dot.line.fill.background()
+
+                # Text abwechselnd oben/unten
+                if i % 2 == 0:
+                    ty = 1.5
+                else:
+                    ty = 4.2
+
+                step_tb = slide.shapes.add_textbox(Inches(x), Inches(ty), Inches(spacing - 0.1), Inches(1.8))
+                step_tb.text_frame.word_wrap = True
+                sp = step_tb.text_frame.paragraphs[0]
+                sp.text = str(step); sp.font.size = Pt(14)
+                sp.font.color.rgb = self._hex_to_rgb(self.colors["text"]); sp.alignment = PP_ALIGN.CENTER
+
+        return slide
+
+    def _add_image_slide(self, data: Dict):
+        """Bild-dominierter Slide mit Titel und Caption."""
+        layout = self.prs.slide_layouts[6]
+        slide = self.prs.slides.add_slide(layout)
+        self._add_background(slide)
+
+        # Titel
+        tb = slide.shapes.add_textbox(Inches(0.5), Inches(0.2), Inches(12.333), Inches(0.8))
+        p = tb.text_frame.paragraphs[0]
+        p.text = data.get("title", ""); p.font.size = Pt(28); p.font.bold = True
+        p.font.color.rgb = self._hex_to_rgb(self.colors["text"])
+
+        # Bild laden
+        img_path = None
+        explicit = data.get("image") or data.get("image_path")
+        if explicit:
+            p2 = Path(explicit)
+            if p2.exists():
+                img_path = p2
+        if not img_path and self._customer_name:
+            try:
+                from services.image_store import resolve_for_slide
+                title = data.get("title", self._topic)
+                resolved = resolve_for_slide(self._customer_name, title, "", [])
+                if resolved and resolved.exists():
+                    img_path = resolved
+            except Exception:
+                pass
+
+        if img_path:
+            try:
+                slide.shapes.add_picture(str(img_path), Inches(1.5), Inches(1.2), Inches(10.333), Inches(5.5))
+            except Exception as e:
+                logger.debug("Image slide picture failed: %s", e)
+
+        # Caption aus Bullets
+        bullets = data.get("bullets", [])
+        if bullets:
+            cap = slide.shapes.add_textbox(Inches(0.5), Inches(6.9), Inches(12.333), Inches(0.4))
+            cp = cap.text_frame.paragraphs[0]
+            cp.text = " | ".join(str(b) for b in bullets[:3]); cp.font.size = Pt(12)
+            cp.font.color.rgb = self._hex_to_rgb(self.colors["secondary"]); cp.alignment = PP_ALIGN.CENTER
+
+        return slide
+
     def _add_sources_overview_slide(self, sources: List[str]):
         """Erstellt Quellenübersicht-Slide am Ende."""
         layout = self.prs.slide_layouts[6]
