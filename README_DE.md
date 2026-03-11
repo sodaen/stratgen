@@ -1,225 +1,186 @@
-# STRATGEN - Lokaler KI-Agent für Präsentationen
+# STRATGEN
 
-<p align="center">
-  <strong>🔒 Datenschutz-First • 💻 100% Lokal • 🚧 Aktive Entwicklung</strong>
-</p>
+**Lokaler KI-Agent für professionelle Business-Präsentationen**
 
-<p align="center">
-  <a href="README.md">🇬🇧 English Version</a>
-</p>
+[![License: AGPL-3.0](https://img.shields.io/badge/Lizenz-AGPL--3.0-blue.svg)](LICENSE)
+[![License: Commercial](https://img.shields.io/badge/Lizenz-Kommerziell-green.svg)](LICENSE_COMMERCIAL)
+[![Version](https://img.shields.io/badge/version-3.56.0-blue)](https://github.com/sodaen/stratgen/releases)
 
----
-
-## 🎯 Was ist STRATGEN?
-
-**STRATGEN** ist ein **lokal betriebener KI-Agent**, der automatisch professionelle Business-Präsentationen erstellt.
-
-**Kernprinzip: Deine Daten bleiben auf DEINEN Servern.**
-
-- ✅ **100% Lokale Verarbeitung** - LLM läuft auf deiner Hardware (Ollama)
-- ✅ **Deine Daten, deine Kontrolle** - Wissensbasis lokal gespeichert
-- ✅ **Keine Cloud-Abhängigkeit** - Funktioniert komplett offline
-- ✅ **DSGVO-Konform** - Keine Daten verlassen deine Infrastruktur
-- ✅ **Self-Hosted** - Volle Kontrolle über deine Installation
-
-### Architektur
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    DEINE INFRASTRUKTUR                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │   Ollama    │  │   Qdrant    │  │     STRATGEN        │  │
-│  │ Lokales LLM │  │ Vektor-DB   │  │   Präsentations-    │  │
-│  │  (Mistral)  │  │  (Lokal)    │  │      Engine         │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-│         │                │                    │              │
-│         └────────────────┴────────────────────┘              │
-│                  Alle Daten bleiben hier                     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                    ┌─────────┴─────────┐
-                    │  Nur Optional:    │
-                    │  • Web-Recherche  │
-                    │  • Bildersuche    │
-                    │ (abschaltbar)     │
-                    └───────────────────┘
-```
-
-### Vision
-
-STRATGEN entwickelt sich zu einem **umfassenden KI-Strategie-Agenten**:
-```
-Heute:     Präsentations-Generator (Lokales LLM + RAG)
-           ↓
-Nächster:  Strategie-Assistent mit Recherche & Analyse
-           ↓  
-Ziel:      Autonomer Beratungs-Agent für Unternehmensstrategie
-```
+STRATGEN ist ein privacy-first, lokaler KI-Agent der automatisch professionelle PowerPoint-Strategiepräsentationen erstellt. Alle Berechnungen laufen auf deiner Maschine — kein Cloud, keine Datenweitergabe.
 
 ---
 
-## 🚀 Projektstatus
+## Funktionen
 
-Dieses Projekt wird **aktiv entwickelt**. Beiträge sind willkommen!
+### ✅ Implementiert (v3.56.0)
 
-### ✅ Bereits verfügbar (v3.55)
+| Funktion | Status | Details |
+|----------|--------|---------|
+| **Strategieanalyse** | ✅ Live | SWOT, Porter's Five Forces via LLM + RAG |
+| **Wettbewerbsanalyse** | ✅ Live | LLM-Scoring 1–10, Deep-Dive-Profile |
+| **PPTX-Generierung** | ✅ Live | 8–22 Slides, 8 Layout-Typen, Auto-Bilder |
+| **Auto Images** | ✅ Live | resolve_for_slide(), Auto-Tagging beim Upload |
+| **Daten-Import** | ✅ Live | CSV/XLSX → matplotlib-Chart → Slide |
+| **Interaktiver Chat** | ✅ Live | Multi-Turn RAG-Chat, SSE-Streaming, Feedback |
+| **Self-Learning** | ✅ Live | Jeder Export wird automatisch in Qdrant indexiert |
+| **Offline-Modus** | ✅ Live | `STRATGEN_OFFLINE=true` sperrt alle externen Calls |
+| **Wissensdatenbank** | ✅ Live | Qdrant Vektor-DB, semantische Suche, RAG |
 
-| Feature | Beschreibung | Status |
-|---------|--------------|--------|
-| **Deck-Generierung** | Vollständige PPTX mit Kapiteln, Agenda, Quellen | ✅ Stabil |
-| **Lokale Wissensbasis** | RAG-System mit Qdrant (läuft lokal) | ✅ Stabil |
-| **Lokales LLM** | Ollama-Integration (Mistral, Llama, etc.) | ✅ Stabil |
-| **Deutsche Sprache** | Optimiert für deutsche Business-Präsentationen | ✅ Stabil |
-| **Template-System** | Anpassbare PPTX-Vorlagen | ✅ Stabil |
-| **Quellen-Management** | Automatische Quellenangaben mit URLs | ✅ Stabil |
-| **Web-Interface** | React-Frontend | ✅ Stabil |
-| **REST-API** | Für Integration | ✅ Stabil |
+### 🔜 Geplant
 
-### 🔨 In Entwicklung
-
-| Feature | Beschreibung | Status |
-|---------|--------------|--------|
-| **Deep Research** | Optionale Web-Recherche (abschaltbar) | 🔨 In Arbeit |
-| **Auto-Bilder** | Lokale Bildbibliothek-Unterstützung | 🔨 In Arbeit |
-| **Layout-Optimierung** | Bessere Slide-Layouts | 🔨 In Arbeit |
-
-### 📋 Roadmap
-
-| Feature | Beschreibung | Priorität |
-|---------|--------------|-----------|
-| **Strategie-Analyse** | SWOT, Porter's Five Forces, etc. | 🔴 Hoch |
-| **Wettbewerbs-Recherche** | Automatische Analyse | 🔴 Hoch |
-| **Daten-Import** | Excel/CSV für Diagramme | 🟡 Mittel |
-| **Interaktiver Modus** | Chat-basierte Verfeinerung | 🟡 Mittel |
-| **Offline-Bilder** | Lokale Bilddatenbank | 🟡 Mittel |
-| **Vollständiger Offline-Modus** | Null externe Verbindungen | 🟢 Geplant |
+| Funktion | Sprint | Details |
+|----------|--------|---------|
+| **Deep Research** | Sprint 5 | Web-Suche → RAG-Pipeline, visuelle Fortschrittsanzeige |
+| **Frontend: Chat** | Sprint 6 | Chat-Sidebar im Editor |
+| **Frontend: Daten-Import** | Sprint 6 | Upload + Chart-Vorschau |
+| **Frontend: Deep Research** | Sprint 7 | Eigener Menüpunkt, Live-Fortschritt, Ergebnisansicht |
+| **Custom Templates** | Sprint 7 | Eigene .pptx-Vorlagen |
+| **Tests + Dokumentation** | Sprint 8 | pytest-Suite, API-Docs |
 
 ---
 
-## ✨ Features im Detail
+## Technologie-Stack
 
-### 🔒 Datenschutz-First Design
-- **Lokales LLM**: Alle KI-Verarbeitung auf deiner Hardware
-- **Lokale Vektor-DB**: Wissensbasis verlässt nie deinen Server
-- **Keine Telemetrie**: Null Datensammlung
-- **Air-Gap fähig**: Kann ohne Internet laufen
-
-### 🤖 KI-gestützte Inhalte
-- Automatische Gliederung basierend auf Thema und Branche
-- Kapitelstruktur mit Executive Summary
-- Bullet Points, Analysen, Handlungsempfehlungen
-
-### 📊 Lokale Wissensbasis (RAG)
-- Upload von Firmendokumenten (PDF, DOCX, TXT)
-- Vektorsuche mit Qdrant (lokal)
-- Automatische Integration in Präsentationen
-
-### 🎨 Corporate Design
-- Anpassbare PPTX-Templates
-- Firmenfarben, Logos, Schriftarten
-- Konsistentes Layout über alle Slides
+- **Backend**: FastAPI (80+ Endpunkte, Auto-Discovery für Router)
+- **LLM**: Ollama (lokal) · OpenAI · Anthropic — per ENV wählbar
+- **Vektor-DB**: Qdrant (lokal)
+- **Embeddings**: sentence-transformers (lokal)
+- **Präsentation**: python-pptx
+- **Charts**: matplotlib
+- **Frontend**: React + Vite
+- **Task-Queue**: Celery + Redis
+- **Speicher**: SQLite + JSON + lokales Dateisystem
 
 ---
 
-## 🚀 Schnellstart
+## Schnellstart
 
 ### Voraussetzungen
 
 - Python 3.11+
 - Node.js 18+
-- Docker (für Redis, Qdrant - alles lokal)
-- Ollama (lokale LLM-Runtime)
-- **Keine Cloud-Accounts erforderlich!**
+- [Ollama](https://ollama.ai) mit `mistral`-Modell
+- [Qdrant](https://qdrant.tech) lokal laufend
 
 ### Installation
+
 ```bash
-# Repository klonen
 git clone https://github.com/sodaen/stratgen.git
 cd stratgen
 
-# Virtual Environment
-python -m venv .venv
-source .venv/bin/activate
-
-# Dependencies
+# Python-Backend
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-cd frontend && npm install && cd ..
 
-# Lokale Services starten
-docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
-docker run -d --name redis -p 6379:6379 redis
+# Frontend
+cd frontend && npm install && npm run build && cd ..
 
-# Lokales LLM starten
-ollama serve &
-ollama pull mistral  # oder llama2, codellama, etc.
+# Umgebungsvariablen
+cp .env.example .env
+# .env bearbeiten: LLM_MODEL, QDRANT_URL etc. setzen
 
-# Konfiguration
-cp .env.example /etc/stratgen.env
-# Einstellungen anpassen (standardmäßig alles lokal)
-
-# STRATGEN starten
-./start.sh
+# Starten
+sudo systemctl start stratgen
+# oder:
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker backend.api:app --bind 127.0.0.1:8011
 ```
 
-### Zugriff
+### Nach jedem Neustart
 
-- **Web-Interface**: http://localhost:3000
-- **API**: http://localhost:8011
-- **API-Docs**: http://localhost:8011/docs
-
----
-
-## 🤝 Beitragen
-
-Beiträge sind sehr willkommen!
-
-1. **Fork** das Repository
-2. **Branch erstellen** (`git checkout -b feature/TollesFeature`)
-3. **Commit** (`git commit -m 'Füge TollesFeature hinzu'`)
-4. **Push** (`git push origin feature/TollesFeature`)
-5. **Pull Request** öffnen
-
-Alle Beiträge müssen AGPL-3.0 lizenziert sein.
-
----
-
-## 📁 Projektstruktur
-```
-stratgen/
-├── backend/              # FastAPI Routes & API
-├── frontend/             # React Web-Interface
-├── services/             # Kern-Logik
-│   ├── intelligent_deck_generator.py   # Haupt-Engine
-│   ├── pptx_designer_v3.py            # PowerPoint Builder
-│   └── knowledge.py                    # RAG & Vektorsuche
-├── workers/              # Celery Background Tasks
-├── templates/pptx/       # PowerPoint Vorlagen
-└── data/                 # Laufzeit-Daten (lokal, gitignored)
+```bash
+# Warten bis Backend bereit ist:
+bash scripts/deploy_wait.sh
 ```
 
 ---
 
-## 📝 Lizenz
+## Umgebungsvariablen
 
-**Dual Licensing:**
+```bash
+# LLM-Provider (ollama | openai | anthropic)
+LLM_PROVIDER=ollama
+LLM_MODEL=mistral
+OLLAMA_HOST=http://127.0.0.1:11434
 
-| Option | Für wen | Bedingung |
-|--------|---------|-----------|
-| **AGPL-3.0** | Open Source, persönliche Nutzung | Änderungen müssen veröffentlicht werden |
-| **Kommerziell** | Unternehmen, Closed-Source | Lizenz erforderlich |
+# Offline-Modus — sperrt alle externen HTTP-Calls
+STRATGEN_OFFLINE=false
 
-Siehe [LICENSE](LICENSE) für Details.
+# Qdrant
+QDRANT_URL=http://127.0.0.1:6333
+
+# Optional: OpenAI-Fallback
+# OPENAI_API_KEY=sk-...
+# OPENAI_MODEL=gpt-4o-mini
+```
 
 ---
 
-## 👤 Autor
+## Wichtige API-Endpunkte
 
-**SODAEN**
+```
+POST /strategy/swot          SWOT-Analyse via LLM + RAG
+POST /strategy/porter        Porter's Five Forces
+POST /strategy/gen           Vollständige Strategiepräsentation
 
-- GitHub: [@sodaen](https://github.com/sodaen)
+POST /competitors/matrix     Wettbewerbsmatrix LLM-Scoring
+POST /competitors/profile    Deep-Dive Wettbewerberprofil
+
+POST /data-import/upload     CSV/XLSX → Spalten-Erkennung
+POST /data-import/chart      → matplotlib-Chart
+POST /data-import/to-slide   One-Shot: Datei → Slide-Dict
+
+POST /chat/{id}/message      Multi-Turn RAG-Chat
+POST /chat/{id}/message/stream  SSE Token-Streaming
+POST /chat/{id}/feedback     Daumen hoch/runter → Self-Learning
+
+POST /images/upload          Bild in Bibliothek hochladen
+GET  /images/resolve         Bestes Bild für Slide finden
+
+GET  /offline/status         Aktueller Offline-Modus Status
+POST /offline/enable         Offline-Modus einschalten (kein Neustart)
+GET  /offline/health         Live-Ping aller externen Services
+
+GET  /learning/stats         Self-Learning Statistiken
+```
+
+Vollständige API-Docs: `http://localhost:8011/docs`
 
 ---
 
-<p align="center">
-  <strong>⭐ Gib dem Repo einen Stern wenn es dir gefällt!</strong><br>
-  🔒 Local-First • 🇩🇪 Made in Germany
-</p>
+## Architektur
+
+```
+frontend/          React + Vite (Port 3000)
+backend/           FastAPI Router (Auto-Discovery *_api.py)
+services/          Business Logic
+  offline.py       Zentrales Offline-Modus-Modul
+  pptx_designer_v2.py  PPTX-Generierung (8 Layout-Typen)
+  image_store.py   Bildbibliothek mit Auto-Tagging
+  self_learning.py Export → Qdrant-Indexierung
+  chat_learner.py  Chat-Feedback → RAG
+data/
+  strategies/      Gespeicherte Strategieanalysen
+  competitors/     Gespeicherte Wettbewerbsanalysen
+  imports/         CSV/XLSX Importe
+  chats/           Chat-Sessions
+  exports/         Generierte PPTX-Dateien
+images/library/    Hochgeladene Bilder (gitignored)
+```
+
+---
+
+## Lizenz
+
+Dual-Lizenz:
+
+- **AGPL-3.0** — für Open-Source-Projekte ([LICENSE](LICENSE))
+- **Kommerziell** — für proprietäre/SaaS-Nutzung ([LICENSE_COMMERCIAL](LICENSE_COMMERCIAL))
+
+© SODAEN 2024–2026
+
+---
+
+## Changelog
+
+Siehe [RELEASE_NOTES.md](RELEASE_NOTES.md) für die Versionshistorie.
