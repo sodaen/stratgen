@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StratGen – Local-First AI for Business Presentations</title>
+  <meta name="description" content="StratGen ist ein privacy-first, lokaler KI-Agent der automatisch professionelle PowerPoint-Strategiepräsentationen erstellt." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --card: #111827;
+      --border: #1f2937;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #10b981;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(11, 15, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+    .logo span { background: linear-gradient(135deg, var(--blue), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    nav a {
+      color: var(--muted); text-decoration: none; font-size: 0.875rem;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .btn-nav {
+      padding: .45rem 1.1rem;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #fff; border-radius: 8px; font-weight: 600; font-size: .875rem;
+      text-decoration: none;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 1.5rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,.15), transparent);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .3rem .9rem;
+      background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3);
+      border-radius: 999px; font-size: .8rem; color: var(--blue); font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -0.03em;
+      max-width: 800px;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      margin-top: 1.25rem; font-size: 1.125rem; color: var(--muted);
+      max-width: 560px;
+    }
+    .hero-actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      padding: .75rem 1.75rem;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #fff; border-radius: 12px; font-weight: 700; font-size: 1rem;
+      text-decoration: none; transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59,130,246,.35); }
+    .btn-secondary {
+      padding: .75rem 1.75rem;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); border-radius: 12px; font-weight: 600; font-size: 1rem;
+      text-decoration: none; transition: border-color .2s;
+    }
+    .btn-secondary:hover { border-color: var(--blue); }
+
+    /* FEATURES GRID */
+    section { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      text-align: center; font-size: .8rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: .75rem;
+    }
+    h2 {
+      text-align: center; font-size: clamp(1.6rem, 4vw, 2.5rem);
+      font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem;
+    }
+    .section-sub {
+      text-align: center; color: var(--muted); max-width: 540px;
+      margin: 0 auto 3rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover { border-color: rgba(59,130,246,.4); transform: translateY(-3px); }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(59,130,246,.2), rgba(6,182,212,.1));
+      border: 1px solid rgba(59,130,246,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .feature-card p { font-size: .875rem; color: var(--muted); line-height: 1.5; }
+
+    /* STATUS TABLE */
+    .status-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .status-table th {
+      text-align: left; padding: .75rem 1rem;
+      background: var(--card); border-bottom: 2px solid var(--border);
+      font-weight: 600; color: var(--muted);
+    }
+    .status-table td {
+      padding: .75rem 1rem; border-bottom: 1px solid var(--border);
+    }
+    .status-table tr:last-child td { border-bottom: none; }
+    .badge-done {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .65rem; border-radius: 999px;
+      background: rgba(16,185,129,.15); color: var(--green);
+      font-size: .78rem; font-weight: 600;
+    }
+    .badge-planned {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .65rem; border-radius: 999px;
+      background: rgba(59,130,246,.12); color: var(--blue);
+      font-size: .78rem; font-weight: 600;
+    }
+
+    /* STACK */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: .75rem;
+    }
+    .stack-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .85rem 1rem;
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .875rem; font-weight: 500;
+    }
+    .stack-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* INSTALL */
+    pre {
+      background: #0d1117; border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: .85rem;
+      color: #e2e8f0; line-height: 1.7;
+    }
+    .comment { color: #6e7681; }
+    .cmd { color: #79c0ff; }
+    .str { color: #a5d6ff; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 2.5rem 1.5rem;
+      text-align: center; color: var(--muted); font-size: .85rem;
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .nav-links { gap: 1rem; }
+      .nav-links a:not(.btn-nav) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Strat<span>Gen</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#install">Installation</a>
+    <a href="#stack">Stack</a>
+    <a href="https://github.com/sodaen/stratgen" class="btn-nav">GitHub →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">🔒 Privacy-First · Local AI · Open Source</div>
+  <h1>
+    Professional Strategy Decks,<br>
+    <span class="gradient">Generated by Local AI</span>
+  </h1>
+  <p>
+    StratGen ist ein lokaler KI-Agent der automatisch professionelle PowerPoint-Strategiepräsentationen erstellt — ohne Cloud, ohne Datenweitergabe.
+  </p>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary">Jetzt installieren</a>
+    <a href="https://github.com/sodaen/stratgen" class="btn-secondary">GitHub →</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <p class="section-label">Features</p>
+  <h2>Alles was du brauchst</h2>
+  <p class="section-sub">Von der Strategie-Analyse bis zur fertigen Präsentation — vollständig lokal.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>Strategy Analysis</h3>
+      <p>SWOT-Analyse und Porter's Five Forces via lokalem LLM + RAG-Kontext aus deiner Wissensdatenbank.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Deep Research</h3>
+      <p>Aktive Web-Recherche (DuckDuckGo/Tavily) mit automatischem Ingest in die Qdrant Knowledge Base.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Daten-Import</h3>
+      <p>CSV und Excel-Dateien hochladen, Spalten erkennen lassen und automatisch als Chart-Slides einbetten.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h3>KI-Chat</h3>
+      <p>Multi-Turn RAG-Chat im Editor. Frag nach, verfeinere Slides, erhalte kontextbezogene Vorschläge.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📈</div>
+      <h3>Competitor Research</h3>
+      <p>LLM-basiertes Scoring 1–10 für Wettbewerbsmatrizen. Automatisch befüllt aus Wissensdatenbank.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>8 Layout-Typen</h3>
+      <p>Agenda, KPI, SWOT, Timeline, Comparison, CTA, Image Focus — professionelle Layouts automatisch gewählt.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>Vollständig Offline</h3>
+      <p>STRATGEN_OFFLINE=true blockiert alle externen Calls. Kein Byte verlässt dein Netzwerk.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧬</div>
+      <h3>Self-Learning</h3>
+      <p>Jeder Export und jedes Chat-Feedback wird in Qdrant indexiert. Das System lernt automatisch.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖼️</div>
+      <h3>Custom Templates</h3>
+      <p>Eigene .pptx-Dateien als Basis-Template hochladen. Layouts und Farben werden übernommen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATUS TABLE -->
+<section>
+  <p class="section-label">Roadmap</p>
+  <h2>Feature-Status</h2>
+  <p class="section-sub">Aktueller Implementierungsstand v3.59.0</p>
+
+  <table class="status-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Status</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Strategy Analysis</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>SWOT, Porter's Five Forces, LLM + RAG</td>
+      </tr>
+      <tr>
+        <td><strong>Competitor Research</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>LLM-Scoring 1–10, Deep-Dive Profile</td>
+      </tr>
+      <tr>
+        <td><strong>Deep Research</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>DuckDuckGo + Tavily, Auto-Ingest, SSE-Stream</td>
+      </tr>
+      <tr>
+        <td><strong>PPTX Generation</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>8–22 Slides, 8 Layout-Typen, Auto Images</td>
+      </tr>
+      <tr>
+        <td><strong>Daten-Import</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>CSV/XLSX → matplotlib Chart → Slide</td>
+      </tr>
+      <tr>
+        <td><strong>KI-Chat</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>Multi-Turn, SSE-Streaming, RAG-Kontext</td>
+      </tr>
+      <tr>
+        <td><strong>Offline Mode</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>Runtime-Toggle, Health-Check, Guards überall</td>
+      </tr>
+      <tr>
+        <td><strong>Custom Templates</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>Upload, Aktivierung, Layout-Analyse</td>
+      </tr>
+      <tr>
+        <td><strong>Self-Learning</strong></td>
+        <td><span class="badge-done">✓ Live</span></td>
+        <td>Export-Hook → Qdrant Auto-Ingest</td>
+      </tr>
+      <tr>
+        <td><strong>Nvidia Nemotron 3 Super</strong></td>
+        <td><span class="badge-planned">Sprint 9</span></td>
+        <td>Zentraler llm_router.py + NIM API</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- STACK -->
+<section id="stack">
+  <p class="section-label">Technologie</p>
+  <h2>Tech Stack</h2>
+  <p class="section-sub">Vollständig Open Source. Läuft komplett lokal.</p>
+
+  <div class="stack-grid">
+    <div class="stack-item"><div class="stack-dot" style="background:#06b6d4"></div>FastAPI</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#3b82f6"></div>React + Vite</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#8b5cf6"></div>Ollama / LLM</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#ec4899"></div>Qdrant</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#f59e0b"></div>python-pptx</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#10b981"></div>sentence-transformers</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#ef4444"></div>Celery + Redis</div>
+    <div class="stack-item"><div class="stack-dot" style="background:#64748b"></div>SQLite</div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section id="install">
+  <p class="section-label">Installation</p>
+  <h2>In 5 Minuten starten</h2>
+  <p class="section-sub">Voraussetzungen: Python 3.11+, Node.js 18+, Ollama mit mistral-Modell.</p>
+
+  <pre><code><span class="comment"># 1. Repository klonen</span>
+<span class="cmd">git clone</span> <span class="str">https://github.com/sodaen/stratgen.git</span>
+<span class="cmd">cd</span> stratgen
+
+<span class="comment"># 2. Python-Backend einrichten</span>
+<span class="cmd">python -m venv</span> .venv
+<span class="cmd">source</span> .venv/bin/activate
+<span class="cmd">pip install</span> -r requirements.txt
+
+<span class="comment"># 3. Frontend bauen</span>
+<span class="cmd">cd</span> frontend <span class="cmd">&amp;&amp; npm install &amp;&amp; npm run build &amp;&amp; cd</span> ..
+
+<span class="comment"># 4. Konfiguration</span>
+<span class="cmd">cp</span> .env.example .env
+<span class="comment"># .env anpassen: LLM_MODEL, QDRANT_URL etc.</span>
+
+<span class="comment"># 5. Starten</span>
+<span class="cmd">gunicorn</span> -k uvicorn.workers.UvicornWorker backend.api:app \
+  --bind 127.0.0.1:8011 --workers 2</code></pre>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    <strong>StratGen</strong> · Dual License:
+    <a href="https://github.com/sodaen/stratgen/blob/main/LICENSE">AGPL-3.0</a> &amp;
+    <a href="https://github.com/sodaen/stratgen/blob/main/LICENSE_COMMERCIAL">Commercial</a>
+    · © SODAEN 2024–2026
+  </p>
+  <p style="margin-top:.5rem">
+    <a href="https://github.com/sodaen/stratgen">GitHub</a> ·
+    <a href="https://github.com/sodaen/stratgen/releases">Releases</a> ·
+    <a href="https://github.com/sodaen/stratgen/blob/main/RELEASE_NOTES.md">Changelog</a>
+  </p>
+</footer>
+
+</body>
+</html>
