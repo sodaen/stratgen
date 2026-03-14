@@ -48,14 +48,14 @@ class StartRefineRequest(BaseModel):
     # Generator-LLM (erstellt Slides)
     generator_provider: str = Field(default="ollama",
                                      description="ollama | openai | anthropic | nemotron")
-    generator_model: str | None = Field(default=None,
-                                         description="Modell (default: LLM_MODEL env)")
+    generator_model: str | None = Field(default="llama3:8b",
+                                         description="Modell für Generierung (kreativer, stärker)")
 
     # Critic-LLM (bewertet Slides)
-    critic_provider: str = Field(default="nemotron",
+    critic_provider: str = Field(default="ollama",
                                   description="ollama | openai | anthropic | nemotron")
-    critic_model: str | None = Field(default=None,
-                                      description="Modell (default: NEMOTRON_MODEL env)")
+    critic_model: str | None = Field(default="mistral",
+                                      description="Modell für Kritik (anderer Blickwinkel)")
 
     # Qualitätsziele
     quality_threshold: float = Field(default=8.0, ge=5.0, le=10.0,
@@ -150,12 +150,7 @@ def start_refine(body: StartRefineRequest):
     gen_model = body.generator_model or get_model(body.generator_provider)
 
     # Critic-Modell bestimmen
-    if body.critic_provider == "nemotron":
-        crit_model = body.critic_model or os.getenv(
-            "NEMOTRON_MODEL", "nvidia/nemotron-mini-4b-instruct"
-        )
-    else:
-        crit_model = body.critic_model or get_model(body.critic_provider)
+    crit_model = body.critic_model or get_model(body.critic_provider)
 
     # Wenn Critic = Generator (kein zweites Modell), anderen Stil nutzen
     same_provider = (body.generator_provider == body.critic_provider and

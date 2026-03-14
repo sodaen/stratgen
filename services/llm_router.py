@@ -455,6 +455,99 @@ def list_providers() -> list[dict]:
     ]
 
 
+
+def get_vision_model() -> str:
+    """Gibt das konfigurierte Vision-Modell zurück (default: moondream)."""
+    return os.getenv("VISION_MODEL", "moondream")
+
+
+def llm_vision(image_path: str, prompt: str = "Beschreibe dieses Bild auf Deutsch. Nenne relevante Themen, Objekte und Keywords für eine Strategie-Präsentation.") -> str:
+    """
+    Analysiert ein Bild via Moondream (lokal) und gibt eine Beschreibung zurück.
+    Wird für Auto-Tagging von Bildern in der Bibliothek verwendet.
+
+    Args:
+        image_path: Pfad zum Bild
+        prompt:     Analyse-Anweisung
+
+    Returns:
+        Beschreibung als String
+    """
+    import base64
+    from pathlib import Path
+
+    if _is_offline():
+        return ""
+
+    model = get_vision_model()
+    host = _cfg("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
+
+    try:
+        img_data = Path(image_path).read_bytes()
+        img_b64 = base64.b64encode(img_data).decode()
+
+        r = requests.post(
+            f"{host}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "images": [img_b64],
+                "stream": False,
+                "options": {"num_predict": 200, "temperature": 0.3},
+            },
+            timeout=60,
+        )
+        r.raise_for_status()
+        return (r.json().get("response") or "").strip()
+    except Exception as e:
+        log.warning("Vision call failed (%s): %s", model, e)
+        return ""
+
+
+def get_available_local_models() -> dict:
+    """
+    Gibt die verfügbaren lokalen Modelle kategorisiert zurück.
+    Nützlich für automatische Modell-Auswahl.
+    """
+    models = list_ollama_models()
+    result = {
+        "all": models,
+        "generator": None,
+        "critic": None,
+        "embeddings": None,
+        "vision": None,
+    }
+
+    # Prioritäten für Generator (stärker = besser)
+    for preferred in ["llama3:8b", "llama3:latest", "llama3", "mistral:latest", "mistral"]:
+        if any(preferred in m for m in models):
+            result["generator"] = next(m for m in models if preferred in m)
+            break
+
+    # Prioritäten für Critic (anderes Modell als Generator bevorzugt)
+    gen = result["generator"] or ""
+    for preferred in ["mistral:latest", "mistral", "llama3:8b", "llama3"]:
+        candidate = next((m for m in models if preferred in m), None)
+        if candidate and candidate != gen:
+            result["critic"] = candidate
+            break
+    if not result["critic"] and models:
+        result["critic"] = models[0]
+
+    # Embeddings
+    for preferred in ["mxbai-embed-large", "nomic-embed-text"]:
+        if any(preferred in m for m in models):
+            result["embeddings"] = next(m for m in models if preferred in m)
+            break
+
+    # Vision
+    for preferred in ["moondream", "llava", "bakllava"]:
+        if any(preferred in m for m in models):
+            result["vision"] = next(m for m in models if preferred in m)
+            break
+
+    return result
+
 def _ping_ollama() -> bool:
     """Prüft ob Ollama erreichbar ist."""
     try:
