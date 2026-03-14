@@ -51,11 +51,17 @@ class StartRefineRequest(BaseModel):
     generator_model: str | None = Field(default="llama3:8b",
                                          description="Modell für Generierung (kreativer, stärker)")
 
-    # Critic-LLM (bewertet Slides)
+    # Critic-LLM (bewertet Slides — DeepSeek-R1 empfohlen für Reasoning)
     critic_provider: str = Field(default="ollama",
                                   description="ollama | openai | anthropic | nemotron")
-    critic_model: str | None = Field(default="mistral",
-                                      description="Modell für Kritik (anderer Blickwinkel)")
+    critic_model: str | None = Field(default="deepseek-r1:8b",
+                                      description="Critic-Modell (DeepSeek-R1 für Reasoning empfohlen)")
+
+    # Struktur-LLM (Agenda, JSON-Output — Qwen2.5 empfohlen)
+    structure_provider: str = Field(default="ollama",
+                                     description="Provider für strukturierten Output")
+    structure_model: str | None = Field(default="qwen2.5:7b",
+                                         description="Struktur-Modell (Qwen2.5 für JSON empfohlen)")
 
     # Qualitätsziele
     quality_threshold: float = Field(default=8.0, ge=5.0, le=10.0,
@@ -156,6 +162,9 @@ def start_refine(body: StartRefineRequest):
     same_provider = (body.generator_provider == body.critic_provider and
                      gen_model == crit_model)
 
+    # Structure-Modell bestimmen (Qwen2.5 falls verfügbar)
+    struct_model = body.structure_model or get_model(body.structure_provider)
+
     session = RefineSession(
         briefing=body.briefing,
         customer_name=body.customer_name,
@@ -167,6 +176,9 @@ def start_refine(body: StartRefineRequest):
         quality_threshold=body.quality_threshold,
         max_iterations=body.max_iterations,
     )
+    # Struktur-Modell als Attribute setzen (für Agenda-Generierung)
+    session.structure_provider = body.structure_provider
+    session.structure_model = struct_model
 
     # Session initial speichern
     _save_session(session.session_id, session.to_dict())
@@ -197,8 +209,9 @@ def start_refine(body: StartRefineRequest):
     return JSONResponse({
         "ok": True,
         "session_id": session.session_id,
-        "generator": f"{body.generator_provider}/{gen_model}",
-        "critic":    f"{body.critic_provider}/{crit_model}",
+        "generator":  f"{body.generator_provider}/{gen_model}",
+        "critic":     f"{body.critic_provider}/{crit_model}",
+        "structure":  f"{body.structure_provider}/{struct_model}",
         "same_provider": same_provider,
         "deck_size": body.deck_size,
         "quality_threshold": body.quality_threshold,

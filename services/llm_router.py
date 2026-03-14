@@ -512,8 +512,9 @@ def get_available_local_models() -> dict:
     models = list_ollama_models()
     result = {
         "all": models,
-        "generator": None,
-        "critic": None,
+        "generator": None,   # kreativ, stark
+        "critic": None,       # Reasoning, kritisch
+        "structure": None,    # JSON/Struktur-Output
         "embeddings": None,
         "vision": None,
     }
@@ -524,15 +525,22 @@ def get_available_local_models() -> dict:
             result["generator"] = next(m for m in models if preferred in m)
             break
 
-    # Prioritäten für Critic (anderes Modell als Generator bevorzugt)
+    # Prioritäten für Critic: DeepSeek-R1 (Reasoning) > Mistral > Llama3
     gen = result["generator"] or ""
-    for preferred in ["mistral:latest", "mistral", "llama3:8b", "llama3"]:
+    for preferred in ["deepseek-r1:8b", "deepseek-r1", "mistral:latest", "mistral", "llama3:8b", "llama3"]:
         candidate = next((m for m in models if preferred in m), None)
         if candidate and candidate != gen:
             result["critic"] = candidate
             break
     if not result["critic"] and models:
         result["critic"] = models[0]
+
+    # Struktur/JSON-Modell: Qwen2.5 > Mistral (für Matrizen, strukturierten Output)
+    for preferred in ["qwen2.5:7b", "qwen2.5", "qwen", "mistral:latest", "mistral"]:
+        candidate = next((m for m in models if preferred in m), None)
+        if candidate:
+            result["structure"] = candidate
+            break
 
     # Embeddings
     for preferred in ["mxbai-embed-large", "nomic-embed-text"]:
