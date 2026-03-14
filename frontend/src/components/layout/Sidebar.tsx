@@ -1,19 +1,23 @@
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  LayoutDashboard, 
-  Sparkles, 
-  Wand2, 
-  Edit3, 
-  GitBranch, 
-  Activity, 
-  FolderOpen, 
+import {
+  LayoutDashboard,
+  Sparkles,
+  Wand2,
+  Edit3,
+  GitBranch,
+  Activity,
+  FolderOpen,
   Settings,
   ChevronLeft,
   ChevronRight,
-  Power,
-  BookOpen
-, BarChart3, Database } from 'lucide-react'
+  BookOpen,
+  BarChart3,
+  Database,
+  Search,
+  FileSpreadsheet,
+  TrendingUp
+} from 'lucide-react'
 import Logo from '../common/Logo'
 import ThemeToggle from '../common/ThemeToggle'
 import { useAppStore } from '../../stores/appStore'
@@ -21,10 +25,15 @@ import { cn } from '../../utils/helpers'
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { divider: true },
   { path: '/knowledge', icon: BookOpen, label: 'Knowledge' },
+  { path: '/research', icon: Search, label: 'Deep Research' },
+  { path: '/data-import', icon: FileSpreadsheet, label: 'Daten Import' },
+  { divider: true },
   { path: '/generator', icon: Sparkles, label: 'Generator' },
   { path: '/wizard', icon: Wand2, label: 'Wizard' },
   { path: '/editor', icon: Edit3, label: 'Live Editor' },
+  { path: '/porter', icon: TrendingUp, label: "Porter's Five Forces" },
   { divider: true },
   { path: '/pipeline', icon: GitBranch, label: 'Pipeline' },
   { path: '/health', icon: Activity, label: 'System Health' },
@@ -68,15 +77,15 @@ export default function Sidebar() {
           }
 
           const Icon = item.icon!
-          
+
           return (
             <NavLink
               key={item.path}
               to={item.path!}
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-                isActive 
-                  ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white border border-blue-500/30" 
+                isActive
+                  ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white border border-blue-500/30"
                   : "text-slate-400 hover:text-white hover:bg-dark-border"
               )}
             >
@@ -101,15 +110,14 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-dark-border space-y-3">
-        {/* System Status Mini */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={cn(
               "w-2 h-2 rounded-full",
-              systemStatus.servicesActive >= systemStatus.servicesTotal * 0.9 
-                ? "bg-green-500" 
-                : systemStatus.servicesActive > 0 
-                  ? "bg-yellow-500" 
+              systemStatus.servicesActive >= systemStatus.servicesTotal * 0.9
+                ? "bg-green-500"
+                : systemStatus.servicesActive > 0
+                  ? "bg-yellow-500"
                   : "bg-red-500"
             )} />
             {!sidebarCollapsed && (
@@ -121,10 +129,9 @@ export default function Sidebar() {
           <ThemeToggle />
         </div>
 
-        {/* Version */}
         {!sidebarCollapsed && (
           <div className="text-center">
-            <span className="text-xs text-slate-600">v3.25</span>
+            <span className="text-xs text-slate-600">v3.58</span>
           </div>
         )}
       </div>
