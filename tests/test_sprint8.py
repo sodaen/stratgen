@@ -76,7 +76,7 @@ def csv_import_id(backend_up):
     assert r.status_code == 200
     data = r.json()
     assert data.get("ok") is True
-    return data.get("id")
+    return data.get("import_id")
 
 
 # ── Health ────────────────────────────────────────────────────────────────────
@@ -250,13 +250,14 @@ class TestDataImport:
         assert upload.status_code == 200
         import_data = upload.json()
         assert import_data.get("ok") is True
-        import_id = import_data.get("id")
+        import_id = import_data.get("import_id")
         assert import_id is not None
 
         # Spaltenname aus echter Antwort ermitteln
         cols = import_data.get("columns", [])
-        label_col = cols[0]["name"] if cols and isinstance(cols[0], dict) else (cols[0] if cols else "Produkt")
-        value_col = cols[1]["name"] if len(cols) > 1 and isinstance(cols[1], dict) else (cols[1] if len(cols) > 1 else "Umsatz")
+        detected = import_data.get("detected", {})
+        label_col = detected.get("label_col") or (cols[0] if cols else "Produkt")
+        value_col = detected.get("value_col") or (cols[1] if len(cols) > 1 else "Umsatz")
 
         r = post("/data-import/chart", json_data={
             "import_id": import_id,
