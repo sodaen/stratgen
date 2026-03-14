@@ -763,9 +763,7 @@ export default function Editor() {
         {showChat && (
           <div className="col-span-3">
             <ChatSidebar
-              slideContext={currentSlide ? `${currentSlide.title}
-${currentSlide.bullets?.join("
-")}` : undefined}
+              slideContext={currentSlide ? `${currentSlide.title} - ${currentSlide.bullets?.join(', ')}` : undefined}
               onClose={() => setShowChat(false)}
               className="h-full"
             />
