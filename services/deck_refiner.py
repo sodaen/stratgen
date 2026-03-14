@@ -228,6 +228,8 @@ def _parse_json(text: str, fallback: dict) -> dict:
 
     # <think>...</think> Tags von DeepSeek-R1 entfernen
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+    # Markdown-Code-Blöcke entfernen (```json ... ``` oder ``` ... ```)
+    text = re.sub(r'```(?:json)?\s*', '', text).replace('```', '').strip()
 
     # Ganzen Text direkt versuchen
     try:
@@ -258,6 +260,8 @@ def _parse_json_array(text: str) -> list[str]:
         return []
     # Think-Tags entfernen
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+    # Markdown-Code-Blöcke entfernen
+    text = re.sub(r'```(?:json)?\s*', '', text).replace('```', '').strip()
     # Äußerstes Array finden
     start = text.find('[')
     if start != -1:
