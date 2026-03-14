@@ -37,10 +37,10 @@ def get(path: str, **kwargs):
     return requests.get(f"{BASE}{path}", timeout=30, **kwargs)
 
 
-def post(path: str, json_data=None, files=None, **kwargs):
+def post(path: str, json_data=None, files=None, timeout=60, **kwargs):
     if files:
-        return requests.post(f"{BASE}{path}", files=files, timeout=60, **kwargs)
-    return requests.post(f"{BASE}{path}", json=json_data, timeout=60, **kwargs)
+        return requests.post(f"{BASE}{path}", files=files, timeout=timeout, **kwargs)
+    return requests.post(f"{BASE}{path}", json=json_data, timeout=timeout, **kwargs)
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ def csv_import_id(backend_up):
     assert r.status_code == 200
     data = r.json()
     assert data.get("ok") is True
-    return data.get("id")
+    return data.get("import_id")
 
 
 # ── Health ────────────────────────────────────────────────────────────────────
@@ -134,9 +134,11 @@ class TestOfflineMode:
 
 class TestStrategy:
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_swot_returns_structure(self, backend_up):
-        r = post("/strategy/swot", json_data={
-            "topic": "Tesla",
+        r = post("/strategy/swot", timeout=180, json_data={
+            "briefing": "Tesla ist ein US-amerikanischer Elektrofahrzeughersteller. Analysiere Stärken, Schwächen, Chancen und Risiken im Kontext der globalen Elektromobilität 2024.",
+            "company_name": "Tesla",
             "industry": "Elektromobilität",
         })
         assert r.status_code == 200
@@ -144,9 +146,11 @@ class TestStrategy:
         assert data.get("ok") is True or "strengths" in data or "swot" in data
 
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_porter_returns_forces(self, backend_up):
-        r = post("/strategy/porter", json_data={
-            "topic": "SAP",
+        r = post("/strategy/porter", timeout=180, json_data={
+            "briefing": "SAP ist der weltweit führende Anbieter von ERP-Software für Unternehmen. Analysiere die fünf Wettbewerbskräfte im ERP-Markt 2024.",
+            "company_name": "SAP",
             "industry": "ERP-Software",
         })
         assert r.status_code == 200
@@ -161,12 +165,13 @@ class TestStrategy:
 
 class TestCompetitor:
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_matrix_returns_scores(self, backend_up):
         r = post("/competitors/matrix", json_data={
             "customer_name": "Tesla",
             "competitors": ["BMW", "Mercedes"],
             "criteria": ["Preis", "Innovation", "Qualität"],
-        })
+        }, timeout=180)
         assert r.status_code == 200
         data = r.json()
         assert data.get("ok") is True or "matrix" in data or "scores" in data
@@ -186,13 +191,14 @@ class TestChat:
         assert r.status_code == 200
 
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_message_returns_response(self, chat_session):
-        r = post(f"/chat/{chat_session}/message", json_data={
+        r = post(f"/chat/{chat_session}/message", timeout=180, json_data={
             "message": "Was ist eine SWOT-Analyse? Antworte in einem Satz."
         })
         assert r.status_code == 200
         data = r.json()
-        assert "response" in data or "message" in data or "content" in data
+        assert "answer" in data or "response" in data or "message" in data or "content" in data
 
     def test_feedback_accepted(self, chat_session):
         r = post(f"/chat/{chat_session}/feedback", json_data={"rating": "up", "message_id": "test"})
@@ -250,13 +256,14 @@ class TestDataImport:
         assert upload.status_code == 200
         import_data = upload.json()
         assert import_data.get("ok") is True
-        import_id = import_data.get("id")
+        import_id = import_data.get("import_id")
         assert import_id is not None
 
         # Spaltenname aus echter Antwort ermitteln
         cols = import_data.get("columns", [])
-        label_col = cols[0]["name"] if cols and isinstance(cols[0], dict) else (cols[0] if cols else "Produkt")
-        value_col = cols[1]["name"] if len(cols) > 1 and isinstance(cols[1], dict) else (cols[1] if len(cols) > 1 else "Umsatz")
+        detected = import_data.get("detected", {})
+        label_col = detected.get("label_col") or (cols[0] if cols else "Produkt")
+        value_col = detected.get("value_col") or (cols[1] if len(cols) > 1 else "Umsatz")
 
         r = post("/data-import/chart", json_data={
             "import_id": import_id,
@@ -316,7 +323,7 @@ class TestDeepResearch:
         data = r.json()
         assert data.get("ok") is True
         assert "session_id" in data
-        return data["session_id"]
+        assert data["session_id"] is not None
 
     def test_session_completes(self, backend_up):
         # Session starten
