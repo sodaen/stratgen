@@ -249,22 +249,6 @@ def _parse_json(text: str, fallback: dict) -> dict:
                     except json.JSONDecodeError:
                         break
 
-    # JSON-Array versuchen
-    start = text.find('[')
-    if start != -1:
-        depth = 0
-        for i, ch in enumerate(text[start:], start):
-            if ch == '[': depth += 1
-            elif ch == ']':
-                depth -= 1
-                if depth == 0:
-                    try:
-                        result = json.loads(text[start:i+1])
-                        if isinstance(result, list):
-                            return result
-                    except json.JSONDecodeError:
-                        break
-
     return fallback
 
 
