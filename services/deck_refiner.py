@@ -84,20 +84,56 @@ class RefineSession:
 # ── LLM-Wrapper ───────────────────────────────────────────────────────────────
 
 def _llm(prompt: str, provider: str, model: str,
-         max_tokens: int = 1500, temperature: float = 0.7) -> str:
-    """Ruft llm_router.llm_generate mit explizitem Provider/Modell auf."""
+         max_tokens: int = 1500, temperature: float = 0.7,
+         retries: int = 3) -> str:
+    """Ruft llm_router.llm_generate auf. Retry bei leerem Ergebnis (Modell-Swap)."""
     try:
         from services.llm_router import llm_generate
-        return llm_generate(
-            prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            provider=provider,
-            model=model,
-        )
     except Exception as e:
-        log.error("LLM call failed (%s/%s): %s", provider, model, e)
+        log.error("llm_router import failed: %s", e)
         return ""
+
+    for attempt in range(retries):
+        try:
+            result = llm_generate(
+                prompt,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                provider=provider,
+                model=model,
+            )
+            if result:
+                return result
+            # Leer = Ollama lädt Modell noch (Swap) → kurz warten + retry
+            if attempt < retries - 1:
+                import time
+                wait = (attempt + 1) * 5
+                log.info("LLM empty response (%s/%s), retry %d in %ds",
+                         provider, model, attempt + 1, wait)
+                time.sleep(wait)
+        except Exception as e:
+            log.error("LLM call failed attempt %d (%s/%s): %s",
+                      attempt + 1, provider, model, e)
+            if attempt < retries - 1:
+                import time
+                time.sleep(5)
+
+    return ""
+
+
+def _prewarm_models(generator_provider: str, generator_model: str,
+                    critic_provider: str, critic_model: str) -> None:
+    """Wärmt beide Modelle vor damit Ollama sie in VRAM lädt."""
+    import time
+    log.info("Prewarm: %s + %s", generator_model, critic_model)
+    for provider, model in [(generator_provider, generator_model),
+                             (critic_provider, critic_model)]:
+        try:
+            result = _llm("Hallo", provider, model, max_tokens=5, retries=1)
+            log.info("Prewarm %s: %s", model, "OK" if result else "leer")
+            time.sleep(2)
+        except Exception as e:
+            log.warning("Prewarm failed for %s: %s", model, e)
 
 
 # ── Prompts ───────────────────────────────────────────────────────────────────
@@ -297,6 +333,12 @@ def refine_deck(session: RefineSession) -> Generator[dict, None, None]:
       done          → Fertig
       error         → Fehler
     """
+    # Modelle vorwärmen damit Ollama-Swap vor der Generierung passiert
+    _prewarm_models(
+        session.generator_provider, session.generator_model,
+        session.critic_provider, session.critic_model
+    )
+
     session.status = "running"
     yield {"type": "started", "session_id": session.session_id,
            "briefing": session.briefing[:100] + "...",
