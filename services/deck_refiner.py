@@ -222,37 +222,73 @@ Einstieg → Analyse → Strategie → Maßnahmen → Fazit"""
 # ── JSON-Parser ───────────────────────────────────────────────────────────────
 
 def _parse_json(text: str, fallback: dict) -> dict:
-    """Extrahiert JSON aus LLM-Antwort robust."""
+    """Extrahiert JSON aus LLM-Antwort robust. Unterstützt verschachtelte Objekte."""
     if not text:
         return fallback
-    # JSON-Block extrahieren
-    m = re.search(r'\{[^{}]*\}', text, re.DOTALL)
-    if not m:
-        m = re.search(r'\[.*?\]', text, re.DOTALL)
-    if m:
-        try:
-            return json.loads(m.group(0))
-        except json.JSONDecodeError:
-            pass
-    # Ganzen Text versuchen
+
+    # <think>...</think> Tags von DeepSeek-R1 entfernen
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+
+    # Ganzen Text direkt versuchen
     try:
         return json.loads(text.strip())
     except json.JSONDecodeError:
-        return fallback
+        pass
+
+    # Äußerstes JSON-Objekt finden (mit verschachtelten Klammern)
+    start = text.find('{')
+    if start != -1:
+        depth = 0
+        for i, ch in enumerate(text[start:], start):
+            if ch == '{': depth += 1
+            elif ch == '}':
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start:i+1])
+                    except json.JSONDecodeError:
+                        break
+
+    # JSON-Array versuchen
+    start = text.find('[')
+    if start != -1:
+        depth = 0
+        for i, ch in enumerate(text[start:], start):
+            if ch == '[': depth += 1
+            elif ch == ']':
+                depth -= 1
+                if depth == 0:
+                    try:
+                        result = json.loads(text[start:i+1])
+                        if isinstance(result, list):
+                            return result
+                    except json.JSONDecodeError:
+                        break
+
+    return fallback
 
 
 def _parse_json_array(text: str) -> list[str]:
-    """Extrahiert JSON-Array aus LLM-Antwort."""
+    """Extrahiert JSON-Array aus LLM-Antwort. Entfernt DeepSeek-R1 Think-Tags."""
     if not text:
         return []
-    m = re.search(r'\[.*?\]', text, re.DOTALL)
-    if m:
-        try:
-            result = json.loads(m.group(0))
-            if isinstance(result, list):
-                return [str(x) for x in result]
-        except json.JSONDecodeError:
-            pass
+    # Think-Tags entfernen
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+    # Äußerstes Array finden
+    start = text.find('[')
+    if start != -1:
+        depth = 0
+        for i, ch in enumerate(text[start:], start):
+            if ch == '[': depth += 1
+            elif ch == ']':
+                depth -= 1
+                if depth == 0:
+                    try:
+                        result = json.loads(text[start:i+1])
+                        if isinstance(result, list):
+                            return [str(x) for x in result]
+                    except json.JSONDecodeError:
+                        break
     return []
 
 
