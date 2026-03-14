@@ -37,10 +37,10 @@ def get(path: str, **kwargs):
     return requests.get(f"{BASE}{path}", timeout=30, **kwargs)
 
 
-def post(path: str, json_data=None, files=None, **kwargs):
+def post(path: str, json_data=None, files=None, timeout=60, **kwargs):
     if files:
-        return requests.post(f"{BASE}{path}", files=files, timeout=60, **kwargs)
-    return requests.post(f"{BASE}{path}", json=json_data, timeout=60, **kwargs)
+        return requests.post(f"{BASE}{path}", files=files, timeout=timeout, **kwargs)
+    return requests.post(f"{BASE}{path}", json=json_data, timeout=timeout, **kwargs)
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -136,7 +136,8 @@ class TestStrategy:
     @pytest.mark.llm
     def test_swot_returns_structure(self, backend_up):
         r = post("/strategy/swot", json_data={
-            "topic": "Tesla",
+            "briefing": "Tesla ist ein US-amerikanischer Elektrofahrzeughersteller. Analysiere Stärken, Schwächen, Chancen und Risiken im Kontext der globalen Elektromobilität 2024.",
+            "company_name": "Tesla",
             "industry": "Elektromobilität",
         })
         assert r.status_code == 200
@@ -146,7 +147,8 @@ class TestStrategy:
     @pytest.mark.llm
     def test_porter_returns_forces(self, backend_up):
         r = post("/strategy/porter", json_data={
-            "topic": "SAP",
+            "briefing": "SAP ist der weltweit führende Anbieter von ERP-Software für Unternehmen. Analysiere die fünf Wettbewerbskräfte im ERP-Markt 2024.",
+            "company_name": "SAP",
             "industry": "ERP-Software",
         })
         assert r.status_code == 200
@@ -161,12 +163,13 @@ class TestStrategy:
 
 class TestCompetitor:
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_matrix_returns_scores(self, backend_up):
         r = post("/competitors/matrix", json_data={
             "customer_name": "Tesla",
             "competitors": ["BMW", "Mercedes"],
             "criteria": ["Preis", "Innovation", "Qualität"],
-        })
+        }, timeout=180)
         assert r.status_code == 200
         data = r.json()
         assert data.get("ok") is True or "matrix" in data or "scores" in data
@@ -192,7 +195,7 @@ class TestChat:
         })
         assert r.status_code == 200
         data = r.json()
-        assert "response" in data or "message" in data or "content" in data
+        assert "answer" in data or "response" in data or "message" in data or "content" in data
 
     def test_feedback_accepted(self, chat_session):
         r = post(f"/chat/{chat_session}/feedback", json_data={"rating": "up", "message_id": "test"})
