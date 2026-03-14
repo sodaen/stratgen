@@ -26,6 +26,7 @@ import {
   ArrowLeft
 } from 'lucide-react'
 import { cn } from '../utils/helpers'
+import ChatSidebar from '../components/ChatSidebar'
 import { api } from '../services/api'
 
 interface Slide {
@@ -185,6 +186,7 @@ export default function Editor() {
   const [customPrompt, setCustomPrompt] = useState('')
   const [variants, setVariants] = useState<Slide[]>([])
   const [showVariants, setShowVariants] = useState(false)
+  const [showChat, setShowChat] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [projectName, setProjectName] = useState('Untitled Project')
@@ -473,7 +475,7 @@ export default function Editor() {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-12 gap-6 h-[calc(100vh-220px)]">
+      <div className={cn("grid gap-6 h-[calc(100vh-220px)]", showChat ? "grid-cols-12" : "grid-cols-12")}>
         {/* Slide List */}
         <div className="col-span-2 bg-dark-card rounded-2xl border border-dark-border p-4 flex flex-col">
           <h3 className="text-sm font-semibold text-slate-400 mb-4">Slides</h3>
@@ -756,6 +758,19 @@ export default function Editor() {
             Regenerate Entire Slide
           </button>
         </div>
+
+        {/* Chat Sidebar */}
+        {showChat && (
+          <div className="col-span-3">
+            <ChatSidebar
+              slideContext={currentSlide ? `${currentSlide.title}
+${currentSlide.bullets?.join("
+")}` : undefined}
+              onClose={() => setShowChat(false)}
+              className="h-full"
+            />
+          </div>
+        )}
       </div>
     </div>
   )

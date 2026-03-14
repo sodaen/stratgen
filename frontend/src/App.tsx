@@ -14,11 +14,13 @@ import Settings from './pages/Settings'
 import AdminDashboard from './pages/AdminDashboard'
 import Knowledge from './pages/Knowledge'
 import KnowledgeDashboard from './components/KnowledgeDashboard'
+import DataImport from './pages/DataImport'
+import Research from './pages/Research'
+import PorterAnalysis from './pages/PorterAnalysis'
 
 function App() {
   const { loadSessionsFromBackend } = useSessionStore()
-  
-  // Load sessions on app start
+
   React.useEffect(() => {
     loadSessionsFromBackend()
   }, [])
@@ -41,6 +43,9 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/knowledge" element={<Knowledge />} />
             <Route path="/knowledge-analytics" element={<KnowledgeDashboard />} />
+            <Route path="/data-import" element={<DataImport />} />
+            <Route path="/research" element={<Research />} />
+            <Route path="/porter" element={<PorterAnalysis />} />
           </Routes>
         </Layout>
       </div>
