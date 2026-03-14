@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -262,3 +262,71 @@ def nemotron_info():
             "github": "https://github.com/NVIDIA/NeMo",
         },
     })
+
+@router.get("/local-models")
+def get_local_models():
+    """
+    Zeigt alle verfügbaren lokalen Ollama-Modelle mit empfohlenen Rollen.
+    Nützlich um den Refiner optimal zu konfigurieren.
+    """
+    from services.llm_router import get_available_local_models
+    models = get_available_local_models()
+    return JSONResponse({
+        "ok": True,
+        "models": models,
+        "recommended_config": {
+            "refiner": {
+                "generator_provider": "ollama",
+                "generator_model": models.get("generator") or "llama3:8b",
+                "critic_provider": "ollama",
+                "critic_model": models.get("critic") or "mistral",
+            },
+            "embeddings": models.get("embeddings"),
+            "vision": models.get("vision"),
+        },
+        "tip": (
+            "Generator und Critic sollten verschiedene Modelle sein "
+            "für echte Perspektivvielfalt. "
+            f"Empfehlung: Generator={models.get('generator')}, "
+            f"Critic={models.get('critic')}"
+        ),
+    })
+
+
+@router.post("/vision/analyze")
+async def analyze_image(
+    file: "UploadFile" = None,
+    image_path: str = None,
+    prompt: str = "Beschreibe dieses Bild. Nenne Themen, Objekte, Keywords für Strategie-Präsentationen.",
+):
+    """
+    Analysiert ein Bild mit Moondream (lokal).
+    Entweder Datei hochladen oder Pfad angeben.
+    """
+    from services.llm_router import llm_vision, get_vision_model
+    from fastapi import UploadFile
+    import tempfile, os
+
+    tmp_path = None
+    try:
+        if file:
+            suffix = os.path.splitext(file.filename or "img.jpg")[1]
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(await file.read())
+                tmp_path = tmp.name
+            path_to_analyze = tmp_path
+        elif image_path:
+            path_to_analyze = image_path
+        else:
+            return JSONResponse({"ok": False, "error": "file oder image_path erforderlich"}, status_code=400)
+
+        result = llm_vision(path_to_analyze, prompt)
+        return JSONResponse({
+            "ok": True,
+            "model": get_vision_model(),
+            "description": result,
+            "image_path": image_path or file.filename,
+        })
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
