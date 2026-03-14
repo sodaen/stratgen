@@ -299,7 +299,6 @@ class ApiService {
   async getSourcesMetrics() {
     return this.request<any>('/admin/metrics/sources').catch(() => ({ ok: false }))
   }
-}
 
 // ==================== CHAT ====================
 
@@ -413,5 +412,8 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ topic, depth, language }),
     })
+
+}
+
 
 export const api = new ApiService()
