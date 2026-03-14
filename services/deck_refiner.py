@@ -127,35 +127,49 @@ Antworte NUR als JSON, keine Erklärungen:
 }}"""
 
 
-def _build_critique_prompt(slide: SlideContent, briefing: str, customer: str) -> str:
+def _build_critique_prompt(slide: SlideContent, briefing: str,
+                           customer: str, model: str = "") -> str:
+    """Baut den Critique-Prompt - optimiert für DeepSeek-R1 Reasoning wenn erkannt."""
     bullets_text = "\n".join(f"  - {b}" for b in slide.bullets)
-    return f"""Du bist ein kritischer Strategieberater. Bewerte diesen Präsentations-Slide objektiv und streng.
+    is_deepseek = "deepseek" in model.lower() or "r1" in model.lower()
 
+    # DeepSeek-R1 profitiert von expliziter Reasoning-Anweisung
+    reasoning_hint = (
+        "Denke Schritt für Schritt: Analysiere zuerst jeden Bullet-Point einzeln, "
+        "dann bewerte das Gesamtbild.\n\n"
+        if is_deepseek else ""
+    )
+
+    return f"""Du bist ein erfahrener, kritischer Strategieberater der Präsentationen für Top-Management bewertet.
+{reasoning_hint}
 Kontext: {briefing[:300]}
 Kunde: {customer}
 
 SLIDE {slide.index + 1}: {slide.title}
 {bullets_text}
 
-Bewerte nach diesen Kriterien (jeweils 1-10):
-1. Relevanz für das Briefing
-2. Klarheit und Verständlichkeit
-3. Professionalität der Sprache
-4. Faktische Tiefe / Mehrwert
-5. Präsentierbarkeit
+Bewerte streng nach diesen Kriterien (jeweils 1-10):
+1. Relevanz für das Briefing (trifft es den Kern?)
+2. Klarheit und Verständlichkeit (sofort erfassbar?)
+3. Professionalität der Sprache (C-Level geeignet?)
+4. Faktische Tiefe / Mehrwert (konkret oder Platitüden?)
+5. Präsentierbarkeit (fesselnd oder langweilig?)
 
-Antworte NUR als JSON:
+Antworte NUR als JSON ohne Erklärungen außerhalb:
 {{
   "score": 7.5,
   "scores": {{
     "relevance": 8,
     "clarity": 7,
     "professionalism": 8,
-    "depth": 7,
+    "depth": 6,
     "presentability": 7
   }},
-  "critique": "Konkrete Kritikpunkte: Was fehlt, was ist unklar, was sollte verbessert werden?",
-  "improvement_suggestions": ["Vorschlag 1", "Vorschlag 2"]
+  "critique": "Konkreter Kritiktext: Was fehlt, was ist schwach, was ist unklar?",
+  "improvement_suggestions": [
+    "Spezifischer Verbesserungsvorschlag 1",
+    "Spezifischer Verbesserungsvorschlag 2"
+  ]
 }}"""
 
 
@@ -270,10 +284,13 @@ def refine_deck(session: RefineSession) -> Generator[dict, None, None]:
     # ── Schritt 1: Agenda generieren ──────────────────────────────────────────
     yield {"type": "agenda_start", "message": "Generiere Deck-Struktur…"}
 
+    # Agenda: Qwen2.5 wenn als structure_model gesetzt, sonst generator
+    agenda_provider = getattr(session, "structure_provider", session.generator_provider)
+    agenda_model = getattr(session, "structure_model", session.generator_model)
     agenda_raw = _llm(
         _build_agenda_prompt(session.briefing, session.customer_name, session.deck_size),
-        session.generator_provider, session.generator_model,
-        max_tokens=500, temperature=0.5,
+        agenda_provider, agenda_model,
+        max_tokens=500, temperature=0.4,
     )
     session.total_llm_calls += 1
 
@@ -336,9 +353,12 @@ def refine_deck(session: RefineSession) -> Generator[dict, None, None]:
         for slide in session.slides:
             # Kritik
             critique_raw = _llm(
-                _build_critique_prompt(slide, session.briefing, session.customer_name),
+                _build_critique_prompt(
+                    slide, session.briefing, session.customer_name,
+                    model=session.critic_model
+                ),
                 session.critic_provider, session.critic_model,
-                max_tokens=400, temperature=0.3,
+                max_tokens=500, temperature=0.3,
             )
             session.total_llm_calls += 1
 
