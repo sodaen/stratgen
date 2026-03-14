@@ -317,7 +317,7 @@ class TestDeepResearch:
         data = r.json()
         assert data.get("ok") is True
         assert "session_id" in data
-        return data["session_id"]
+        assert data["session_id"] is not None
 
     def test_session_completes(self, backend_up):
         # Session starten
