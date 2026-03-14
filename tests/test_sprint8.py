@@ -134,8 +134,9 @@ class TestOfflineMode:
 
 class TestStrategy:
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_swot_returns_structure(self, backend_up):
-        r = post("/strategy/swot", json_data={
+        r = post("/strategy/swot", timeout=180, json_data={
             "briefing": "Tesla ist ein US-amerikanischer Elektrofahrzeughersteller. Analysiere Stärken, Schwächen, Chancen und Risiken im Kontext der globalen Elektromobilität 2024.",
             "company_name": "Tesla",
             "industry": "Elektromobilität",
@@ -145,8 +146,9 @@ class TestStrategy:
         assert data.get("ok") is True or "strengths" in data or "swot" in data
 
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_porter_returns_forces(self, backend_up):
-        r = post("/strategy/porter", json_data={
+        r = post("/strategy/porter", timeout=180, json_data={
             "briefing": "SAP ist der weltweit führende Anbieter von ERP-Software für Unternehmen. Analysiere die fünf Wettbewerbskräfte im ERP-Markt 2024.",
             "company_name": "SAP",
             "industry": "ERP-Software",
@@ -189,8 +191,9 @@ class TestChat:
         assert r.status_code == 200
 
     @pytest.mark.llm
+    @pytest.mark.slow
     def test_message_returns_response(self, chat_session):
-        r = post(f"/chat/{chat_session}/message", json_data={
+        r = post(f"/chat/{chat_session}/message", timeout=180, json_data={
             "message": "Was ist eine SWOT-Analyse? Antworte in einem Satz."
         })
         assert r.status_code == 200
