@@ -301,4 +301,117 @@ class ApiService {
   }
 }
 
+// ==================== CHAT ====================
+
+  async getChatSessions() {
+    return this.request<any>('/chat/sessions')
+  }
+
+  async newChatSession() {
+    return this.request<any>('/chat/sessions/new', { method: 'POST' })
+  }
+
+  async getChatHistory(sessionId: string) {
+    return this.request<any>(`/chat/${sessionId}/history`)
+  }
+
+  async sendChatMessage(sessionId: string, message: string) {
+    return this.request<any>(`/chat/${sessionId}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    })
+  }
+
+  async sendChatFeedback(sessionId: string, rating: 'up' | 'down', messageId?: string) {
+    return this.request<any>(`/chat/${sessionId}/feedback`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, message_id: messageId }),
+    })
+  }
+
+  async deleteChat(sessionId: string) {
+    return this.request<any>(`/chat/${sessionId}`, { method: 'DELETE' })
+  }
+
+  // ==================== DATA IMPORT ====================
+
+  async uploadDataFile(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    const r = await fetch(API_BASE + '/data-import/upload', { method: 'POST', body: formData })
+    return r.json()
+  }
+
+  async generateDataChart(params: {
+    import_id: string
+    chart_type: string
+    label_column: string
+    value_columns: string[]
+    title?: string
+  }) {
+    return this.request<any>('/data-import/chart', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    })
+  }
+
+  async listDataImports() {
+    return this.request<any>('/data-import/list')
+  }
+
+  // ==================== OFFLINE ====================
+
+  async getOfflineStatus() {
+    return this.request<any>('/offline/status')
+  }
+
+  async enableOffline() {
+    return this.request<any>('/offline/enable', { method: 'POST' })
+  }
+
+  async disableOffline() {
+    return this.request<any>('/offline/disable', { method: 'POST' })
+  }
+
+  async getOfflineHealth() {
+    return this.request<any>('/offline/health')
+  }
+
+  // ==================== DEEP RESEARCH ====================
+
+  async startResearch(params: {
+    topic: string
+    customer_name?: string
+    depth?: 'quick' | 'standard' | 'deep'
+    language?: string
+    auto_ingest?: boolean
+  }) {
+    return this.request<any>('/research/deep/start', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    })
+  }
+
+  async getResearchSession(sessionId: string) {
+    return this.request<any>(`/research/deep/${sessionId}`)
+  }
+
+  async listResearchSessions() {
+    return this.request<any>('/research/deep/sessions/list')
+  }
+
+  async ingestResearchSession(sessionId: string) {
+    return this.request<any>(`/research/deep/${sessionId}/ingest`, { method: 'POST' })
+  }
+
+  async cancelResearchSession(sessionId: string) {
+    return this.request<any>(`/research/deep/${sessionId}/cancel`, { method: 'POST' })
+  }
+
+  async suggestResearchQueries(topic: string, depth = 'standard', language = 'de') {
+    return this.request<any>('/research/deep/queries/suggest', {
+      method: 'POST',
+      body: JSON.stringify({ topic, depth, language }),
+    })
+
 export const api = new ApiService()
